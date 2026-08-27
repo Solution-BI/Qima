@@ -1,0 +1,5 @@
+openpyxl>=3.1
+requests>=2.31
+snowflake-connector-python>=3.6
+python-dotenv>=1.0
+pytest>=8.0
