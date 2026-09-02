@@ -1,0 +1,17 @@
+# Roles -- in prod, ownership and ingestion are separate roles per Qima's RBAC model.
+# In sandbox, one role does both.
+role_owner: SF_APA_SANDBOX-ETL        # owns objects (DDL)
+role_ingestion: SF_APA_SANDBOX-ETL    # runs ingestion (needs EAI + secret access)
+database: SANDBOX_DB
+warehouse: SANDBOX_WH
+schema_raw: HR_PAYROLL_QIMA
+schema_silver: HR_PAYROLL_QIMA
+schema_gold: HR_PAYROLL_QIMA
+
+# SharePoint / Microsoft Graph API credentials (Azure AD app registration)
+sharepoint_app_name: appreg-qima-sharepoint-to-snowflake-data-ingestion              # display name of the app registration in Entra ID, for reference only
+sharepoint_tenant_id: 77fc8d6c-15ec-4aea-9bd6-cf77b407a763
+sharepoint_client_id: f1343367-3e3a-4ab0-8438-e72f261a6994
+# client secret is NOT stored here -- it lives in Snowflake as a SECRET object.
+# See config/external_access/02_secret.sql to create it.
+sharepoint_domain: learnfabricsbi.sharepoint.com

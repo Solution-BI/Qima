@@ -1,0 +1,16 @@
+# Roles -- ownership and ingestion are separate roles per Qima's RBAC model.
+role_owner: TBD                       # owns the database/schemas (A-level)
+role_ingestion: TBD                   # runs ingestion, e.g. F_PAYROLL_ETL (W/O-level)
+database: PAYROLL_DB
+warehouse: TBD
+schema_raw: RAW_DEV
+schema_silver: SILVER_DEV
+schema_gold: GOLD_DEV
+
+# SharePoint / Microsoft Graph API credentials (Azure AD app registration)
+sharepoint_app_name: TBD              # display name of the app registration in Entra ID, for reference only
+sharepoint_tenant_id: TBD
+sharepoint_client_id: TBD
+# client secret is NOT stored here -- it lives in Snowflake as a SECRET object.
+# See config/external_access/02_secret.sql to create it.
+sharepoint_domain: qima.sharepoint.com
