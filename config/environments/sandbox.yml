@@ -15,3 +15,4 @@ sharepoint_client_id: f1343367-3e3a-4ab0-8438-e72f261a6994
 # client secret is NOT stored here -- it lives in Snowflake as a SECRET object.
 # See config/external_access/02_secret.sql to create it.
 sharepoint_domain: learnfabricsbi.sharepoint.com
+
