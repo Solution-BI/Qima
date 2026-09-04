@@ -138,25 +138,13 @@ file (`/secrets/sandbox_db/hr_payroll_qima/sharepoint_hr_payroll_client_secret/s
 and exchanges it for a bearer token via the OAuth2 client-credentials flow.
 The token is stored in `HDR` (the auth header dict) for the duration of the run.
 
-### Cell 3 -- Parameters
-
-Computes the ingestion time window `(FROM_TS, TO_TS)`:
-
-- **FROM_TS** = `MAX(SHAREPOINT_MODIFIED_AT)` from FILE_LOAD rows where
-  `INGEST_STATUS = 'SUCCESS'`. Falls back to `2024-01-01` on the very first run.
-- **TO_TS** = current UTC time minus `OFFSET_MINUTES` (safety buffer to avoid
-  picking up a file SharePoint is still mid-write on).
-- A guard clause raises an error if the window is empty or negative.
-
-Both timestamps are in UTC for consistency with SharePoint's `lastModifiedDateTime`.
-
-### Cell 4 -- Create temporary stage
+### Cell 3 -- Create temporary stage
 
 SQL cell. Creates a session-scoped temporary stage (`TEMP_PAYROLL_STAGE`).
 Auto-dropped when the session ends -- no manual cleanup, no path where raw
 file bytes persist beyond the run.
 
-### Cell 5 -- list_children()
+### Cell 4 -- list_children()
 
 Defines `list_children(url)` -- a function that fetches the immediate items
 (files and folders) at a single Graph API URL, handling Microsoft Graph's
@@ -165,7 +153,7 @@ pagination (`@odata.nextLink`). This is the low-level API primitive used by
 
 Verification output: prints the top-level items inside the payroll folder.
 
-### Cell 6 -- walk_folder()
+### Cell 5 -- walk_folder()
 
 Defines `walk_folder(folder_id)` -- recursively traverses all subfolders under
 the payroll root, collecting every file regardless of nesting depth. Each
@@ -175,18 +163,27 @@ this function flattens the entire tree into a single list.
 Verification output: prints every file found across all subfolders with name,
 size, and modification time.
 
-### Cell 7 -- list_candidates()
+### Cell 6 -- list_candidates()
 
-Defines `list_candidates(all_files, from_ts, to_ts)` -- takes the flat file
-list from `walk_folder` and filters it to:
-1. Only `.xlsx` files (skips PDFs, temp files, etc.)
-2. Only files with `lastModifiedDateTime` strictly within `(FROM_TS, TO_TS)` --
-   exclusive on both sides, so already-ingested files are not re-processed.
+Defines `list_candidates(session, all_files, offset_minutes)` -- combines the
+parameter computation and file filtering into a single function:
 
-Returns a list of candidate dicts with `id`, `name`, `path`, `modified_at`,
-`modified_by`, `created_at`, `created_by`, and `size_bytes`.
+1. **Computes the ingestion window** internally:
+   - `FROM_TS` = `MAX(INGESTED_AT)` from FILE_LOAD rows where
+     `INGEST_STATUS = 'SUCCESS'`. Falls back to `2024-01-01` on the first run.
+   - `TO_TS` = current UTC time minus `offset_minutes` (safety buffer).
+2. **Filters** the flat file list from `walk_folder` to only `.xlsx` files
+   with `lastModifiedDateTime` strictly within `(FROM_TS, TO_TS)` -- exclusive
+   on both sides, so already-ingested files are not re-processed.
 
-### Cell 8 -- download_files()
+Returns a tuple: `(candidates, from_ts, to_ts)`. Each candidate dict contains
+`id` (SharePoint item ID), `name`, `path`, `modified_at`, `modified_by`,
+`created_at`, `created_by`, and `size_bytes`.
+
+Both timestamps are in UTC for consistency with SharePoint's
+`lastModifiedDateTime`.
+
+### Cell 7 -- download_files()
 
 Defines `download_files(candidates)` -- downloads each candidate file from
 SharePoint via the Graph API `/content` endpoint. Returns a list of dicts,
@@ -195,7 +192,7 @@ the raw `content` bytes (on success) or an `error` message (on failure).
 
 One bad file does not abort the batch -- each file is handled independently.
 
-### Cell 9 -- stage_files()
+### Cell 8 -- stage_files()
 
 Defines `stage_files(downloads, stage_name)` -- PUTs each successfully
 downloaded file into the temporary Snowflake stage using
@@ -205,9 +202,9 @@ The bytes go straight from memory to the stage -- they never touch local disk.
 
 Verification output: lists all files on the stage with `LIST @STAGE`.
 
-### Cell 10 -- INSERT into FILE_LOAD
+### Cell 9 -- INSERT into FILE_LOAD
 
-For every candidate from Cell 7 (regardless of outcome):
+For every candidate from Cell 6 (regardless of outcome):
 
 1. **Version management:** Updates any existing FILE_LOAD rows for the same
    file name to `IS_CURRENT = FALSE`.
@@ -222,7 +219,7 @@ with an error message that shows up in monitoring.
 The `RUN_ID` (UUID) groups all files from this pipeline execution for
 traceability.
 
-### Cell 11 -- Extract and update
+### Cell 10 -- Extract and update
 
 For every row just inserted with `INGEST_STATUS = 'SUCCESS'` and
 `EXTRACT_STATUS = 'NOT_ATTEMPTED'`:
@@ -296,12 +293,12 @@ Configuration SQL is in `config/external_access/`.
 
 ## 6. Open items
 
-- **FROM_TS source** -- currently uses `MAX(SHAREPOINT_MODIFIED_AT)`. Should be
-  changed to `MAX(INGESTED_AT)` for cleaner semantics ("when did we last run"
-  rather than "what was the latest file modification we processed").
 - **SHAREPOINT_ITEM_ID column** -- needed so the version management UPDATE
-  matches on the stable SharePoint item ID instead of file name. Without this,
-  a file rename creates an orphaned `IS_CURRENT = TRUE` row for the old name.
+  matches on the stable SharePoint item ID (e.g. `01NLVSOQ3GRS6PUJGWX5...`)
+  instead of file name. Without this, a file rename creates an orphaned
+  `IS_CURRENT = TRUE` row for the old name. The item ID is already captured
+  in `list_candidates` as `c['id']` -- it just needs to be stored in FILE_LOAD
+  and used in the UPDATE WHERE clause.
 - **Partial extraction failure** -- if one worksheet in an otherwise-good file
   is unreadable, the current implementation fails the whole file. Whether to
   land the good sheets and flag the bad one separately is not yet decided.
