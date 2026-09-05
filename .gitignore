@@ -1,0 +1,25 @@
+# Secrets - never commit
+.env
+*.env
+!.env.example
+creds and account details.txt
+*.pem
+*.p8
+
+# Snowflake CLI / connector local state
+.snowflake/connections.toml
+config.toml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Excel lock files (Delivery/ already contains one)
+~$*
+
+# Local scratch
+out/
+*.log
