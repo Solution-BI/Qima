@@ -115,6 +115,70 @@ SAMPLE_GENERATIONS = {"2026-64col"}
 MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
 
+# --- canonical field names --------------------------------------------------
+# COMPONENT_NAME says which scheme a column belongs to; it does not say which
+# FIELD a column is. All 88 employee columns classify as EMPLOYEE_ATTR, so
+# without this the loader cannot find the employee id.
+#
+# It cannot infer the position either. The id is at index 0 in the 2026
+# generations but index 1 in 2024/2025 (they carry a leading "No" column), and
+# the subsidiary is called "Company Code" in 2024, "Subsidiary" afterwards.
+# Matching on normalised header text is what makes one loader work across all
+# seven generations.
+CANONICAL_FIELDS: dict[str, str] = {
+    # identity
+    "employee sap id": "EMPLOYEE_SAP_ID",
+    "sap employee id": "EMPLOYEE_SAP_ID",
+    "sap staff name": "EMPLOYEE_NAME",
+    "join date": "JOIN_DATE",
+    "leave date": "LEAVE_DATE",
+    "termination date": "LEAVE_DATE",
+    "subsidiary": "SUBSIDIARY",
+    "company code": "SUBSIDIARY",          # 2024's name for the same thing
+    # descriptive, informative only per contract section 5
+    "division": "DIVISION",
+    "bu": "BUSINESS_UNIT",
+    "business unit": "BUSINESS_UNIT",
+    "department": "DEPARTMENT",
+    "sub-department": "SUB_DEPARTMENT",
+    "team": "TEAM",
+    "position": "POSITION",
+    "office": "OFFICE",
+    "qima office": "OFFICE",
+    "contract": "CONTRACT_TYPE",
+    "full time / part time": "CONTRACT_TYPE",
+    "country of residence": "COUNTRY",
+    "no": "ROW_NUMBER",
+    # contractual salary block
+    "monthly gross salary": "MONTHLY_GROSS_SALARY",
+    "current basic salary package": "MONTHLY_GROSS_SALARY",
+    "current monthly basic salary package (local currency)": "MONTHLY_GROSS_SALARY",
+    "monthly allowance / 2nd part of salary": "MONTHLY_ALLOWANCE",
+    "monthly allowance / kpi bonus entitled /2nd part of salary/ extra": "MONTHLY_ALLOWANCE",
+    "monthly allowance / kpi bonus entitled / 2nd part of salary / extra": "MONTHLY_ALLOWANCE",
+    "qima (employer) social charges": "EMPLOYER_SOCIAL_CHARGES",
+    "qima social charges (mpf / provident fund, housing fund,etc.)": "EMPLOYER_SOCIAL_CHARGES",
+    "qima social charges contribution (mpf / provident fund, housing fund,etc.)": "EMPLOYER_SOCIAL_CHARGES",
+    "total monthly salary cost (f+g+h)": "TOTAL_MONTHLY_SALARY_COST",
+    "current total monthly salary cost": "TOTAL_MONTHLY_SALARY_COST",
+    "current total monthly salary cost (local currency)": "TOTAL_MONTHLY_SALARY_COST",
+    # external headcount
+    "agency name": "AGENCY_NAME",
+    "agency fee": "AGENCY_FEE",
+}
+
+
+def canonical_field(header: str, component: str, measure: str) -> str | None:
+    """The specific field a column is, where it is one we need by name."""
+    field = CANONICAL_FIELDS.get(norm(header))
+    if field:
+        return field
+    # The contractual block's currency column is just called "Currency".
+    if measure == "CURRENCY" and component == "CONTRACT_SALARY":
+        return "CONTRACT_CURRENCY"
+    return None
+
+
 # Headers that are annotations about the data rather than the data itself.
 ANNOTATION_RE = re.compile(
     r"^(remark|remarks|correction steps|salary & bonus data issues|staff data issue|"
@@ -270,6 +334,7 @@ def main() -> int:
             "COMPONENT_GROUP": group,
             "COMPONENT_NAME": component,
             "MEASURE_BASIS": measure,
+            "CANONICAL_FIELD": canonical_field(header, component, measure) or "",
             "PERIOD_TYPE": ptype or "",
             "PERIOD_KEY": pkey or "",
             "CURRENCY_SCOPE": scope,

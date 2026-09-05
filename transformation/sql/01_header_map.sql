@@ -40,6 +40,8 @@ create table if not exists HEADER_MAP (
         comment 'The specific scheme, e.g. YEAR_END, CCLAB, EID_FESTIVAL_FEB, MONTHLY_SALARY.',
     MEASURE_BASIS       varchar        not null
         comment 'PAYMENT | RATE | FEE per the contract, plus ELIGIBILITY, CURRENCY and ATTRIBUTE for the columns that qualify a payment rather than being one.',
+    CANONICAL_FIELD     varchar
+        comment 'Which specific field this column is, where the loader needs it by name - EMPLOYEE_SAP_ID, SUBSIDIARY, JOIN_DATE, LEAVE_DATE, CONTRACT_CURRENCY and so on. COMPONENT_NAME says which scheme a column belongs to, not which field it is: all 88 employee columns are EMPLOYEE_ATTR. Position cannot be assumed either - the employee id is at index 0 in the 2026 generations and index 1 in 2024/2025, and the subsidiary is called Company Code in 2024.',
     PERIOD_TYPE         varchar
         comment 'MONTH | QUARTER | FY. Null for eligibility, currency and attribute columns.',
     PERIOD_KEY          varchar

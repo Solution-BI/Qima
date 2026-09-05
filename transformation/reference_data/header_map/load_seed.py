@@ -30,6 +30,10 @@ with connect() as c:
             print(f"    ABORT {table}: CSV columns not in table: {missing}"); continue
 
         uri = "file://" + str(path).replace("\\", "/")
+        # Full reload. These are reference data, not an append log - and
+        # Snowflake does not enforce primary keys, so a second run would
+        # otherwise silently duplicate every row.
+        cur.execute(f"truncate table {table}")
         cur.execute(f"remove @%{table}")
         cur.execute(f"put '{uri}' @%{table} auto_compress=true overwrite=true")
 
