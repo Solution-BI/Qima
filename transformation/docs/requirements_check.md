@@ -1,0 +1,110 @@
+# Meeting notes checked against the data
+
+Four rules from the previous meeting, each tested against the current contents
+of `SANDBOX_DB.HR_PAYROLL_QIMA.FILE_LOAD` rather than accepted on face value.
+All four hold. One of them found a bug in the model as first written.
+
+Scope for every figure below: `IS_CURRENT` files, sample workbook excluded,
+`2026` sheets = **2,812 employee rows**.
+
+---
+
+## 1. "Only process what's current / has latest changes on SharePoint"
+
+**Holds, with one gap.** `FILE_LOAD.IS_CURRENT` already implements this - the
+ingestion notebook flips prior versions to `FALSE` keyed on
+`SHAREPOINT_ITEM_ID`, so a resubmitted file supersedes its predecessor without
+overwriting the history.
+
+The gap: `IS_CURRENT` returns **four** files, and one is
+`BR05_Payroll_Sample.xlsx` - a sample workbook, not a subsidiary submission.
+Currency alone is not enough to identify real payroll.
+
+**Rule to implement:** `IS_CURRENT = TRUE` **and** the sheet's generation is not
+`GENERATION_STATUS = 'SAMPLE'`. Both halves are needed.
+
+## 2. "If there are duplicate IDs (different contract), use ID + join date + leave date + contract"
+
+**Holds, and the composite key is exactly right.**
+
+| Key | Distinct values across 2,812 rows |
+|---|---|
+| `EMPLOYEE_SAP_ID` | 2,810 - **collides** |
+| `EMPLOYEE_SAP_ID + JOIN_DATE + LEAVE_DATE` | **2,812 - unique** |
+| + `SUBSIDIARY` | 2,812 - adds nothing |
+
+Only two duplicate IDs exist in the real files, and they are precisely the two
+cases the note anticipated:
+
+| SAP ID | Join | Leave | Subsidiary | Interpretation |
+|---|---|---|---|---|
+| 10019286 | 2025-12-01 | 2026-02-20 | CPQUALI | **transfer** - left one entity... |
+| 10019286 | 2026-06-01 | *(open)* | CPHOSP | ...rejoined another |
+| 10022433 | 2026-05-02 | 2026-06-15 | BR02 | **two contracts**, same entity, |
+| 10022433 | 2026-05-21 | 2026-06-15 | BR02 | overlapping, different salaries |
+
+10019286 is Antoine's point-in-time subsidiary requirement in live data: the
+employee's earlier payments belong to CPQUALI and must not be re-attributed to
+CPHOSP.
+
+**One correction to the note:** *contract* cannot be part of the key. No 2026
+generation has a contract column - `Contract` exists only in the three 2025
+generations and `Full Time / Part time` only in 2024. Fortunately it is not
+needed; ID + join + leave is already unique.
+
+**Implemented as** `EMPLOYMENT_KEY` on `PAYROLL_ROW` and `PAYROLL_MEASURE`, and
+as the grain of the GOLD views. Earlier I reported five cross-file duplicate
+IDs - three of those were artefacts of the sample file and are withdrawn.
+
+## 3. "Currency is defined by contract"
+
+**Holds.** Every generation carries a contractual `Currency` column under the
+`Contractual salary` band (column J in 2026). It varies per employee, not per
+subsidiary - `HK04 - QIMA Limited` alone reports 14 distinct currencies across
+553 employees, consistent with it payrolling staff across several countries.
+
+## 4. "Bonus component can have a different currency - separate bonus, contractual"
+
+**Holds, and this is the dominant case, not an edge case.**
+
+Comparing the contractual currency against the year-end bonus currency on the
+same row:
+
+| | Rows |
+|---|---|
+| Bonus currency **differs** from contract currency | **1,988** |
+| Same | 431 |
+| Bonus currency absent | 393 |
+
+The largest patterns are local salary against USD bonus: RMB→USD (1,480),
+INR→USD (162), HKD→USD (123), BDT→USD (69), VND→USD (60).
+
+### This found a bug
+
+The GOLD view as first written did:
+
+```sql
+sum(AMOUNT) as TOTAL_PAID ... group by EMPLOYEE_SAP_ID, CURRENCY_CODE
+```
+
+which would have added RMB salary to USD bonus for 1,480 employees and labelled
+the result with one currency. Arithmetic on mixed units, and FX normalisation is
+out of scope per the contract.
+
+**Fixed.** `V_GOLD_ANNUAL_COMPENSATION` now carries `CURRENCY_CODE` in the grain
+with no cross-component total. `V_GOLD_SINGLE_CURRENCY_EMPLOYMENT` gives a
+safe total only for employments that report one currency throughout, so the
+rest are visibly excluded rather than silently mis-added.
+
+**Loader rule:** an amount takes its component's own `(Currency)` column where
+the generation has one, and falls back to the contractual currency otherwise.
+
+---
+
+## Open, not answered by these notes
+
+- Which submission wins when a monthly file restates the year to date
+  (contract section 8).
+- `BR09 + BR12 + BR13` names three codes for two legal names; which maps to
+  which is unconfirmed.
+- The 11 employees from seven subsidiaries no folder declares.

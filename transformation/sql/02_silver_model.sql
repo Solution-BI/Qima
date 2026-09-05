@@ -65,6 +65,8 @@ create table if not exists PAYROLL_ROW (
     JOIN_DATE           date           comment 'Informative only.',
     LEAVE_DATE          date           comment 'Informative only.',
 
+    EMPLOYMENT_KEY      varchar        comment 'EMPLOYEE_SAP_ID | JOIN_DATE | LEAVE_DATE. The grain of a person''s employment, not of a person. Verified unique: 2812 distinct keys across 2812 current rows, where SAP ID alone gives 2810. Two real cases - one transfer between subsidiaries, one employee on two overlapping contracts at the same entity.',
+
     IS_BLANK            boolean        not null default false,
     ROW_DATA            variant        not null comment 'The full cell array, kept so a HEADER_MAP fix can be replayed without re-ingesting.',
     LOADED_AT           timestamp_tz   not null default current_timestamp(),
@@ -89,6 +91,9 @@ create table if not exists PAYROLL_MEASURE (
     SHEET_LOAD_ID       number(38,0)   not null,
 
     EMPLOYEE_SAP_ID     varchar,
+    EMPLOYMENT_KEY      varchar        comment 'Copied from PAYROLL_ROW. Aggregating on EMPLOYEE_SAP_ID alone would merge two contracts into one person.',
+    JOIN_DATE           date,
+    LEAVE_DATE          date,
     SUBSIDIARY_CODE     varchar        comment 'Point-in-time, copied from PAYROLL_ROW. Do not resolve this live.',
     REPORT_YEAR         number(4,0)    not null,
 
@@ -100,7 +105,8 @@ create table if not exists PAYROLL_MEASURE (
     CURRENCY_SCOPE      varchar        not null,
 
     AMOUNT              number(18,2)   comment 'Set where MEASURE_BASIS is PAYMENT, RATE or FEE and the cell parsed as a number.',
-    CURRENCY_CODE       varchar(8)     comment 'As supplied. The files use RMB where ISO is CNY; normalised in GOLD, not here.',
+    CURRENCY_CODE       varchar(8)
+        comment 'Resolved by the loader: the component''s own (Currency) column where the generation has one, otherwise the contractual currency in column J. These genuinely differ - 1988 of 2812 current rows carry a year-end bonus currency that is not the contract currency, overwhelmingly local-to-USD. Files use RMB where ISO is CNY; normalised in GOLD, not here.',
     IS_ELIGIBLE         boolean        comment 'Set where MEASURE_BASIS is ELIGIBILITY.',
     TEXT_VALUE          varchar        comment 'Set where the value is not numeric - an ATTRIBUTE, or a salary typed as text.',
     RAW_VALUE           varchar        comment 'The cell exactly as extracted, always populated, for dispute resolution.',
@@ -157,21 +163,46 @@ where m.CURRENCY_SCOPE = 'LOCAL'
         and (f.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID or f.MEASURE_ID = m.MEASURE_ID)
   );
 
--- Annual compensation per employee per subsidiary. EXTERNAL is excluded:
--- agency fees are an external headcount cost, not compensation (contract s.4).
+-- Annual compensation per employment, per component group, PER CURRENCY.
+--
+-- Currency is in the grain and there is deliberately NO cross-component total.
+-- Salary and bonus are usually denominated differently: 1988 of the 2812
+-- current rows carry a year-end bonus currency that differs from the contract
+-- currency, RMB salary against USD bonus being the single largest pattern
+-- (1480 rows). Adding those together would be arithmetic on mixed units, and
+-- FX normalisation is out of scope per the contract.
+--
+-- The grain is EMPLOYMENT_KEY, not EMPLOYEE_SAP_ID: an employee on two
+-- contracts, or who transferred subsidiary mid-year, is two employments and
+-- must not be collapsed into one.
+--
+-- EXTERNAL is excluded - agency fees are an external headcount cost, not
+-- compensation (contract section 4).
 create or replace view V_GOLD_ANNUAL_COMPENSATION as
 select REPORT_YEAR,
        SUBSIDIARY_CODE,
        EMPLOYEE_SAP_ID,
+       EMPLOYMENT_KEY,
+       JOIN_DATE,
+       LEAVE_DATE,
+       COMPONENT_GROUP,
        CURRENCY_CODE,
-       sum(iff(COMPONENT_GROUP = 'SALARY',     AMOUNT, 0)) as SALARY_PAID,
-       sum(iff(COMPONENT_GROUP = 'BONUS',      AMOUNT, 0)) as BONUS_PAID,
-       sum(iff(COMPONENT_GROUP = 'COMMISSION', AMOUNT, 0)) as COMMISSION_PAID,
-       sum(iff(COMPONENT_GROUP = 'ADHOC',      AMOUNT, 0)) as ADHOC_PAID,
-       sum(AMOUNT)                                         as TOTAL_PAID
+       sum(AMOUNT) as AMOUNT_PAID
 from V_GOLD_PAYROLL_MEASURE
 where MEASURE_BASIS = 'PAYMENT'
   and COMPONENT_GROUP <> 'EXTERNAL'
-group by 1, 2, 3, 4;
+group by 1, 2, 3, 4, 5, 6, 7, 8;
+
+-- A single-currency total is only safe where an employment reports exactly one
+-- currency across every component. This view says which those are, so a
+-- consumer can total them without an FX assumption and see the rest excluded
+-- rather than silently mis-added.
+create or replace view V_GOLD_SINGLE_CURRENCY_EMPLOYMENT as
+select REPORT_YEAR, SUBSIDIARY_CODE, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+       min(CURRENCY_CODE) as CURRENCY_CODE,
+       sum(AMOUNT_PAID)   as TOTAL_PAID
+from V_GOLD_ANNUAL_COMPENSATION
+group by 1, 2, 3, 4
+having count(distinct CURRENCY_CODE) = 1;
 
 show tables in schema SANDBOX_DB.HR_PAYROLL_QIMA;
