@@ -7,8 +7,7 @@ build_header_map.py turns into a HEADER_MAP seed. Read-only against Snowflake.
 """
 import csv, json, sys
 from pathlib import Path
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from snowflake_helper import connect, query
 
 OUT = Path(__file__).resolve().parent

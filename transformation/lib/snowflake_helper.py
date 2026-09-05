@@ -28,8 +28,24 @@ from dotenv import load_dotenv
 from snowflake.connector import DictCursor
 from snowflake.connector.util_text import split_statements
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_PATH = PROJECT_ROOT / ".env"
+def _find_env() -> Path:
+    """Locate .env by walking up from this file to the repo root.
+
+    Searching rather than hardcoding a depth: this module has already moved
+    once (tools/ -> transformation/lib/) and a fixed number of .parent calls
+    silently starts resolving to the wrong directory when it moves again.
+    """
+    here = Path(__file__).resolve()
+    for folder in [here.parent, *here.parents]:
+        if (folder / ".env").is_file():
+            return folder / ".env"
+        if (folder / ".git").exists():           # repo root, .env not created yet
+            return folder / ".env"
+    return here.parent / ".env"
+
+
+ENV_PATH = _find_env()
+PROJECT_ROOT = ENV_PATH.parent
 
 # Identifiers Snowflake will not accept unquoted (hyphens, leading digits, ...).
 _NEEDS_QUOTING = set("-. +")

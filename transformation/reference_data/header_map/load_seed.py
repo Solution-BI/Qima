@@ -1,12 +1,29 @@
-import sys, csv, pathlib
-sys.path.insert(0, r"C:\Users\gerard.avena\Projects\snowflake-project-qima\tools")
-from snowflake_helper import connect, query
+"""Load the reference-data seeds into Snowflake.
 
-ROOT = pathlib.Path(r"C:\Users\gerard.avena\Projects\snowflake-project-qima")
+Full reload: each target is truncated first. Snowflake does not enforce primary
+keys, so appending would silently duplicate every row on a second run.
+
+COPY INTO cannot be used - Snowflake rejects it on tables that have CHECK
+constraints - so this PUTs each CSV to the table stage and INSERTs from there,
+deriving every cast from the target column's type.
+
+    python transformation/reference_data/header_map/load_seed.py
+"""
+
+import csv
+import pathlib
+import sys
+
+HERE = pathlib.Path(__file__).resolve().parent
+TRANSFORMATION = HERE.parents[1]
+sys.path.insert(0, str(TRANSFORMATION / "lib"))
+from snowflake_helper import connect, query  # noqa: E402
+
 SEEDS = [
-    ("HEADER_MAP",     ROOT/"transformation/reference_data/header_map/header_map_seed.csv"),
-    ("FILE_EXCLUSION", ROOT/"transformation/reference_data/file_exclusion/excluded_files.csv"),
+    ("HEADER_MAP",     HERE / "header_map_seed.csv"),
+    ("FILE_EXCLUSION", TRANSFORMATION / "reference_data" / "file_exclusion" / "excluded_files.csv"),
 ]
+
 
 def cast_for(sf_type: str, pos: int) -> str:
     """Positional stage reference, cast to the target column's type.

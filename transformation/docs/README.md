@@ -10,6 +10,8 @@ payroll isolation decision requires. No dbt.
 ## Layout
 
 ```
+lib/
+    snowflake_helper.py      connects to Snowflake using .env at the repo root
 reference_data/header_map/
     headers_observed.csv     every column of every generation, extracted from FILE_LOAD
     build_header_map.py      drafts the seed below from the above
@@ -114,7 +116,7 @@ across scopes would double-count.
 ## Rebuilding the mapping
 
 ```bash
-python src/extract_headers.py                                     # FILE_LOAD -> headers_observed.csv
+python transformation/reference_data/header_map/extract_headers.py                                     # FILE_LOAD -> headers_observed.csv
 python transformation/reference_data/header_map/build_header_map.py  # -> seed + review
 ```
 
