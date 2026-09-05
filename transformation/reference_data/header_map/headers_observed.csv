@@ -1,0 +1,731 @@
+GENERATION,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,SOURCE_HEADER,SAMPLE_LOAD_ID
+2024-89col,2024,0,A,Employee basic data,No,811
+2024-89col,2024,1,B,Employee basic data,SAP Employee ID,811
+2024-89col,2024,2,C,Employee basic data,SAP Staff Name,811
+2024-89col,2024,3,D,Employee basic data,Join Date,811
+2024-89col,2024,4,E,Employee basic data,Termination Date,811
+2024-89col,2024,5,F,Employee basic data,Division,811
+2024-89col,2024,6,G,Employee basic data,BU,811
+2024-89col,2024,7,H,Employee basic data,Company Code,811
+2024-89col,2024,8,I,Employee basic data,Department,811
+2024-89col,2024,9,J,Employee basic data,Sub-Department,811
+2024-89col,2024,10,K,Employee basic data,Position,811
+2024-89col,2024,11,L,Employee basic data,Team,811
+2024-89col,2024,12,M,Employee basic data,QIMA Office,811
+2024-89col,2024,13,N,Employee basic data,Full Time / Part time,811
+2024-89col,2024,14,O,Salary detail,Current basic Salary Package,811
+2024-89col,2024,15,P,Salary detail,"Monthly Allowance / KPI Bonus Entitled
+/2nd part of salary/ Extra",811
+2024-89col,2024,16,Q,Salary detail,"QIMA Social Charges Contribution (MPF / provident fund, housing fund,etc.)",811
+2024-89col,2024,17,R,Salary detail,Current Total Monthly Salary cost,811
+2024-89col,2024,18,S,Salary detail,Local Currency,811
+2024-89col,2024,19,T,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-01-01T00:00:00,811
+2024-89col,2024,20,U,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-02-01T00:00:00,811
+2024-89col,2024,21,V,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-03-01T00:00:00,811
+2024-89col,2024,22,W,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-04-01T00:00:00,811
+2024-89col,2024,23,X,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-05-01T00:00:00,811
+2024-89col,2024,24,Y,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-06-01T00:00:00,811
+2024-89col,2024,25,Z,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-07-01T00:00:00,811
+2024-89col,2024,26,AA,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-08-01T00:00:00,811
+2024-89col,2024,27,AB,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-09-01T00:00:00,811
+2024-89col,2024,28,AC,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-10-01T00:00:00,811
+2024-89col,2024,29,AD,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-11-01T00:00:00,811
+2024-89col,2024,30,AE,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-12-01T00:00:00,811
+2024-89col,2024,31,AF,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-01-01T00:00:00,811
+2024-89col,2024,32,AG,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-02-01T00:00:00,811
+2024-89col,2024,33,AH,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-03-01T00:00:00,811
+2024-89col,2024,34,AI,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-04-01T00:00:00,811
+2024-89col,2024,35,AJ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-05-01T00:00:00,811
+2024-89col,2024,36,AK,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-06-01T00:00:00,811
+2024-89col,2024,37,AL,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-07-01T00:00:00,811
+2024-89col,2024,38,AM,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-08-01T00:00:00,811
+2024-89col,2024,39,AN,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-09-01T00:00:00,811
+2024-89col,2024,40,AO,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-10-01T00:00:00,811
+2024-89col,2024,41,AP,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-11-01T00:00:00,811
+2024-89col,2024,42,AQ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-12-01T00:00:00,811
+2024-89col,2024,43,AR,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,811
+2024-89col,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),811
+2024-89col,2024,45,AT,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2024(USD),811
+2024-89col,2024,46,AU,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,811
+2024-89col,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,811
+2024-89col,2024,48,AW,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2023/ SBE paid in July (USD),811
+2024-89col,2024,49,AX,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Eligible 13th Month salary/ SBE MX Retation bonus,811
+2024-89col,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,811
+2024-89col,2024,51,AZ,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Currency,811
+2024-89col,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),811
+2024-89col,2024,53,BB,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Actual Paid amount in Dec 2024(USD),811
+2024-89col,2024,54,BC,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible Aguinaldo bonus,811
+2024-89col,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,811
+2024-89col,2024,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency,811
+2024-89col,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),811
+2024-89col,2024,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2023(USD),811
+2024-89col,2024,59,BH,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,811
+2024-89col,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,811
+2024-89col,2024,61,BJ,Christmas Bonus (Paid in each Dec),Currency,811
+2024-89col,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),811
+2024-89col,2024,63,BL,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),811
+2024-89col,2024,64,BM,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,811
+2024-89col,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,811
+2024-89col,2024,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Currency,811
+2024-89col,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),811
+2024-89col,2024,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),811
+2024-89col,2024,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),811
+2024-89col,2024,70,BS,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,811
+2024-89col,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,811
+2024-89col,2024,72,BU,Profit sharing-NYCE (Paid in each April),Currency,811
+2024-89col,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),811
+2024-89col,2024,74,BW,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),811
+2024-89col,2024,75,BX,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2024  (Yes / No),811
+2024-89col,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),811
+2024-89col,2024,77,BZ,CCLAB Bonus (paid in Jan),Local Currency,811
+2024-89col,2024,78,CA,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2024 (USD),811
+2024-89col,2024,79,CB,Auditor Bonus (Paid Quarterly),Actual Payout in Q1,811
+2024-89col,2024,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q2,811
+2024-89col,2024,81,CD,Auditor Bonus (Paid Quarterly),Actual Payout in Q3,811
+2024-89col,2024,82,CE,Auditor Bonus (Paid Quarterly),Actual Payout in Q4,811
+2024-89col,2024,83,CF,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q1,811
+2024-89col,2024,84,CG,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q2,811
+2024-89col,2024,85,CH,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q3,811
+2024-89col,2024,86,CI,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q4,811
+2024-89col,2024,87,CJ,Other,Remark,811
+2024-89col,2024,88,CK,Other,,811
+2024-91col,2024,0,A,Employee basic data,No,723
+2024-91col,2024,1,B,Employee basic data,SAP Employee ID,723
+2024-91col,2024,2,C,Employee basic data,SAP Staff Name,723
+2024-91col,2024,3,D,Employee basic data,Join Date,723
+2024-91col,2024,4,E,Employee basic data,Termination Date,723
+2024-91col,2024,5,F,Employee basic data,Division,723
+2024-91col,2024,6,G,Employee basic data,BU,723
+2024-91col,2024,7,H,Employee basic data,Company Code,723
+2024-91col,2024,8,I,Employee basic data,Department,723
+2024-91col,2024,9,J,Employee basic data,Sub-Department,723
+2024-91col,2024,10,K,Employee basic data,Position,723
+2024-91col,2024,11,L,Employee basic data,Team,723
+2024-91col,2024,12,M,Employee basic data,QIMA Office,723
+2024-91col,2024,13,N,Employee basic data,Full Time / Part time,723
+2024-91col,2024,14,O,Salary detail,Current basic Salary Package,723
+2024-91col,2024,15,P,Salary detail,"Monthly Allowance / KPI Bonus Entitled
+/2nd part of salary/ Extra",723
+2024-91col,2024,16,Q,Salary detail,"QIMA Social Charges Contribution (MPF / provident fund, housing fund,etc.)",723
+2024-91col,2024,17,R,Salary detail,Current Total Monthly Salary cost,723
+2024-91col,2024,18,S,Salary detail,Local Currency,723
+2024-91col,2024,19,T,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-01-01T00:00:00,723
+2024-91col,2024,20,U,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-02-01T00:00:00,723
+2024-91col,2024,21,V,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-03-01T00:00:00,723
+2024-91col,2024,22,W,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-04-01T00:00:00,723
+2024-91col,2024,23,X,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-05-01T00:00:00,723
+2024-91col,2024,24,Y,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-06-01T00:00:00,723
+2024-91col,2024,25,Z,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-07-01T00:00:00,723
+2024-91col,2024,26,AA,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-08-01T00:00:00,723
+2024-91col,2024,27,AB,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-09-01T00:00:00,723
+2024-91col,2024,28,AC,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-10-01T00:00:00,723
+2024-91col,2024,29,AD,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-11-01T00:00:00,723
+2024-91col,2024,30,AE,QIMA 2024 Monthly Total Salary cost (local Currency)--not included any bonus or commission,2024-12-01T00:00:00,723
+2024-91col,2024,31,AF,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-01-01T00:00:00,723
+2024-91col,2024,32,AG,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-02-01T00:00:00,723
+2024-91col,2024,33,AH,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-03-01T00:00:00,723
+2024-91col,2024,34,AI,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-04-01T00:00:00,723
+2024-91col,2024,35,AJ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-05-01T00:00:00,723
+2024-91col,2024,36,AK,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-06-01T00:00:00,723
+2024-91col,2024,37,AL,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-07-01T00:00:00,723
+2024-91col,2024,38,AM,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-08-01T00:00:00,723
+2024-91col,2024,39,AN,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-09-01T00:00:00,723
+2024-91col,2024,40,AO,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-10-01T00:00:00,723
+2024-91col,2024,41,AP,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-11-01T00:00:00,723
+2024-91col,2024,42,AQ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-12-01T00:00:00,723
+2024-91col,2024,43,AR,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,723
+2024-91col,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),723
+2024-91col,2024,45,AT,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2024(USD),723
+2024-91col,2024,46,AU,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,723
+2024-91col,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,723
+2024-91col,2024,48,AW,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2023/ SBE paid in July (USD),723
+2024-91col,2024,49,AX,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Eligible 13th Month salary/ SBE MX Retation bonus,723
+2024-91col,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,723
+2024-91col,2024,51,AZ,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Currency,723
+2024-91col,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),723
+2024-91col,2024,53,BB,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Actual Paid amount in Dec 2024(USD),723
+2024-91col,2024,54,BC,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible Aguinaldo bonus,723
+2024-91col,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,723
+2024-91col,2024,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency,723
+2024-91col,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),723
+2024-91col,2024,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2023(USD),723
+2024-91col,2024,59,BH,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,723
+2024-91col,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,723
+2024-91col,2024,61,BJ,Christmas Bonus (Paid in each Dec),Currency,723
+2024-91col,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),723
+2024-91col,2024,63,BL,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),723
+2024-91col,2024,64,BM,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,723
+2024-91col,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,723
+2024-91col,2024,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Currency,723
+2024-91col,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),723
+2024-91col,2024,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),723
+2024-91col,2024,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),723
+2024-91col,2024,70,BS,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,723
+2024-91col,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,723
+2024-91col,2024,72,BU,Profit sharing-NYCE (Paid in each April),Currency,723
+2024-91col,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),723
+2024-91col,2024,74,BW,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),723
+2024-91col,2024,75,BX,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2024  (Yes / No),723
+2024-91col,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),723
+2024-91col,2024,77,BZ,CCLAB Bonus (paid in Jan),Local Currency,723
+2024-91col,2024,78,CA,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2024 (USD),723
+2024-91col,2024,79,CB,Auditor Bonus (Paid Quarterly),Actual Payout in Q1,723
+2024-91col,2024,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q2,723
+2024-91col,2024,81,CD,Auditor Bonus (Paid Quarterly),Actual Payout in Q3,723
+2024-91col,2024,82,CE,Auditor Bonus (Paid Quarterly),Actual Payout in Q4,723
+2024-91col,2024,83,CF,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q1,723
+2024-91col,2024,84,CG,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q2,723
+2024-91col,2024,85,CH,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q3,723
+2024-91col,2024,86,CI,Commission / Quarterly bonus 2024 (USD),Actual Payout in Q4,723
+2024-91col,2024,87,CJ,Other,Remark,723
+2024-91col,2024,88,CK,Other,,723
+2024-91col,2024,89,CL,Other,,723
+2024-91col,2024,90,CM,Other,,723
+2025-91col,2025,0,A,Employee basic data,No,813
+2025-91col,2025,1,B,Employee basic data,Employee SAP ID,813
+2025-91col,2025,2,C,Employee basic data,SAP Staff Name,813
+2025-91col,2025,3,D,Employee basic data,Join Date,813
+2025-91col,2025,4,E,Employee basic data,Leave Date,813
+2025-91col,2025,5,F,Employee basic data,Division,813
+2025-91col,2025,6,G,Employee basic data,Business Unit,813
+2025-91col,2025,7,H,Employee basic data,Subsidiary,813
+2025-91col,2025,8,I,Employee basic data,Department,813
+2025-91col,2025,9,J,Employee basic data,Sub-Department,813
+2025-91col,2025,10,K,Employee basic data,Position,813
+2025-91col,2025,11,L,Employee basic data,Team,813
+2025-91col,2025,12,M,Employee basic data,Office,813
+2025-91col,2025,13,N,Employee basic data,Contract,813
+2025-91col,2025,14,O,Employee basic data,Country of Residence,813
+2025-91col,2025,15,P,Salary detail,Current Monthly basic Salary Package (Local currency),813
+2025-91col,2025,16,Q,Salary detail,Monthly Allowance / KPI Bonus Entitled / 2nd part of salary / Extra,813
+2025-91col,2025,17,R,Salary detail,"QIMA Social Charges (MPF / provident fund, housing fund,etc.)",813
+2025-91col,2025,18,S,Salary detail,Current Total Monthly Salary cost (Local currency),813
+2025-91col,2025,19,T,Salary detail,Local Currency,813
+2025-91col,2025,20,U,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jan-2025 (LC),813
+2025-91col,2025,21,V,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Feb-2025 (LC),813
+2025-91col,2025,22,W,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Mar-2025 (LC),813
+2025-91col,2025,23,X,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Apr-2025 (LC),813
+2025-91col,2025,24,Y,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,May-2025 (LC),813
+2025-91col,2025,25,Z,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jun-2025 (LC),813
+2025-91col,2025,26,AA,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jul-2025 (LC),813
+2025-91col,2025,27,AB,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Aug-2025 (LC),813
+2025-91col,2025,28,AC,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Sep-2025 (LC),813
+2025-91col,2025,29,AD,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Oct-2025 (LC),813
+2025-91col,2025,30,AE,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Nov-2025 (LC),813
+2025-91col,2025,31,AF,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Dec-2025 (LC),813
+2025-91col,2025,32,AG,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jan-2025 (USD),813
+2025-91col,2025,33,AH,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Feb-2025 (USD),813
+2025-91col,2025,34,AI,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Mar-2025 (USD),813
+2025-91col,2025,35,AJ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Apr-2025 (USD),813
+2025-91col,2025,36,AK,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,May-2025 (USD),813
+2025-91col,2025,37,AL,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jun-2025 (USD),813
+2025-91col,2025,38,AM,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jul-2025 (USD),813
+2025-91col,2025,39,AN,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Aug-2025 (USD),813
+2025-91col,2025,40,AO,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Sep-2025 (USD),813
+2025-91col,2025,41,AP,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Oct-2025 (USD),813
+2025-91col,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),813
+2025-91col,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),813
+2025-91col,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,813
+2025-91col,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),813
+2025-91col,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),813
+2025-91col,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,813
+2025-91col,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,813
+2025-91col,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),813
+2025-91col,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Eligible for 13th Month salary/ SBE MX Retation bonus,813
+2025-91col,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),813
+2025-91col,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Currency (13th Month salary),813
+2025-91col,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),813
+2025-91col,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Actual Paid amount in Dec 2025 (USD),813
+2025-91col,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,813
+2025-91col,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),813
+2025-91col,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),813
+2025-91col,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),813
+2025-91col,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),813
+2025-91col,2025,60,BI,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,813
+2025-91col,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),813
+2025-91col,2025,62,BK,Christmas Bonus (Paid in each Dec),Currency (Christmas Bonus),813
+2025-91col,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),813
+2025-91col,2025,64,BM,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),813
+2025-91col,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,813
+2025-91col,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),813
+2025-91col,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),813
+2025-91col,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),813
+2025-91col,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),813
+2025-91col,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),813
+2025-91col,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,813
+2025-91col,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),813
+2025-91col,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),813
+2025-91col,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),813
+2025-91col,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),813
+2025-91col,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),813
+2025-91col,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),813
+2025-91col,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),813
+2025-91col,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),813
+2025-91col,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),813
+2025-91col,2025,81,CD,Auditor Bonus (Paid Quarterly),Actual Payout in Q2 (USD),813
+2025-91col,2025,82,CE,Auditor Bonus (Paid Quarterly),Actual Payout in Q3 (USD),813
+2025-91col,2025,83,CF,Auditor Bonus (Paid Quarterly),Actual Payout in Q4 (USD),813
+2025-91col,2025,84,CG,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q1 (USD),813
+2025-91col,2025,85,CH,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q2 (USD),813
+2025-91col,2025,86,CI,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q3 (USD),813
+2025-91col,2025,87,CJ,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q4 (USD),813
+2025-91col,2025,88,CK,Other,Remark,813
+2025-91col,2025,89,CL,External HC,Agency Name,813
+2025-91col,2025,90,CM,External HC,Agency Fee,813
+2025-95col,2025,0,A,Employee basic data,No,723
+2025-95col,2025,1,B,Employee basic data,Employee SAP ID,723
+2025-95col,2025,2,C,Employee basic data,SAP Staff Name,723
+2025-95col,2025,3,D,Employee basic data,Join Date,723
+2025-95col,2025,4,E,Employee basic data,Leave Date,723
+2025-95col,2025,5,F,Employee basic data,Division,723
+2025-95col,2025,6,G,Employee basic data,Business Unit,723
+2025-95col,2025,7,H,Employee basic data,Subsidiary,723
+2025-95col,2025,8,I,Employee basic data,Department,723
+2025-95col,2025,9,J,Employee basic data,Sub-Department,723
+2025-95col,2025,10,K,Employee basic data,Position,723
+2025-95col,2025,11,L,Employee basic data,Team,723
+2025-95col,2025,12,M,Employee basic data,Office,723
+2025-95col,2025,13,N,Employee basic data,Contract,723
+2025-95col,2025,14,O,Employee basic data,Country of Residence,723
+2025-95col,2025,15,P,Salary detail,Current Monthly basic Salary Package (Local currency),723
+2025-95col,2025,16,Q,Salary detail,Monthly Allowance / KPI Bonus Entitled / 2nd part of salary / Extra,723
+2025-95col,2025,17,R,Salary detail,"QIMA Social Charges (MPF / provident fund, housing fund,etc.)",723
+2025-95col,2025,18,S,Salary detail,Current Total Monthly Salary cost (Local currency),723
+2025-95col,2025,19,T,Salary detail,Local Currency,723
+2025-95col,2025,20,U,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jan-2025 (LC),723
+2025-95col,2025,21,V,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Feb-2025 (LC),723
+2025-95col,2025,22,W,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Mar-2025 (LC),723
+2025-95col,2025,23,X,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Apr-2025 (LC),723
+2025-95col,2025,24,Y,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,May-2025 (LC),723
+2025-95col,2025,25,Z,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jun-2025 (LC),723
+2025-95col,2025,26,AA,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jul-2025 (LC),723
+2025-95col,2025,27,AB,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Aug-2025 (LC),723
+2025-95col,2025,28,AC,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Sep-2025 (LC),723
+2025-95col,2025,29,AD,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Oct-2025 (LC),723
+2025-95col,2025,30,AE,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Nov-2025 (LC),723
+2025-95col,2025,31,AF,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Dec-2025 (LC),723
+2025-95col,2025,32,AG,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jan-2025 (USD),723
+2025-95col,2025,33,AH,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Feb-2025 (USD),723
+2025-95col,2025,34,AI,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Mar-2025 (USD),723
+2025-95col,2025,35,AJ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Apr-2025 (USD),723
+2025-95col,2025,36,AK,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,May-2025 (USD),723
+2025-95col,2025,37,AL,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jun-2025 (USD),723
+2025-95col,2025,38,AM,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jul-2025 (USD),723
+2025-95col,2025,39,AN,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Aug-2025 (USD),723
+2025-95col,2025,40,AO,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Sep-2025 (USD),723
+2025-95col,2025,41,AP,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Oct-2025 (USD),723
+2025-95col,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),723
+2025-95col,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),723
+2025-95col,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,723
+2025-95col,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),723
+2025-95col,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),723
+2025-95col,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,723
+2025-95col,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,723
+2025-95col,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),723
+2025-95col,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Eligible for 13th Month salary/ SBE MX Retation bonus,723
+2025-95col,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),723
+2025-95col,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Currency (13th Month salary),723
+2025-95col,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),723
+2025-95col,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Actual Paid amount in Dec 2025 (USD),723
+2025-95col,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,723
+2025-95col,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),723
+2025-95col,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),723
+2025-95col,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),723
+2025-95col,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),723
+2025-95col,2025,60,BI,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,723
+2025-95col,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),723
+2025-95col,2025,62,BK,Christmas Bonus (Paid in each Dec),Currency (Christmas Bonus),723
+2025-95col,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),723
+2025-95col,2025,64,BM,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),723
+2025-95col,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,723
+2025-95col,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),723
+2025-95col,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),723
+2025-95col,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),723
+2025-95col,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),723
+2025-95col,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),723
+2025-95col,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,723
+2025-95col,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),723
+2025-95col,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),723
+2025-95col,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),723
+2025-95col,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),723
+2025-95col,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),723
+2025-95col,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),723
+2025-95col,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),723
+2025-95col,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),723
+2025-95col,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),723
+2025-95col,2025,81,CD,Auditor Bonus (Paid Quarterly),Actual Payout in Q2 (USD),723
+2025-95col,2025,82,CE,Auditor Bonus (Paid Quarterly),Actual Payout in Q3 (USD),723
+2025-95col,2025,83,CF,Auditor Bonus (Paid Quarterly),Actual Payout in Q4 (USD),723
+2025-95col,2025,84,CG,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q1 (USD),723
+2025-95col,2025,85,CH,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q2 (USD),723
+2025-95col,2025,86,CI,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q3 (USD),723
+2025-95col,2025,87,CJ,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q4 (USD),723
+2025-95col,2025,88,CK,Other,Remark,723
+2025-95col,2025,89,CL,External HC,Agency Name,723
+2025-95col,2025,90,CM,External HC,Agency Fee,723
+2025-95col,2025,91,CN,External HC,Employee Class,723
+2025-95col,2025,92,CO,External HC,Salary & Bonus data issues,723
+2025-95col,2025,93,CP,External HC,Staff data issue,723
+2025-95col,2025,94,CQ,External HC,Correction steps,723
+2025-96col,2025,0,A,Employee basic data,No,811
+2025-96col,2025,1,B,Employee basic data,Employee SAP ID,811
+2025-96col,2025,2,C,Employee basic data,SAP Staff Name,811
+2025-96col,2025,3,D,Employee basic data,Join Date,811
+2025-96col,2025,4,E,Employee basic data,Leave Date,811
+2025-96col,2025,5,F,Employee basic data,Division,811
+2025-96col,2025,6,G,Employee basic data,Business Unit,811
+2025-96col,2025,7,H,Employee basic data,Subsidiary,811
+2025-96col,2025,8,I,Employee basic data,Department,811
+2025-96col,2025,9,J,Employee basic data,Sub-Department,811
+2025-96col,2025,10,K,Employee basic data,Team,811
+2025-96col,2025,11,L,Employee basic data,Position,811
+2025-96col,2025,12,M,Employee basic data,Office,811
+2025-96col,2025,13,N,Employee basic data,Contract,811
+2025-96col,2025,14,O,Employee basic data,Country of Residence,811
+2025-96col,2025,15,P,Salary detail,Current Monthly basic Salary Package (Local currency),811
+2025-96col,2025,16,Q,Salary detail,Monthly Allowance / KPI Bonus Entitled / 2nd part of salary / Extra,811
+2025-96col,2025,17,R,Salary detail,"QIMA Social Charges (MPF / provident fund, housing fund,etc.)",811
+2025-96col,2025,18,S,Salary detail,Current Total Monthly Salary cost (Local currency),811
+2025-96col,2025,19,T,Salary detail,Local Currency,811
+2025-96col,2025,20,U,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jan-2025 (LC),811
+2025-96col,2025,21,V,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Feb-2025 (LC),811
+2025-96col,2025,22,W,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Mar-2025 (LC),811
+2025-96col,2025,23,X,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Apr-2025 (LC),811
+2025-96col,2025,24,Y,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,May-2025 (LC),811
+2025-96col,2025,25,Z,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jun-2025 (LC),811
+2025-96col,2025,26,AA,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Jul-2025 (LC),811
+2025-96col,2025,27,AB,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Aug-2025 (LC),811
+2025-96col,2025,28,AC,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Sep-2025 (LC),811
+2025-96col,2025,29,AD,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Oct-2025 (LC),811
+2025-96col,2025,30,AE,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Nov-2025 (LC),811
+2025-96col,2025,31,AF,QIMA 2025 Monthly Total Salary cost (local Currency)--not included any bonus or commission,Dec-2025 (LC),811
+2025-96col,2025,32,AG,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jan-2025 (USD),811
+2025-96col,2025,33,AH,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Feb-2025 (USD),811
+2025-96col,2025,34,AI,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Mar-2025 (USD),811
+2025-96col,2025,35,AJ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Apr-2025 (USD),811
+2025-96col,2025,36,AK,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,May-2025 (USD),811
+2025-96col,2025,37,AL,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jun-2025 (USD),811
+2025-96col,2025,38,AM,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Jul-2025 (USD),811
+2025-96col,2025,39,AN,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Aug-2025 (USD),811
+2025-96col,2025,40,AO,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Sep-2025 (USD),811
+2025-96col,2025,41,AP,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Oct-2025 (USD),811
+2025-96col,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),811
+2025-96col,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),811
+2025-96col,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,811
+2025-96col,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),811
+2025-96col,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),811
+2025-96col,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,811
+2025-96col,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,811
+2025-96col,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),811
+2025-96col,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Eligible for 13th Month salary/ SBE MX Retation bonus,811
+2025-96col,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),811
+2025-96col,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Currency (13th Month salary),811
+2025-96col,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max  amount in 2025 (USD),811
+2025-96col,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Actual Paid amount in Dec 2025 (USD),811
+2025-96col,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,811
+2025-96col,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),811
+2025-96col,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),811
+2025-96col,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),811
+2025-96col,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),811
+2025-96col,2025,60,BI,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Eligible for Christmas Bonus,811
+2025-96col,2025,61,BJ,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (LC),811
+2025-96col,2025,62,BK,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Currency (Christmas Bonus),811
+2025-96col,2025,63,BL,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (USD),811
+2025-96col,2025,64,BM,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Actual Paid amount (Local currency),811
+2025-96col,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,811
+2025-96col,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),811
+2025-96col,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),811
+2025-96col,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),811
+2025-96col,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),811
+2025-96col,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),811
+2025-96col,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,811
+2025-96col,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),811
+2025-96col,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),811
+2025-96col,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),811
+2025-96col,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),811
+2025-96col,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),811
+2025-96col,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),811
+2025-96col,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),811
+2025-96col,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),811
+2025-96col,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),811
+2025-96col,2025,81,CD,Auditor Bonus (Paid Quarterly),Actual Payout in Q2 (USD),811
+2025-96col,2025,82,CE,Auditor Bonus (Paid Quarterly),Actual Payout in Q3 (USD),811
+2025-96col,2025,83,CF,Auditor Bonus (Paid Quarterly),Actual Payout in Q4 (USD),811
+2025-96col,2025,84,CG,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q1 (USD),811
+2025-96col,2025,85,CH,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q2 (USD),811
+2025-96col,2025,86,CI,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q3 (USD),811
+2025-96col,2025,87,CJ,Commission / Quarterly bonus 2025 (USD),Actual Payout in Q4 (USD),811
+2025-96col,2025,88,CK,Other,Remark,811
+2025-96col,2025,89,CL,External HC,Agency Name,811
+2025-96col,2025,90,CM,External HC,Agency Fee,811
+2025-96col,2025,91,CN,Gratuity for Dubai,Eligible for Gratuity,811
+2025-96col,2025,92,CO,Gratuity for Dubai,Max Gratuity in 2025 (LC),811
+2025-96col,2025,93,CP,Gratuity for Dubai,Currency ,811
+2025-96col,2025,94,CQ,Gratuity for Dubai,Max  amount in 2025 (USD),811
+2025-96col,2025,95,CR,Gratuity for Dubai,Actual Paid amount in 2025(USD),811
+2026-64col,2026,0,A,Employee Information (QIMA PEOPLE),Employee SAP ID,721
+2026-64col,2026,1,B,Employee Information (QIMA PEOPLE),SAP Staff Name,721
+2026-64col,2026,2,C,Employee Information (QIMA PEOPLE),Join Date,721
+2026-64col,2026,3,D,Employee Information (QIMA PEOPLE),Leave Date,721
+2026-64col,2026,4,E,Employee Information (QIMA PEOPLE),Subsidiary,721
+2026-64col,2026,5,F,Contractual salary (As per Contract),Monthly Gross Salary,721
+2026-64col,2026,6,G,Contractual salary (As per Contract),Monthly Allowance / 2nd part of salary,721
+2026-64col,2026,7,H,Contractual salary (As per Contract),QIMA (Employer) Social Charges,721
+2026-64col,2026,8,I,Contractual salary (As per Contract),Total Monthly Salary cost (F+G+H),721
+2026-64col,2026,9,J,Contractual salary (As per Contract),Currency,721
+2026-64col,2026,10,K,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jan 2026",721
+2026-64col,2026,11,L,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Feb 2026",721
+2026-64col,2026,12,M,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Mar 2026",721
+2026-64col,2026,13,N,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Apr 2026",721
+2026-64col,2026,14,O,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+May 2026",721
+2026-64col,2026,15,P,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jun 2026",721
+2026-64col,2026,16,Q,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jul 2026",721
+2026-64col,2026,17,R,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Aug 2026",721
+2026-64col,2026,18,S,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Sept 2026",721
+2026-64col,2026,19,T,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Oct 2026",721
+2026-64col,2026,20,U,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Nov 2026",721
+2026-64col,2026,21,V,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Dec 2026",721
+2026-64col,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,721
+2026-64col,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,721
+2026-64col,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),721
+2026-64col,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,721
+2026-64col,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,721
+2026-64col,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,721
+2026-64col,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),721
+2026-64col,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,721
+2026-64col,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,721
+2026-64col,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,721
+2026-64col,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),721
+2026-64col,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,721
+2026-64col,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,721
+2026-64col,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,721
+2026-64col,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),721
+2026-64col,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,721
+2026-64col,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,721
+2026-64col,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,721
+2026-64col,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),721
+2026-64col,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,721
+2026-64col,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,721
+2026-64col,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,721
+2026-64col,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),721
+2026-64col,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,721
+2026-64col,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,721
+2026-64col,2026,47,AV,Gratuity,Eligible for Gratuity,721
+2026-64col,2026,48,AW,Gratuity,Gratuity (Currency),721
+2026-64col,2026,49,AX,Gratuity,Max Gratuity in 2026,721
+2026-64col,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,721
+2026-64col,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),721
+2026-64col,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q1",721
+2026-64col,2026,53,BB,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q2",721
+2026-64col,2026,54,BC,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q3",721
+2026-64col,2026,55,BD,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q4",721
+2026-64col,2026,56,BE,Commission / Quarterly bonus 2026,Commission (Currency),721
+2026-64col,2026,57,BF,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q1",721
+2026-64col,2026,58,BG,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q2",721
+2026-64col,2026,59,BH,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q3",721
+2026-64col,2026,60,BI,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q4",721
+2026-64col,2026,61,BJ,Adhoc payment / Bonus,Payment type,721
+2026-64col,2026,62,BK,Adhoc payment / Bonus,Currency,721
+2026-64col,2026,63,BL,Adhoc payment / Bonus,Bonus amount,721
+2026-67col,2026,0,A,Employee Information (QIMA PEOPLE),Employee SAP ID,723
+2026-67col,2026,1,B,Employee Information (QIMA PEOPLE),SAP Staff Name,723
+2026-67col,2026,2,C,Employee Information (QIMA PEOPLE),Join Date,723
+2026-67col,2026,3,D,Employee Information (QIMA PEOPLE),Leave Date,723
+2026-67col,2026,4,E,Employee Information (QIMA PEOPLE),Subsidiary,723
+2026-67col,2026,5,F,Contractual salary (As per Contract),Monthly Gross Salary,723
+2026-67col,2026,6,G,Contractual salary (As per Contract),Monthly Allowance / 2nd part of salary,723
+2026-67col,2026,7,H,Contractual salary (As per Contract),QIMA (Employer) Social Charges,723
+2026-67col,2026,8,I,Contractual salary (As per Contract),Total Monthly Salary cost (F+G+H),723
+2026-67col,2026,9,J,Contractual salary (As per Contract),Currency,723
+2026-67col,2026,10,K,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jan 2026",723
+2026-67col,2026,11,L,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Feb 2026",723
+2026-67col,2026,12,M,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Mar 2026",723
+2026-67col,2026,13,N,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Apr 2026",723
+2026-67col,2026,14,O,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+May 2026",723
+2026-67col,2026,15,P,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jun 2026",723
+2026-67col,2026,16,Q,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jul 2026",723
+2026-67col,2026,17,R,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Aug 2026",723
+2026-67col,2026,18,S,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Sept 2026",723
+2026-67col,2026,19,T,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Oct 2026",723
+2026-67col,2026,20,U,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Nov 2026",723
+2026-67col,2026,21,V,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Dec 2026",723
+2026-67col,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,723
+2026-67col,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,723
+2026-67col,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),723
+2026-67col,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,723
+2026-67col,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,723
+2026-67col,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,723
+2026-67col,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),723
+2026-67col,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,723
+2026-67col,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,723
+2026-67col,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,723
+2026-67col,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),723
+2026-67col,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,723
+2026-67col,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,723
+2026-67col,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,723
+2026-67col,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),723
+2026-67col,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,723
+2026-67col,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,723
+2026-67col,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,723
+2026-67col,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),723
+2026-67col,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,723
+2026-67col,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,723
+2026-67col,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,723
+2026-67col,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),723
+2026-67col,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,723
+2026-67col,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,723
+2026-67col,2026,47,AV,Gratuity,Eligible for Gratuity,723
+2026-67col,2026,48,AW,Gratuity,Gratuity (Currency),723
+2026-67col,2026,49,AX,Gratuity,Max Gratuity in 2026,723
+2026-67col,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,723
+2026-67col,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),723
+2026-67col,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q1",723
+2026-67col,2026,53,BB,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q2",723
+2026-67col,2026,54,BC,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q3",723
+2026-67col,2026,55,BD,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q4",723
+2026-67col,2026,56,BE,Actual Auditor Bonus (Paid Quarterly) 2026,Commission (Currency),723
+2026-67col,2026,57,BF,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q1",723
+2026-67col,2026,58,BG,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q2",723
+2026-67col,2026,59,BH,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q3",723
+2026-67col,2026,60,BI,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q4",723
+2026-67col,2026,61,BJ,Adhoc payment / Bonus,Payment type,723
+2026-67col,2026,62,BK,Adhoc payment / Bonus,Currency,723
+2026-67col,2026,63,BL,Adhoc payment / Bonus,Bonus amount,723
+2026-67col,2026,64,BM,External HC,Agency Name,723
+2026-67col,2026,65,BN,External HC,Agency Fee,723
+2026-67col,2026,66,BO,Other,Remarks,723
+2026-75col,2026,0,A,Employee Information (QIMA PEOPLE),Employee SAP ID,811
+2026-75col,2026,1,B,Employee Information (QIMA PEOPLE),SAP Staff Name,811
+2026-75col,2026,2,C,Employee Information (QIMA PEOPLE),Join Date,811
+2026-75col,2026,3,D,Employee Information (QIMA PEOPLE),Leave Date,811
+2026-75col,2026,4,E,Employee Information (QIMA PEOPLE),Subsidiary,811
+2026-75col,2026,5,F,Contractual salary (As per Contract),Monthly Gross Salary,811
+2026-75col,2026,6,G,Contractual salary (As per Contract),Monthly Allowance / 2nd part of salary,811
+2026-75col,2026,7,H,Contractual salary (As per Contract),QIMA (Employer) Social Charges,811
+2026-75col,2026,8,I,Contractual salary (As per Contract),Total Monthly Salary cost (F+G+H),811
+2026-75col,2026,9,J,Contractual salary (As per Contract),Currency,811
+2026-75col,2026,10,K,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jan 2026",811
+2026-75col,2026,11,L,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Feb 2026",811
+2026-75col,2026,12,M,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Mar 2026",811
+2026-75col,2026,13,N,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Apr 2026",811
+2026-75col,2026,14,O,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+May 2026",811
+2026-75col,2026,15,P,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jun 2026",811
+2026-75col,2026,16,Q,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Jul 2026",811
+2026-75col,2026,17,R,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Aug 2026",811
+2026-75col,2026,18,S,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Sept 2026",811
+2026-75col,2026,19,T,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Oct 2026",811
+2026-75col,2026,20,U,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Nov 2026",811
+2026-75col,2026,21,V,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,"Actual salary
+Dec 2026",811
+2026-75col,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,811
+2026-75col,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,811
+2026-75col,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),811
+2026-75col,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,811
+2026-75col,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,811
+2026-75col,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,811
+2026-75col,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),811
+2026-75col,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,811
+2026-75col,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,811
+2026-75col,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,811
+2026-75col,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),811
+2026-75col,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,811
+2026-75col,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,811
+2026-75col,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,811
+2026-75col,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),811
+2026-75col,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,811
+2026-75col,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,811
+2026-75col,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,811
+2026-75col,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),811
+2026-75col,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,811
+2026-75col,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,811
+2026-75col,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,811
+2026-75col,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),811
+2026-75col,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,811
+2026-75col,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,811
+2026-75col,2026,47,AV,Gratuity,Eligible for Gratuity,811
+2026-75col,2026,48,AW,Gratuity,Gratuity (Currency),811
+2026-75col,2026,49,AX,Gratuity,Max Gratuity in 2026,811
+2026-75col,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,811
+2026-75col,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),811
+2026-75col,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q1",811
+2026-75col,2026,53,BB,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q2",811
+2026-75col,2026,54,BC,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q3",811
+2026-75col,2026,55,BD,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
+2026 Q4",811
+2026-75col,2026,56,BE,Actual Auditor Bonus (Paid Quarterly) 2026,Commission (Currency),811
+2026-75col,2026,57,BF,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q1",811
+2026-75col,2026,58,BG,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q2",811
+2026-75col,2026,59,BH,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q3",811
+2026-75col,2026,60,BI,Commission / Quarterly bonus 2026,"Commissions paid
+2026 Q4",811
+2026-75col,2026,61,BJ,Adhoc payment / Bonus,Payment type,811
+2026-75col,2026,62,BK,Adhoc payment / Bonus,Currency,811
+2026-75col,2026,63,BL,Adhoc payment / Bonus,Bonus amount,811
+2026-75col,2026,64,BM,External HC,Agency Name,811
+2026-75col,2026,65,BN,External HC,Agency Fee,811
+2026-75col,2026,66,BO,Other,Remarks,811
+2026-75col,2026,67,BP,Eid festival bonus (paid in Feb),Eligible for Eid Festible Bonus,811
+2026-75col,2026,68,BQ,Eid festival bonus (paid in Feb),Currency,811
+2026-75col,2026,69,BR,Eid festival bonus (paid in Feb),Max Eid Festible Bonus (Local Currency),811
+2026-75col,2026,70,BS,Eid festival bonus (paid in Feb),Actual Paid Eid Festible Bonus (Local Currency),811
+2026-75col,2026,71,BT,Eid festival bonus (paid in April),Eligible for Eid Festible Bonus,811
+2026-75col,2026,72,BU,Eid festival bonus (paid in April),Currency,811
+2026-75col,2026,73,BV,Eid festival bonus (paid in April),Max Eid Festible Bonus (Local Currency),811
+2026-75col,2026,74,BW,Eid festival bonus (paid in April),Actual Paid Eid Festible Bonus (Local Currency),811
