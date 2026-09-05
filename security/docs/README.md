@@ -41,6 +41,61 @@ Both directions, by switching the policy body and re-querying:
 | entitled role | 359.00 | 216,101 |
 | unentitled role | NULL | 216,101 |
 
+## Why you can still see amounts in the sandbox
+
+Expected. Anyone testing here will hit this, so it is worth stating plainly.
+
+`SF_APA_SANDBOX-ETL` is on the entitled list, and this account has **secondary
+roles enabled**:
+
+```
+PRIMARY  : PUBLIC
+SECONDARY: {"roles":"SF_APA_SANDBOX-ETL,SF_APA_SANDBOX-QUICKSTARTS","value":"ALL"}
+is_role_in_session('SF_APA_SANDBOX-ETL') -> TRUE
+```
+
+Every role granted to the user stays active regardless of which one is
+selected, so switching the worksheet to `PUBLIC` changes nothing - the
+entitled role is still in session. **This sandbox cannot demonstrate the deny
+case**, because the user holds every role that exists in it.
+
+The grants themselves are correct: `SHOW GRANTS` on the fact table returns
+`OWNERSHIP -> SF_APA_SANDBOX-ETL` and nothing else. `PUBLIC` has no access; a
+query run "as PUBLIC" is being served by the secondary role.
+
+### Why not use CURRENT_ROLE instead
+
+It is tempting - `CURRENT_ROLE()` checks only the selected role, so switching to
+`PUBLIC` would show NULLs and the masking would demo convincingly.
+
+It would also be **weaker**. Anyone entitled could unmask by switching primary
+role back, so it protects nothing; it only makes the control look active. And it
+would wrongly mask genuinely entitled users working under a different primary
+role.
+
+The control that delivers the requirement is not the function - it is the
+grant. Antoine is simply never granted the entitled role, `IS_ROLE_IN_SESSION`
+returns false, and amounts are NULL with no way to switch out of it. That works
+*because* it ignores which role was selected.
+
+### How to actually verify it
+
+Alter the policy body so nothing matches, query, then put it back:
+
+```sql
+alter masking policy MP_PAYROLL_AMOUNT set body ->
+    case when is_role_in_session('PAYROLL_AMOUNT_READER') then val else null end;
+
+select AMOUNT, EMPLOYEE_SAP_ID from FACT_PAYROLL_COMPONENT limit 5;   -- NULL amounts, rows intact
+
+alter masking policy MP_PAYROLL_AMOUNT set body ->
+    case when is_role_in_session('SF_APA_SANDBOX-ETL') then val
+         when is_role_in_session('PAYROLL_AMOUNT_READER') then val else null end;
+```
+
+That exercises the same code path an unentitled user hits. Result when run:
+NULL amounts across all 216,101 rows, every row still visible.
+
 ## Not covered, deliberately
 
 **`FILE_LOAD.RAW_CONTENT`** holds every amount in the workbook as JSON. It
