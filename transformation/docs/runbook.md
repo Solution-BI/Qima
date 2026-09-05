@@ -41,7 +41,7 @@ select 'FILE_LOAD' as t, count(*) n from FILE_LOAD
 union all select 'HEADER_MAP',      count(*) from HEADER_MAP
 union all select 'SHEET_LOAD',      count(*) from SHEET_LOAD
 union all select 'PAYROLL_ROW',     count(*) from PAYROLL_ROW
-union all select 'PAYROLL_MEASURE', count(*) from PAYROLL_MEASURE;
+union all select 'FACT_PAYROLL_COMPONENT', count(*) from FACT_PAYROLL_COMPONENT;
 ```
 
 Expect **8 / 668 / 11 / 21,811 / 216,101**.
@@ -61,7 +61,7 @@ One employee, everything we hold for them:
 ```sql
 select COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS,
        PERIOD_KEY, AMOUNT, CURRENCY_CODE
-from PAYROLL_MEASURE
+from FACT_PAYROLL_COMPONENT
 where EMPLOYEE_SAP_ID = '10000343' and REPORT_YEAR = 2026
 order by COMPONENT_GROUP, PERIOD_KEY;
 ```
@@ -101,7 +101,7 @@ script, not from `FILE_LOAD`, so emptying it means it stays empty until someone
 re-runs `load_seed.py`. Without it the loader produces nothing.
 
 ```sql
-truncate table PAYROLL_MEASURE;
+truncate table FACT_PAYROLL_COMPONENT;
 truncate table PAYROLL_ROW;
 truncate table SHEET_LOAD;
 ```
@@ -111,7 +111,7 @@ Confirm they are empty - all three should be 0:
 ```sql
 select 'SHEET_LOAD' t, count(*) n from SHEET_LOAD
 union all select 'PAYROLL_ROW',     count(*) from PAYROLL_ROW
-union all select 'PAYROLL_MEASURE', count(*) from PAYROLL_MEASURE;
+union all select 'FACT_PAYROLL_COMPONENT', count(*) from FACT_PAYROLL_COMPONENT;
 ```
 
 Now open `transformation/sql/04_load_silver.sql`, paste the whole file, and use

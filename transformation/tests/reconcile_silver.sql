@@ -1,5 +1,5 @@
 -- ===========================================================================
--- Test: does PAYROLL_MEASURE reproduce the file's own annual total?
+-- Test: does FACT_PAYROLL_COMPONENT reproduce the file's own annual total?
 --
 -- Same checksum as reconcile_monthly_vs_total.sql, but run against the loaded
 -- SILVER table rather than RAW_CONTENT. Passing both means the mapping is right
@@ -8,7 +8,7 @@
 with monthly as (
     select PAYROLL_ROW_ID, EMPLOYMENT_KEY, SUBSIDIARY_CODE,
            sum(AMOUNT) as SUM_OF_MONTHS, count(*) as N_MONTHS
-    from PAYROLL_MEASURE
+    from FACT_PAYROLL_COMPONENT
     where REPORT_YEAR = 2026 and COMPONENT_NAME = 'MONTHLY_SALARY'
       and MEASURE_BASIS = 'PAYMENT' and PERIOD_TYPE = 'MONTH'
       and CURRENCY_SCOPE = 'LOCAL'
@@ -16,7 +16,7 @@ with monthly as (
 ),
 reported as (
     select PAYROLL_ROW_ID, AMOUNT as TOTAL_REPORTED
-    from PAYROLL_MEASURE
+    from FACT_PAYROLL_COMPONENT
     where REPORT_YEAR = 2026 and COMPONENT_NAME = 'MONTHLY_SALARY'
       and MEASURE_BASIS = 'PAYMENT' and PERIOD_TYPE = 'FY'
       and CURRENCY_SCOPE = 'LOCAL'

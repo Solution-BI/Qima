@@ -50,7 +50,7 @@ create table if not exists SHEET_LOAD (
 -- downstream. SUBSIDIARY is the deliberate exception - Antoine confirmed it
 -- must be a point-in-time fact tied to the payment, because an employee who
 -- transfers must not have historic payments re-attributed to the new entity.
--- That is why SUBSIDIARY_CODE is carried down onto PAYROLL_MEASURE too.
+-- That is why SUBSIDIARY_CODE is carried down onto FACT_PAYROLL_COMPONENT too.
 -- ---------------------------------------------------------------------------
 create table if not exists PAYROLL_ROW (
     PAYROLL_ROW_ID      number(38,0)   identity start 1 increment 1,
@@ -75,8 +75,15 @@ create table if not exists PAYROLL_ROW (
 ) comment = 'One row per employee line per sheet. Employee attributes informative except subsidiary.';
 
 -- ---------------------------------------------------------------------------
--- PAYROLL_MEASURE - the long fact. One row per cell that HEADER_MAP says
+-- FACT_PAYROLL_COMPONENT - the long fact. One row per cell that HEADER_MAP says
 -- carries a value.
+--
+-- The name is the one README.md specifies: "a single fact table
+-- (FACT_PAYROLL_COMPONENT) driven by the HEADER_MAP reference data, with no
+-- hardcoded component list". The superseded proposal's PAYROLL_MONTHLY_FACT /
+-- PAYROLL_BONUS_FACT split with a fixed bonus enum is deliberately not used -
+-- the real files show components being added, merged and restructured across
+-- template generations in ways a fixed enum cannot absorb.
 --
 -- Grain: PAYROLL_ROW x COMPONENT_NAME x MEASURE_BASIS x PERIOD_KEY x
 --        CURRENCY_SCOPE.
@@ -85,7 +92,7 @@ create table if not exists PAYROLL_ROW (
 -- once in local currency, once converted to USD at an unknown rate. Both load;
 -- only LOCAL reaches GOLD.
 -- ---------------------------------------------------------------------------
-create table if not exists PAYROLL_MEASURE (
+create table if not exists FACT_PAYROLL_COMPONENT (
     MEASURE_ID          number(38,0)   identity start 1 increment 1,
     PAYROLL_ROW_ID      number(38,0)   not null,
     SHEET_LOAD_ID       number(38,0)   not null,
@@ -113,8 +120,8 @@ create table if not exists PAYROLL_MEASURE (
 
     SOURCE_COLUMN_INDEX number(38,0)   not null,
     LOADED_AT           timestamp_tz   not null default current_timestamp(),
-    constraint PK_PAYROLL_MEASURE primary key (MEASURE_ID),
-    constraint UQ_PAYROLL_MEASURE unique
+    constraint PK_FACT_PAYROLL_COMPONENT primary key (MEASURE_ID),
+    constraint UQ_FACT_PAYROLL_COMPONENT unique
         (PAYROLL_ROW_ID, COMPONENT_NAME, MEASURE_BASIS, PERIOD_KEY, CURRENCY_SCOPE)
 ) comment = 'Long-format payroll fact. One row per meaningful cell, classified by HEADER_MAP.';
 
@@ -151,9 +158,9 @@ create table if not exists DQ_FLAG (
 --   no IDENTITY flag          - identity issues are excluded until resolved (s.6)
 --   NEEDS_REVIEW = FALSE      - an unreviewed mapping must not reach reporting
 -- ---------------------------------------------------------------------------
-create or replace view V_GOLD_PAYROLL_MEASURE as
+create or replace view V_GOLD_PAYROLL_COMPONENT as
 select m.*
-from PAYROLL_MEASURE m
+from FACT_PAYROLL_COMPONENT m
 join SHEET_LOAD sl on sl.SHEET_LOAD_ID = m.SHEET_LOAD_ID
 where m.CURRENCY_SCOPE = 'LOCAL'
   and sl.MAPPING_STATUS = 'MAPPED'   -- excludes SAMPLE sheets
@@ -188,7 +195,7 @@ select REPORT_YEAR,
        COMPONENT_GROUP,
        CURRENCY_CODE,
        sum(AMOUNT) as AMOUNT_PAID
-from V_GOLD_PAYROLL_MEASURE
+from V_GOLD_PAYROLL_COMPONENT
 where MEASURE_BASIS = 'PAYMENT'
   and COMPONENT_GROUP <> 'EXTERNAL'
 group by 1, 2, 3, 4, 5, 6, 7, 8;

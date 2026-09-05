@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- transformation / 04 - Load SILVER from RAW
 --
--- RAW_CONTENT -> SHEET_LOAD -> PAYROLL_ROW -> PAYROLL_MEASURE.
+-- RAW_CONTENT -> SHEET_LOAD -> PAYROLL_ROW -> FACT_PAYROLL_COMPONENT.
 --
 -- Plain SQL, no Python. The reconciliation test proved the whole pattern: a
 -- cell is located by joining HEADER_MAP on (generation, column index) and
@@ -142,14 +142,14 @@ select SHEET_LOAD_ID, ROW_INDEX, SHEET_YEAR,
 from pivoted;
 
 -- ---------------------------------------------------------------------------
--- Step 3: PAYROLL_MEASURE. One row per cell that carries a value.
+-- Step 3: FACT_PAYROLL_COMPONENT. One row per cell that carries a value.
 --
 -- The currency rule from the meeting: an amount takes its own component's
 -- (Currency) column where the generation has one, and falls back to the
 -- contractual currency otherwise. Salary is in local currency while bonus is
 -- usually USD, so this cannot default to one currency per row.
 -- ---------------------------------------------------------------------------
-insert into PAYROLL_MEASURE
+insert into FACT_PAYROLL_COMPONENT
     (PAYROLL_ROW_ID, SHEET_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
      JOIN_DATE, LEAVE_DATE, SUBSIDIARY_CODE, REPORT_YEAR,
      COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY,
@@ -167,7 +167,7 @@ with cells as (
     join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
     where not pr.IS_BLANK
       and m.MEASURE_BASIS in ('PAYMENT','RATE','FEE','ELIGIBILITY')
-      and not exists (select 1 from PAYROLL_MEASURE pm
+      and not exists (select 1 from FACT_PAYROLL_COMPONENT pm
                       where pm.SHEET_LOAD_ID = pr.SHEET_LOAD_ID)
 ),
 -- Currency per component, and the contractual fallback, resolved per row.

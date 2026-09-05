@@ -53,7 +53,7 @@ FILE_LOAD          the raw JSON, one row per file           (Greg's pipeline)
    v   guided by HEADER_MAP
 SHEET_LOAD         one row per sheet, with its template version
 PAYROLL_ROW        one row per employee line
-PAYROLL_MEASURE    one row per value - a salary, a bonus, a currency
+FACT_PAYROLL_COMPONENT    one row per value - a salary, a bonus, a currency
    |
    v
 V_GOLD_*           the clean views for reporting
@@ -84,7 +84,7 @@ from HEADER_MAP where CANONICAL_FIELD = 'EMPLOYEE_SAP_ID' order by GENERATION;
 ```sql
 select COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS,
        PERIOD_KEY, AMOUNT, CURRENCY_CODE
-from PAYROLL_MEASURE
+from FACT_PAYROLL_COMPONENT
 where EMPLOYEE_SAP_ID = '10000343' and REPORT_YEAR = 2026
 order by COMPONENT_GROUP, PERIOD_KEY;
 ```
@@ -93,7 +93,7 @@ order by COMPONENT_GROUP, PERIOD_KEY;
 bonus in USD:
 ```sql
 select COMPONENT_GROUP, CURRENCY_CODE, count(*) as N
-from PAYROLL_MEASURE
+from FACT_PAYROLL_COMPONENT
 where REPORT_YEAR = 2026 and MEASURE_BASIS = 'PAYMENT'
   and COMPONENT_GROUP in ('SALARY','BONUS')
 group by 1,2 having count(*) > 500 order by 1, 3 desc;
@@ -123,7 +123,7 @@ Snowflake has no undo prompt - though a dropped table can be recovered within
 To reload from scratch, the safe sequence is:
 
 ```sql
-truncate table PAYROLL_MEASURE;  truncate table PAYROLL_ROW;
+truncate table FACT_PAYROLL_COMPONENT;  truncate table PAYROLL_ROW;
 truncate table SHEET_LOAD;
 ```
 

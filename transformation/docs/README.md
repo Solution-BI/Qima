@@ -7,6 +7,10 @@ stay dumb by design (see `ingestion/docs/`).
 Built as plain SQL + Snowpark, matching the Snowflake-native approach the
 payroll isolation decision requires. No dbt.
 
+> **Before exposing any of this to users, read [KNOWN_GAPS.md](KNOWN_GAPS.md).**
+> There is no masking and no row-level security yet, so every salary and bonus
+> is readable in the clear by anyone with access to the schema.
+
 ## Layout
 
 ```
@@ -19,7 +23,7 @@ reference_data/header_map/
     header_map_review.md     what the classifier could not decide
 sql/
     01_header_map.sql        HEADER_MAP table + generation-resolution view
-    02_silver_model.sql      SHEET_LOAD, PAYROLL_ROW, PAYROLL_MEASURE, DQ_FLAG, GOLD views
+    02_silver_model.sql      SHEET_LOAD, PAYROLL_ROW, FACT_PAYROLL_COMPONENT, DQ_FLAG, GOLD views
     03_file_exclusion.sql    FILE_EXCLUSION + V_PAYROLL_FILE_CURRENT (what to process)
 docs/
     README.md                this file
@@ -30,7 +34,7 @@ docs/
 The contract defines every value as component group x measure basis x period.
 The set of components differs per generation: the two Eid festival blocks exist
 only in `2026-75col`, the USD columns only in 2024/2025, ad hoc bonuses only
-from 2026. A wide table means a DDL change per generation. `PAYROLL_MEASURE`
+from 2026. A wide table means a DDL change per generation. `FACT_PAYROLL_COMPONENT`
 absorbs them as data.
 
 ## Template generations
@@ -110,7 +114,7 @@ of the three maps to which legal name is **not confirmed**.
 2024 and 2025 report most amounts twice: once in local currency, once converted
 to USD at rates the contract describes as inconsistent and unknown. FX
 normalisation is out of scope, so `CURRENCY_SCOPE` is part of the
-`PAYROLL_MEASURE` grain. Both load; **only `LOCAL` reaches GOLD.** Summing
+`FACT_PAYROLL_COMPONENT` grain. Both load; **only `LOCAL` reaches GOLD.** Summing
 across scopes would double-count.
 
 ## Rebuilding the mapping
@@ -126,9 +130,9 @@ load it per the COPY INTO in `sql/01_header_map.sql`.
 ## Not yet built
 
 - The Snowpark procedure that walks `RAW_CONTENT` into `PAYROLL_ROW` /
-  `PAYROLL_MEASURE` using `HEADER_MAP`.
+  `FACT_PAYROLL_COMPONENT` using `HEADER_MAP`.
 - Ad hoc bonuses are recorded **horizontally** while every other component is
-  vertical (contract section 3). `PAYROLL_MEASURE` can hold them, but the
+  vertical (contract section 3). `FACT_PAYROLL_COMPONENT` can hold them, but the
   loader needs a specific branch for that shape.
 - `DIM_SUBSIDIARY`. 21 labels observed; `CPQUALI` and `CPHOSP` carry no code
   prefix, and `BR02 - QIMA BRASIL LTDA.` has a trailing period the filename

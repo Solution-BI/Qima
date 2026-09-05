@@ -65,7 +65,7 @@ generation has a contract column - `Contract` exists only in the three 2025
 generations and `Full Time / Part time` only in 2024. Fortunately it is not
 needed; ID + join + leave is already unique.
 
-**Implemented as** `EMPLOYMENT_KEY` on `PAYROLL_ROW` and `PAYROLL_MEASURE`, and
+**Implemented as** `EMPLOYMENT_KEY` on `PAYROLL_ROW` and `FACT_PAYROLL_COMPONENT`, and
 as the grain of the GOLD views. Earlier I reported five cross-file duplicate
 IDs - three of those were artefacts of the sample file and are withdrawn.
 
