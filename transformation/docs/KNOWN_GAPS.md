@@ -20,20 +20,44 @@ filter for *correctness* - local currency only, mapped generations only - not
 for *confidentiality*. Nothing in `transformation/` restricts who sees what.
 
 **This is not an oversight in the transformation design; it is the next epic.**
-But it is also blocked, and the blockers are business decisions rather than
-engineering ones. From `README.md`, open since June:
 
-- Masking format for hidden values - NULL or a token?
-- **Whether all amount fields are treated identically for masking.**
+The 20 August pre-kickoff narrowed it considerably. Antoine confirmed:
 
-The second one has to be answered before a policy can be written at all, since
-masking policies attach per column. "Is a bonus treated like a salary?" is not
-something the platform can decide for Tess/HR.
+- **Amount columns only.** Employee attributes stay unmasked, because that data
+  is already exposed in other tables - masking it here achieves nothing while it
+  remains readable elsewhere.
+- **All rows stay visible.** The requirement in his words: he can access the
+  database but should not see the amounts, while still seeing every row. So
+  masking and row access are separate controls, not one mechanism.
+- **Masking is the primary control for the data team**, layered on top of
+  database access.
+- Same policy across all amount columns is **his view, not yet confirmed** with
+  HR.
 
-A Row Access Policy is also required, and specifically a real one - the 20
-August pre-kickoff confirmed a comma-separated ID list containment check
-against an ID + parent entitlement table, **replicated inside the isolated
-payroll database** rather than shared with the general platform's mechanism.
+That is now specific enough to draft a policy against `AMOUNT` on
+`FACT_PAYROLL_COMPONENT`. One thing still genuinely blocks finishing it: what a
+masked value should display - hidden, anonymised, or a fixed value. That is
+Tess/HR's call and changes the policy body, not its shape.
+
+Note the audit concern behind this, also Antoine's: "we need to make sure
+someone doesn't grant himself a full view for a few minutes." Masking is the
+mitigation, with the entitlement table as a second audit source.
+
+A Row Access Policy is also required, and specifically a real one. The
+mechanism was confirmed on 20 August: a table of **ID and parent** (parent
+defaults to the manager, sometimes driven by dimension), from which a
+comma-separated list of permitted IDs is built, with the policy checking
+containment of the querying identity. Applied **directly on the main table**.
+
+**Replicate, do not reuse.** The driving table sits inside the payroll database
+as its own table rather than the shared one - fewer people able to set
+attribute-based rules for payroll, and a cleaner audit position. Qima will share
+the existing structure as a reference.
+
+Both controls must hold for **Snowflake Intelligence and direct Snowflake
+access**, not only Tableau. Tableau will use a live connection with no stored
+credentials so users supply their own, which is precisely what lets masking and
+row access apply at query time.
 
 ### What that means in practice
 
@@ -43,13 +67,39 @@ payroll database** rather than shared with the general platform's mechanism.
   Snowflake Intelligence specifically, also still open.
 - Treat `V_GOLD_*` as "correct", not as "safe to share".
 
-## 2. Wrong home
+## 2. Wrong home, and no RAW / SILVER / GOLD split
 
-Everything is in `SANDBOX_DB.HR_PAYROLL_QIMA`, a shared sandbox. The design
-calls for an isolated payroll database owned by `F_PAYROLL_DBA` with the
-`PAYROLL.A/.O/.W/.R` access-role ladder, isolated by never granting `F_DE` the
-PAYROLL domain's roles. Until that exists, isolation is not structural - it is
-just the fact that nobody has looked.
+Everything sits in `SANDBOX_DB.HR_PAYROLL_QIMA` - SBI's sandbox, not Qima's
+account. That is expected at this stage, but two structural things differ from
+the agreed target and should not be carried across as-is.
+
+**Database.** Antoine confirmed a dedicated **`HR_PAYROLL`** database plus
+**`HR_PAYROLL_DEV`**, separate from the existing `HR` domain database, which he
+will hand over blank with the base role structure and future grants already
+applied. `HR_PAYROLL_DEV` is to hold **files with fabricated amounts** so he can
+manipulate them and simulate error conditions himself; production credentials
+are switched in afterwards.
+
+**Schemas.** `HR_PAYROLL` carries **RAW, SILVER and GOLD** - a deliberate
+exception to Qima's single shared RAW schema across sources, so payroll RAW
+stays inside the payroll database. Everything built here is in **one flat
+schema**. On migration it should split:
+
+| Here today | Belongs in |
+|---|---|
+| `FILE_LOAD` | RAW |
+| `HEADER_MAP`, `FILE_EXCLUSION` | SILVER (reference data) |
+| `SHEET_LOAD`, `PAYROLL_ROW`, `FACT_PAYROLL_COMPONENT`, `DQ_FLAG` | SILVER |
+| `V_GOLD_*` | GOLD |
+
+Two role details that bite at migration: **database roles are preferred for
+objects, tables and procedures, but account-level roles are required for
+tasks** - which matters the moment orchestration is added. And **future grants
+may not cover object types Qima does not already use**; secrets were named as
+the likely example, so anything unusual has to be flagged for them to add.
+
+Deployment is **manual** - there is no automated framework, and the working
+pattern is to clone production for heavier testing then apply changes back.
 
 ## 3. `DQ_FLAG` is empty
 

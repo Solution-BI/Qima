@@ -66,9 +66,17 @@ It is still loaded into `HEADER_MAP`, marked `GENERATION_STATUS = 'SAMPLE'`, so
 a sheet matching it is *recognised and excluded* rather than silently mapped as
 real payroll. `MAPPING_STATUS = 'SAMPLE'` on `SHEET_LOAD` keeps it out of GOLD.
 
-The seven remaining generations match the contract's list exactly, which closes
-its open item on whether the sample files were representative: the three files
-analysed **are** the complete current set.
+The seven remaining generations match the contract's list exactly. That closes
+the open item only for **what is in SharePoint today** - not for the steady
+state. On 20 August Antoine put expected volume at **10 to 20 files monthly,
+one per subsidiary**, against the three payroll-owner folders that exist now.
+He also confirmed the wide template is deliberate and that **further column
+additions are expected over time**, since every new bonus type becomes a new
+column for everyone even where it applies to five people in one country.
+
+So treat seven generations as the current floor, not a closed list. That is
+exactly why a new generation must be rows in `HEADER_MAP` rather than a code
+change.
 
 The contract's own table lists 88 columns for both `2024-89col` and
 `2024-91col`; measured, they are 89 and 91, matching the generation names.

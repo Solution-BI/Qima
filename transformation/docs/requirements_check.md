@@ -114,6 +114,25 @@ the generation has one, and falls back to the contractual currency otherwise.
 
 ---
 
+## Confirmed by the 20 August pre-kickoff
+
+- **Vertical remodelling is the agreed target.** Antoine: unpivot both the
+  monthly periods and the bonus components, and "it can be 3 tables or whatever,
+  it doesn't have to be a single table with everything hardcoded." That is what
+  `FACT_PAYROLL_COMPONENT` is.
+- **Subsidiary is a frozen fact**, recording where the payment originated, not a
+  current attribute - employees change subsidiary and the record must not follow
+  them. Carried on every fact row.
+- **The employee ID resolves against the main HR table** for all other
+  attributes; payroll does not need to carry them. Name, join and leave dates
+  are held here as informative only. Join and leave are additionally load-bearing
+  for `EMPLOYMENT_KEY`, which is why they are kept rather than dropped.
+- **No Tableau-specific design.** Antoine explicitly said sound modelling is the
+  priority over designing for the BI tool.
+- **Phase 2 removes Excel entirely**, taking data from source systems into this
+  same model - so the model is the target for that work too, not a
+  spreadsheet-shaped stopgap.
+
 ## Open, not answered by these notes
 
 - Which submission wins when a monthly file restates the year to date
