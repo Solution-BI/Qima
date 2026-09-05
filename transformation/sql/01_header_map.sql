@@ -26,6 +26,8 @@ create table if not exists HEADER_MAP (
     COLUMN_LETTER       varchar
         comment 'Excel column reference, for talking to Qima about a specific column.',
     SHEET_YEAR          number(4,0)    not null,
+    GENERATION_STATUS   varchar        not null default 'SUPPORTED'
+        comment 'SUPPORTED = a real Qima submission template. SAMPLE = a test artefact that must never be treated as payroll. SharePoint has exactly three owner folders, so there are three real files; 2026-64col came from a sample workbook parked in the live BR02 folder.',
 
     GROUP_HEADER        varchar
         comment 'Row 0 merged band label, forward-filled across the columns it spans.',
@@ -60,7 +62,8 @@ create table if not exists HEADER_MAP (
     constraint CHK_MEASURE_BASIS check (MEASURE_BASIS in
         ('PAYMENT','RATE','FEE','ELIGIBILITY','CURRENCY','ATTRIBUTE','UNKNOWN')),
     constraint CHK_PERIOD_TYPE check (PERIOD_TYPE is null or PERIOD_TYPE in ('MONTH','QUARTER','FY')),
-    constraint CHK_CURRENCY_SCOPE check (CURRENCY_SCOPE in ('LOCAL','USD','NA'))
+    constraint CHK_CURRENCY_SCOPE check (CURRENCY_SCOPE in ('LOCAL','USD','NA')),
+    constraint CHK_GENERATION_STATUS check (GENERATION_STATUS in ('SUPPORTED','SAMPLE'))
 ) comment = 'Header-to-meaning mapping, one row per column per template generation. Drives all transformation; new generations are inserted here rather than coded for.';
 
 -- ---------------------------------------------------------------------------
@@ -77,7 +80,7 @@ create file format if not exists FF_HEADER_MAP_CSV
     comment = 'For loading header_map_seed.csv. TRIM_SPACE is off deliberately - some source headers carry a meaningful trailing space.';
 
 -- copy into HEADER_MAP (
---     GENERATION, SHEET_YEAR, COLUMN_INDEX, COLUMN_LETTER, GROUP_HEADER, SOURCE_HEADER,
+--     GENERATION, GENERATION_STATUS, SHEET_YEAR, COLUMN_INDEX, COLUMN_LETTER, GROUP_HEADER, SOURCE_HEADER,
 --     COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY,
 --     CURRENCY_SCOPE, NEEDS_REVIEW, REVIEW_REASON, RESOLUTION_NOTE)
 -- from @%HEADER_MAP/header_map_seed.csv
@@ -102,8 +105,11 @@ select f.LOAD_ID,
        s.key || '-' || array_size(s.value[1]) || 'col'  as GENERATION,
        hash(s.value[1]::string)                         as HEADER_HASH,
        exists (select 1 from HEADER_MAP m
-               where m.GENERATION = s.key || '-' || array_size(s.value[1]) || 'col')
-                                                        as IS_MAPPED
+               where m.GENERATION = s.key || '-' || array_size(s.value[1]) || 'col'
+                 and m.GENERATION_STATUS = 'SUPPORTED')  as IS_MAPPED,
+       exists (select 1 from HEADER_MAP m
+               where m.GENERATION = s.key || '-' || array_size(s.value[1]) || 'col'
+                 and m.GENERATION_STATUS = 'SAMPLE')     as IS_SAMPLE
 from FILE_LOAD f,
      lateral flatten(input => f.RAW_CONTENT) s
 where s.key rlike '^[0-9]{4}$';   -- year sheets only; "Instructions" is not data

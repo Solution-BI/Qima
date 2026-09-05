@@ -41,15 +41,23 @@ Eight observed in `FILE_LOAD`. The contract lists seven:
 | 2025-91col | yes | BR09 |
 | 2025-95col | yes | BR02 |
 | 2025-96col | yes | AE01+... |
-| 2026-64col | **no** | `BR05_Payroll_Sample.xlsx` / `BR02_Payroll_Sample.xlsx` |
+| 2026-64col | **no - sample, not a real template** | `BR05_Payroll_Sample.xlsx` / `BR02_Payroll_Sample.xlsx` |
 | 2026-67col | yes | BR02, BR09 |
 | 2026-75col | yes | AE01+... |
 
-`2026-64col` comes only from two files that share one SharePoint item ID (the
-same file, renamed) sitting inside the live `BR02 - QIMA BRASIL LTDA - Payroll
-Reporting` folder, with 4 data rows. That reads as a sample file parked in a
-submission folder rather than a real generation - **open question: filter these
-at ingestion, or map the generation.**
+`2026-64col` is **confirmed not a real generation**. SharePoint's payroll tree
+has exactly three owner folders, so there are exactly three real submission
+files - and neither sample file is among them any more. The two came from one
+SharePoint item, renamed, parked inside the live `BR02` folder, carrying 4 rows
+that duplicate BR02 data.
+
+It is still loaded into `HEADER_MAP`, marked `GENERATION_STATUS = 'SAMPLE'`, so
+a sheet matching it is *recognised and excluded* rather than silently mapped as
+real payroll. `MAPPING_STATUS = 'SAMPLE'` on `SHEET_LOAD` keeps it out of GOLD.
+
+The seven remaining generations match the contract's list exactly, which closes
+its open item on whether the sample files were representative: the three files
+analysed **are** the complete current set.
 
 The contract's own table lists 88 columns for both `2024-89col` and
 `2024-91col`; measured, they are 89 and 91, matching the generation names.
@@ -68,6 +76,27 @@ blanket rule - which is why the classifier flags conflicts rather than guessing:
 
 Both belong in the change-management conversation the contract flags as its
 biggest open gap (section 7), rather than being absorbed silently forever.
+
+## Subsidiaries declared vs subsidiaries present
+
+The three folder names declare 16 subsidiary codes
+(`reference_data/subsidiary/folder_subsidiary_map.csv`). The data does not
+match them:
+
+- **`HK02` is declared but has zero employees** in the 2026 sheet.
+- **Seven subsidiaries appear that no folder declares** - `MX01` (3 employees),
+  `PH01` (2), `CL01` (2), `PE01` (1), `MX05` (1), `GB02` (1), `US01` (1). All 11
+  arrive inside the `AE01 + ...` file.
+
+Those same 11 rows carry most of the currency anomalies: `GB02` paid in HKD,
+`PE01` paid in RMB, `CL01` and `MX05` with no currency at all. The pattern reads
+as stragglers appended to whichever file was open rather than deliberate
+submissions - worth raising with Tess before they are modelled as real
+subsidiary payroll. `SUBSIDIARY_NOT_DECLARED_BY_FOLDER` is the DQ rule for this.
+
+The folder names are also the only source for `CPQUALI` / `CPHOSP` codes, since
+those cells carry no code prefix - `BR09 + BR12 + BR13` covers both, but which
+of the three maps to which legal name is **not confirmed**.
 
 ## Currency scope
 

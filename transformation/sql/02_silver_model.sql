@@ -39,7 +39,7 @@ create table if not exists SHEET_LOAD (
     CREATED_AT          timestamp_tz   not null default current_timestamp(),
     constraint PK_SHEET_LOAD primary key (SHEET_LOAD_ID),
     constraint UQ_SHEET_LOAD unique (LOAD_ID, SHEET_NAME),
-    constraint CHK_MAPPING_STATUS check (MAPPING_STATUS in ('MAPPED','UNMAPPED','NOT_APPLICABLE'))
+    constraint CHK_MAPPING_STATUS check (MAPPING_STATUS in ('MAPPED','UNMAPPED','SAMPLE','NOT_APPLICABLE'))
 ) comment = 'One row per sheet per ingested file, with its resolved template generation.';
 
 -- ---------------------------------------------------------------------------
@@ -127,7 +127,7 @@ create table if not exists DQ_FLAG (
     DQ_CLASS            varchar        not null
         comment 'STRUCTURAL rejects the file or sheet. IDENTITY loads but is excluded from GOLD until resolved. VALUE loads and stays in GOLD with the flag visible. CONVENTION is auto-resolved where possible and logged for a HEADER_MAP update.',
     RULE_NAME           varchar        not null
-        comment 'e.g. UNMAPPED_GENERATION, UNMAPPED_COLUMN, SALARY_AS_TEXT, UNPARSEABLE_DATE, MISSING_CURRENCY, UNKNOWN_SUBSIDIARY, TOTAL_MISMATCH, DUPLICATE_SAP_ID_ACROSS_FILES',
+        comment 'e.g. UNMAPPED_GENERATION, SAMPLE_FILE_INGESTED, UNMAPPED_COLUMN, SALARY_AS_TEXT, UNPARSEABLE_DATE, MISSING_CURRENCY, UNKNOWN_SUBSIDIARY, SUBSIDIARY_NOT_DECLARED_BY_FOLDER, TOTAL_MISMATCH, DUPLICATE_SAP_ID_ACROSS_FILES',
     COLUMN_INDEX        number(38,0),
     SOURCE_HEADER       varchar,
     RAW_VALUE           varchar,
@@ -150,7 +150,7 @@ select m.*
 from PAYROLL_MEASURE m
 join SHEET_LOAD sl on sl.SHEET_LOAD_ID = m.SHEET_LOAD_ID
 where m.CURRENCY_SCOPE = 'LOCAL'
-  and sl.MAPPING_STATUS = 'MAPPED'
+  and sl.MAPPING_STATUS = 'MAPPED'   -- excludes SAMPLE sheets
   and not exists (
       select 1 from DQ_FLAG f
       where f.DQ_CLASS = 'IDENTITY'

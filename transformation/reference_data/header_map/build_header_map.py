@@ -101,6 +101,17 @@ CONFLICT_RESOLUTIONS: dict[tuple[str, str], tuple[str, str, str]] = {
         "header wins: merged Auditor band overruns into the Commission block"),
 }
 
+# --- generations that are not real submissions ------------------------------
+# The SharePoint payroll tree has exactly three owner folders, so there are
+# three real submission files. 2026-64col comes only from BR05_Payroll_Sample /
+# BR02_Payroll_Sample - one item renamed - parked inside the live BR02 folder,
+# 4 data rows, all duplicating BR02. It is a test artefact, not a template
+# generation, and is now absent from SharePoint entirely.
+#
+# Its columns still load into HEADER_MAP so a sheet matching it can be
+# recognised and rejected by name, rather than silently mapped as real payroll.
+SAMPLE_GENERATIONS = {"2026-64col"}
+
 MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
 
@@ -250,6 +261,7 @@ def main() -> int:
 
         out.append({
             "GENERATION": r["GENERATION"],
+            "GENERATION_STATUS": "SAMPLE" if r["GENERATION"] in SAMPLE_GENERATIONS else "SUPPORTED",
             "SHEET_YEAR": r["SHEET_YEAR"],
             "COLUMN_INDEX": r["COLUMN_INDEX"],
             "COLUMN_LETTER": r["COLUMN_LETTER"],
@@ -271,6 +283,7 @@ def main() -> int:
         w.writeheader()
         w.writerows(out)
 
+    samples = [o for o in out if o["GENERATION_STATUS"] == "SAMPLE"]
     flagged = [o for o in out if o["NEEDS_REVIEW"] == "TRUE"]
     with OUT_REVIEW.open("w", encoding="utf-8") as fh:
         fh.write("# HEADER_MAP - columns needing human review\n\n")
@@ -289,6 +302,8 @@ def main() -> int:
                 fh.write(f"| {o['GENERATION']} | {o['COLUMN_LETTER']} | {bnd[:45]} | {hdr[:60]} |\n")
 
     print(f"{len(out)} rows -> {OUT_SEED.name}")
+    print(f"{len(samples)} rows belong to sample generations "
+          f"({', '.join(sorted(SAMPLE_GENERATIONS))}) - loaded but never treated as real payroll")
     print(f"{len(flagged)} need review -> {OUT_REVIEW.name}\n")
     for key in ("COMPONENT_GROUP", "MEASURE_BASIS", "PERIOD_TYPE", "CURRENCY_SCOPE"):
         counts: dict[str, int] = {}

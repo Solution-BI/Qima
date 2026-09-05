@@ -1,0 +1,17 @@
+SHAREPOINT_FOLDER,SUBSIDIARY_CODE,LEGAL_NAME,NOTE
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,AE01,QIMA Quality FZCO,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,BD01,QIMA Bangladesh Pvt Ltd,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,IN01,Qima Quality Inspection India Private Limited,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,VN01,QIMA Vietnam Company Limited,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,SA01,Qima Arabia LLC,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,HK02,,declared in folder name but zero employees in the 2026 sheet
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,HK04,QIMA Limited,payrolling entity - carries 14 distinct currencies across 553 employees
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,HK06,QIMA Testing (HK) Limited,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,CN01,QIMA (Hangzhou) Testing Co.| LTD,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,CN02,QIMA Inspection (Shenzhen) Limited,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,CN05,QIMA Testing (Dongguan) Limited,
+AE01 + BD01 + IN01 + VN01 + SA01 + HK02 + HK04 + HK06 + CN01 + CN02 + CN05 + CN06 - Payroll Reporting,CN06,QIMA Testing (Shanghai) Limited,
+BR02 - QIMA BRASIL LTDA - Payroll Reporting,BR02,QIMA BRASIL LTDA,data carries a trailing period the folder name does not
+BR09 + BR12 + BR13 - CPQUALI PESQUISA CLINICA LTDA + CPHOSP - Payroll Reporting,BR09,CPQUALI PESQUISA CLINICA LTDA,code inferred from folder name - the data cell carries no code prefix
+BR09 + BR12 + BR13 - CPQUALI PESQUISA CLINICA LTDA + CPHOSP - Payroll Reporting,BR12,,declared in folder name - not yet mapped to a legal name in the data
+BR09 + BR12 + BR13 - CPQUALI PESQUISA CLINICA LTDA + CPHOSP - Payroll Reporting,BR13,CPHOSP MEDICINA| ENSINO E PESQUISA LTDA,code inferred from folder name - the data cell carries no code prefix; BR12 vs BR13 assignment unconfirmed
