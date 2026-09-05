@@ -1,0 +1,2 @@
+SHAREPOINT_ITEM_ID,KNOWN_AS,REASON,EVIDENCE,EXCLUDED_ON
+01NLVSOQ5AYB3YGEQGI5C3V27N7HVXJNIV,BR05_Payroll_Sample.xlsx / BR02_Payroll_Sample.xlsx,SAMPLE,"4-row extract of the real BR02 submission - all 4 SAP IDs and gross salaries match BR02 exactly (916/850/510/340). 18672 bytes vs 900176; one 2026 sheet vs four sheets. Renamed once (BR02_ -> BR05_) keeping this item id.",2026-09-06

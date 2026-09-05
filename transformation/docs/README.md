@@ -18,6 +18,7 @@ reference_data/header_map/
 sql/
     01_header_map.sql        HEADER_MAP table + generation-resolution view
     02_silver_model.sql      SHEET_LOAD, PAYROLL_ROW, PAYROLL_MEASURE, DQ_FLAG, GOLD views
+    03_file_exclusion.sql    FILE_EXCLUSION + V_PAYROLL_FILE_CURRENT (what to process)
 docs/
     README.md                this file
 ```
@@ -45,11 +46,15 @@ Eight observed in `FILE_LOAD`. The contract lists seven:
 | 2026-67col | yes | BR02, BR09 |
 | 2026-75col | yes | AE01+... |
 
-`2026-64col` is **confirmed not a real generation**. SharePoint's payroll tree
-has exactly three owner folders, so there are exactly three real submission
-files - and neither sample file is among them any more. The two came from one
-SharePoint item, renamed, parked inside the live `BR02` folder, carrying 4 rows
-that duplicate BR02 data.
+`2026-64col` is **verified not a real generation**. Its 4 employee rows match
+the real BR02 file on both SAP ID and gross salary (916 / 850 / 510 / 340); the
+file is 18,672 bytes against BR02's 900,176 and carries one `2026` sheet against
+four. It is a 4-row extract of BR02, parked in the live BR02 folder, and has
+been renamed once while keeping its SharePoint item id.
+
+It is almost certainly still in that folder - the folder listing confirms three
+owner folders, not their contents - so it will be re-ingested on the next run.
+`FILE_EXCLUSION` (see `sql/03_file_exclusion.sql`) excludes it by item id.
 
 It is still loaded into `HEADER_MAP`, marked `GENERATION_STATUS = 'SAMPLE'`, so
 a sheet matching it is *recognised and excluded* rather than silently mapped as

@@ -20,8 +20,21 @@ The gap: `IS_CURRENT` returns **four** files, and one is
 `BR05_Payroll_Sample.xlsx` - a sample workbook, not a subsidiary submission.
 Currency alone is not enough to identify real payroll.
 
-**Rule to implement:** `IS_CURRENT = TRUE` **and** the sheet's generation is not
-`GENERATION_STATUS = 'SAMPLE'`. Both halves are needed.
+**Implemented** as `V_PAYROLL_FILE_CURRENT` in `sql/03_file_exclusion.sql`:
+current, successfully extracted, and not in `FILE_EXCLUSION`. Returns the three
+real submissions.
+
+`FILE_EXCLUSION` is keyed on `SHAREPOINT_ITEM_ID`, not file name - the sample
+has already been renamed once (`BR02_Payroll_Sample.xlsx` to
+`BR05_Payroll_Sample.xlsx`) while keeping its item id, so a name-based rule
+would have silently stopped working at that rename.
+
+The sample is verified, not assumed: 4 employee rows whose SAP IDs **and gross
+salaries** all match the real BR02 file exactly (916 / 850 / 510 / 340);
+18,672 bytes against 900,176; one `2026` sheet against four. It is a 4-row
+extract of BR02, and it very likely still sits in the BR02 SharePoint folder -
+so it will be re-ingested on the next run and must be excluded rather than
+presumed gone.
 
 ## 2. "If there are duplicate IDs (different contract), use ID + join date + leave date + contract"
 
