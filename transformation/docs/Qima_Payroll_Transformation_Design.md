@@ -503,6 +503,8 @@ file cross-checks those, and the classification has not been reviewed by Qima.
 
 The query is `transformation/tests/reconcile_silver.sql`. An annotated
 walkthrough of the whole layer is `transformation/tests/demo_walkthrough.sql`.
+Every scenario tested, its result, and what is deliberately not covered is
+recorded in `transformation/tests/test_results.md`.
 
 ---
 

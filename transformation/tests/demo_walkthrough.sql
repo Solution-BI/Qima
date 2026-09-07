@@ -362,7 +362,8 @@ limit 3;
 -- 11. Known gaps
 --
 -- Recorded here so the state of the layer is not overstated. Detail in
--- transformation/docs/KNOWN_GAPS.md.
+-- transformation/docs/Qima_Payroll_Transformation_Design.md section 10, and
+-- what is and is not tested in transformation/tests/test_results.md.
 --
 -- The RAW_CONTENT item is the one with live consequence: it holds every amount
 -- in every workbook and is not masked, so masking downstream does not protect
