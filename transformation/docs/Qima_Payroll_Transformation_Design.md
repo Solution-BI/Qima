@@ -423,9 +423,56 @@ Those same rows carry most of the currency anomalies. The pattern suggests
 stragglers appended to whichever workbook was open rather than deliberate
 submissions. `SUBSIDIARY_NOT_DECLARED_BY_FOLDER` is the DQ rule for this.
 
+**Both figures above are from the original analysis and cannot be re-run as
+things stand.** `FOLDER_SUBSIDIARY_MAP` lives as a CSV in
+`reference_data/subsidiary/` and was never deployed to the schema, so nothing in
+the database currently knows which subsidiaries a folder declares. Deploying it
+is the prerequisite for reproducing these counts and for implementing the rule.
+
 The folder names are also the only source for the CPQUALI / CPHOSP codes, since
 those cells carry no code prefix. One folder names three codes for two legal
 names, so which maps to which is unconfirmed.
+
+### 6.6 Restatement -- lock the year, not the month
+
+Every monthly file restates the year to date, so a correction to an
+already-reported month arrives inside an ordinary submission. The treatment was
+open until Greg ruled on it in the 7 September call:
+
+> Previous **years** are locked. Within the current year, a change to a past
+> month is kept and flows through.
+
+Locking per month was considered and rejected as impractical. The reasoning is
+accounting rather than technical: payroll has to reconcile to the books for
+salaries and benefits, and the books close around day plus 10 (Antoine, same
+call, salary slightly earlier). An adjustment for December therefore gets booked
+in January, so a month-level lock in this platform would disagree with finance
+either way. Mathieu flagged that finance still needs to sign the treatment off.
+
+Two consequences:
+
+- **A year-locking mechanism does not exist yet.** See section 10.
+- Tess noted the rest is a communications matter for the payroll owners rather
+  than a platform control: do not rename the year tab, and be aware that editing
+  a previous month will be reflected.
+
+### 6.7 Paid date versus period covered -- phase two
+
+Tess confirmed in the same call that **date paid is not captured today** in any
+template generation, and described the target logic: each pay component should
+record both the date it was paid and the period it covers. Salary paid on
+31 January covering January is the ordinary case; the value of the pair is the
+exception, where a correction paid on 31 January is actually *for* December.
+
+Half of this already exists. `PERIOD_TYPE` and `PERIOD_KEY` on
+`FACT_PAYROLL_COMPONENT` are the period covered. What is missing is the paid
+date, which no source column supplies -- the only dates in any generation are
+join and leave.
+
+**Explicitly deferred: Tess placed this in a second phase, not the current
+scope.** It is recorded here so the eventual shape is not re-derived from
+scratch, and because it is the mechanism that makes a restatement auditable
+rather than merely permitted.
 
 ---
 
@@ -562,9 +609,16 @@ view.
 ### Not built
 
 - **`DQ_FLAG` population.** The table and its four classes exist; the loader
-  does not write to it. The findings are known and reproducible in SQL -- 24
-  employments with no annual total, 11 employees from undeclared subsidiaries,
-  5 blank currencies -- but nothing downstream can filter on them.
+  does not write to it, so nothing downstream can filter on them. Reproducible
+  in SQL today: 24 employments with a monthly salary but a blank annual total,
+  and 28 payment values carrying no currency across 5 employments. The
+  "11 employees from undeclared subsidiaries" figure in section 6.5 is **not
+  currently reproducible** -- `FOLDER_SUBSIDIARY_MAP` exists as a CSV in
+  `reference_data/subsidiary/` but was never deployed to the schema, and
+  loading it is a prerequisite for both that check and the
+  `SUBSIDIARY_NOT_DECLARED_BY_FOLDER` rule.
+- **Year locking.** Required by the restatement rule in section 6.6: previous
+  years locked, current year open to correction. No mechanism exists.
 - **Row access policy.** Mechanism confirmed 20 August: a table of ID and
   parent, a comma-separated list of permitted IDs, and a policy checking
   containment of the querying identity, applied directly on the main table. To
@@ -586,12 +640,18 @@ view.
   not granted to the roles this defends against -- worth confirming rather than
   assuming.
 - **Masked value format** -- hidden, anonymised or fixed. Currently null.
-- **Restatement policy.** Each monthly file restates the year to date, so
-  corrections to already-reported months need a defined treatment. Unresolved
-  in the data contract.
 - **HEADER_MAP review.** The classification is a draft. Nothing in the source
   file cross-checks the bonus schemes, so a review by Tess is the only way to
   confirm them.
+- **Finance sign-off on the restatement rule.** The treatment itself is decided
+  (section 6.6); Mathieu flagged in the 7 September call that finance has not
+  confirmed it reconciles with how the books actually close.
+
+### Deferred to a later phase
+
+- **`DATE_PAID` on each component.** Paid date separate from period covered --
+  see section 6.7. Placed out of current scope by Tess on 7 September, recorded
+  so the target shape is not lost.
 
 ### Environment
 
