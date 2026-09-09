@@ -39,16 +39,9 @@ Two files visible in the `BR02 - QIMA BRASIL LTDA - Payroll Reporting` folder:
 
 **FILE_LOAD query result:**
 
-
-| Column | Value |
-|---|---|
-| RUN_ID | `fc0e18bf-05f8-4721-8750-b9e6...` |
-| SHAREPOINT_ITEM_ID | `01NLVSOQZ76BTL3SHM25BYFJPQYQSVD5IQ` |
-| FILE_NAME | `BR02_Payroll_Sample.xlsx` |
-| IS_CURRENT | `TRUE` |
-| SHAREPOINT_MODIFIED_AT | `2026-09-07 06:58:14.000 +0000` |
-| RAW_CONTENT | `{ "2026": [ [ "Employee Inform...` |
-| ERROR_MESSAGE | `null` |
+| SHAREPOINT_ITEM_ID | FILE_NAME | IS_CURRENT | INGEST_STATUS | EXTRACT_STATUS | RAW_CONTENT | ERROR_MESSAGE |
+|---|---|---|---|---|---|---|
+| `01NLVSOQY67ML7PVUOXVHK6V4IUVHJLZZO` | `BR02_Payroll_Sample.xlsx` | `TRUE` | `SUCCESS` | `SUCCESS` | `{ "2026": [ [ "Employee Information (QIMA PEOPLE)", ...` | `null` |
 
 **Result**
 
@@ -201,13 +194,3 @@ a CSV, or a legacy `.xls` workbook.
 FILE_LOAD as a `FAILED` row with a descriptive message, giving a queryable list
 of submissions that need re-uploading in the correct format:
 
-```sql
-SELECT FILE_NAME, SHAREPOINT_MODIFIED_BY, INGESTED_AT, ERROR_MESSAGE
-FROM FILE_LOAD
-WHERE INGEST_STATUS = 'FAILED'
-ORDER BY INGESTED_AT DESC;
-```
-
-Note that these rows carry `IS_CURRENT = TRUE` — Cell 7 sets it for every
-inserted row regardless of outcome. Downstream consumers must therefore filter
-on `IS_CURRENT = TRUE AND INGEST_STATUS = 'SUCCESS'`, not on `IS_CURRENT` alone.
