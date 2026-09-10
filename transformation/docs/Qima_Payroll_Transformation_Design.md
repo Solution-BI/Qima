@@ -78,12 +78,24 @@ data, the rest formatted-but-empty padding), 216,101 individual values.
 
 ## 3. Load steps
 
-All four steps are plain SQL in `transformation/sql/`. No Python runs in the
-pipeline; the scripts under `reference_data/` exist only to regenerate
-`HEADER_MAP` when a new template version appears.
+All four steps are plain SQL in `transformation/sql/`, followed by
+`05_load_dq_flags.sql`. No Python runs in the pipeline; the scripts under
+`reference_data/` exist only to regenerate `HEADER_MAP` when a new template
+version appears.
 
-Every step is idempotent -- it skips sheets already loaded, so a re-run after a
-new file arrives processes only the new one.
+**Always run the loader as a full reload** -- truncate the three model tables
+first. Each step does carry a skip-check, but it keys on `FILE_LOAD.LOAD_ID`,
+and ingestion writes a new row, and so a new `LOAD_ID`, on every run --
+including a re-ingestion of a file it has already seen. After ingestion
+re-runs, the skip-check therefore does not recognise the same file, and a plain
+re-run loads a second copy of everything.
+
+That is not hypothetical. The three source files were re-ingested on
+7 September as `LOAD_ID` 905/906/1001, orphaning a model built on 723/811/813
+and leaving lineage back to `FILE_LOAD` broken until it was reloaded.
+Incremental loading keyed on `SHAREPOINT_ITEM_ID` plus `SHAREPOINT_MODIFIED_AT`
+is possible if volumes ever justify it; a rebuild currently takes seconds, so
+they do not.
 
 ### Step 1 -- Select the files to process
 
@@ -578,7 +590,10 @@ TRUNCATE TABLE PAYROLL_ROW;
 TRUNCATE TABLE SHEET_LOAD;
 ```
 
-then re-run `transformation/sql/04_load_silver.sql`. Rebuild takes seconds.
+then re-run `transformation/sql/04_load_silver.sql` followed by
+`05_load_dq_flags.sql`. Rebuild takes seconds.
+
+This is the only supported way to run the loader -- see section 3.
 
 **Do not truncate `HEADER_MAP` alongside these.** It loads from CSV rather than
 from `FILE_LOAD`, so emptying it leaves the loader with no way to interpret any
@@ -588,7 +603,9 @@ column -- it will run and insert nothing.
 
 ```
 transformation/
-    sql/          01_header_map, 02_silver_model, 03_file_exclusion, 04_load_silver
+    sql/          01_header_map, 02_silver_model, 03_file_exclusion,
+                  04_load_silver, 05_load_dq_flags,
+                  90_staging_consolidated (outside the model)
     reference_data/  header_map/, subsidiary/, file_exclusion/
     tests/        reconcile_silver.sql, reconcile_monthly_vs_total.sql,
                   demo_walkthrough.sql
@@ -606,17 +623,38 @@ view.
 
 ## 10. Open items
 
+### Closed by the 9 September review
+
+Seventeen integrity checks were run against the loaded model; thirteen passed
+and four did not. Note that **Snowflake does not enforce primary key, unique or
+foreign key constraints** -- they are metadata only -- which is why each was
+tested by query, and how the first two below went unnoticed.
+
+- **Fact grain was not unique.** 8,120 duplicate keys. Four distinct
+  contractual columns -- gross salary, allowance, employer social charges, and
+  their total -- all classified as `CONTRACT_SALARY` / `RATE` with a null
+  period, so they collided. The fourth is the sum of the other three, so
+  summing the group double-counted. `CANONICAL_FIELD` already held the correct
+  four names; they were promoted into `COMPONENT_NAME`. Fixed.
+- **The model was built from superseded loads.** See section 3. Fixed by a full
+  reload.
+- **Sample files were being skipped by coincidence** rather than by rule --
+  caught only because their column count happened to match a generation flagged
+  `SAMPLE`. Three explicit exclusions added, including the current item id for
+  the BR02 sample: a SharePoint item id survives a rename but **not** a delete
+  and re-upload, so the original exclusion had silently stopped matching
+  anything.
+- **`DQ_FLAG` is now populated** by `05_load_dq_flags.sql` -- 517 findings, all
+  `VALUE` class, so nothing is withheld from GOLD.
+
 ### Not built
 
-- **`DQ_FLAG` population.** The table and its four classes exist; the loader
-  does not write to it, so nothing downstream can filter on them. Reproducible
-  in SQL today: 24 employments with a monthly salary but a blank annual total,
-  and 28 payment values carrying no currency across 5 employments. The
-  "11 employees from undeclared subsidiaries" figure in section 6.5 is **not
-  currently reproducible** -- `FOLDER_SUBSIDIARY_MAP` exists as a CSV in
-  `reference_data/subsidiary/` but was never deployed to the schema, and
-  loading it is a prerequisite for both that check and the
-  `SUBSIDIARY_NOT_DECLARED_BY_FOLDER` rule.
+- **`SUBSIDIARY_NOT_DECLARED_BY_FOLDER`.** The one data-quality rule that
+  cannot be written yet. `FOLDER_SUBSIDIARY_MAP` exists as a CSV in
+  `reference_data/subsidiary/` but was never deployed to the schema, so nothing
+  in the database knows which subsidiaries a folder declares. Deploying it is
+  the prerequisite for both this rule and for reproducing the "11 employees
+  from undeclared subsidiaries" figure in section 6.5.
 - **Year locking.** Required by the restatement rule in section 6.6: previous
   years locked, current year open to correction. No mechanism exists.
 - **Row access policy.** Mechanism confirmed 20 August: a table of ID and

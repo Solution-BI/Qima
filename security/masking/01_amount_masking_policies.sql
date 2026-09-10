@@ -25,7 +25,6 @@ use schema SANDBOX_DB.HR_PAYROLL_QIMA;
 -- four other columns, so a policy on AMOUNT by itself would leak:
 --
 --   FACT_PAYROLL_COMPONENT.AMOUNT       the parsed number
---   FACT_PAYROLL_COMPONENT.RAW_VALUE    the same figure, verbatim as text
 --   FACT_PAYROLL_COMPONENT.TEXT_VALUE   the figure where it was typed as text
 --   PAYROLL_ROW.ROW_DATA                the entire spreadsheet line, VARIANT
 --   DQ_FLAG.RAW_VALUE                   the offending value on a flagged cell
@@ -81,7 +80,6 @@ create or replace masking policy MP_PAYROLL_ROW_VARIANT as (val variant) returns
 -- Apply
 -- ---------------------------------------------------------------------------
 alter table FACT_PAYROLL_COMPONENT modify column AMOUNT      set masking policy MP_PAYROLL_AMOUNT;
-alter table FACT_PAYROLL_COMPONENT modify column RAW_VALUE   set masking policy MP_PAYROLL_AMOUNT_TEXT;
 alter table FACT_PAYROLL_COMPONENT modify column TEXT_VALUE  set masking policy MP_PAYROLL_AMOUNT_TEXT;
 alter table PAYROLL_ROW            modify column ROW_DATA    set masking policy MP_PAYROLL_ROW_VARIANT;
 alter table DQ_FLAG                modify column RAW_VALUE   set masking policy MP_PAYROLL_AMOUNT_TEXT;

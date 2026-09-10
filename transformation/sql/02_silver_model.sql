@@ -15,18 +15,18 @@ use warehouse SANDBOX_WH;
 use schema SANDBOX_DB.HR_PAYROLL_QIMA;
 
 -- ---------------------------------------------------------------------------
--- SHEET_LOAD - one row per sheet inside an ingested workbook.
+-- TAB_LOAD - one row per tab inside an ingested workbook.
 --
 -- A workbook is not one dataset. Each holds several year sheets plus
 -- "Instructions", and the year sheets are different template generations from
 -- each other: BR02's 2024 sheet is 2024-91col while its 2026 sheet is
 -- 2026-67col. Resolving the generation per sheet is what makes that safe.
 -- ---------------------------------------------------------------------------
-create table if not exists SHEET_LOAD (
-    SHEET_LOAD_ID       number(38,0)   identity start 1 increment 1,
+create table if not exists TAB_LOAD (
+    TAB_LOAD_ID         number(38,0)   identity start 1 increment 1,
     LOAD_ID             number(38,0)   not null comment 'FK -> FILE_LOAD.',
-    SHEET_NAME          varchar        not null comment 'Key from RAW_CONTENT.',
-    SHEET_YEAR          number(4,0)    comment 'Null when the sheet name is not a year, e.g. Instructions.',
+    TAB_NAME          varchar        not null comment 'Key from RAW_CONTENT.',
+    TAB_YEAR          number(4,0)    comment 'Null when the sheet name is not a year, e.g. Instructions.',
     GENERATION          varchar        comment 'FK -> HEADER_MAP.GENERATION. Null when unmatched.',
     COLUMN_COUNT        number(38,0),
     HEADER_HASH         number(38,0)
@@ -37,10 +37,10 @@ create table if not exists SHEET_LOAD (
         comment 'Rows carrying an employee id. Some sheets are over 95 percent formatted-but-empty padding.',
     MAPPING_STATUS      varchar        not null default 'UNMAPPED',
     CREATED_AT          timestamp_tz   not null default current_timestamp(),
-    constraint PK_SHEET_LOAD primary key (SHEET_LOAD_ID),
-    constraint UQ_SHEET_LOAD unique (LOAD_ID, SHEET_NAME),
+    constraint PK_TAB_LOAD primary key (TAB_LOAD_ID),
+    constraint UQ_TAB_LOAD unique (LOAD_ID, TAB_NAME),
     constraint CHK_MAPPING_STATUS check (MAPPING_STATUS in ('MAPPED','UNMAPPED','SAMPLE','NOT_APPLICABLE'))
-) comment = 'One row per sheet per ingested file, with its resolved template generation.';
+) comment = 'One row per tab per ingested file, with its resolved template generation.';
 
 -- ---------------------------------------------------------------------------
 -- PAYROLL_ROW - one row per employee line.
@@ -54,7 +54,7 @@ create table if not exists SHEET_LOAD (
 -- ---------------------------------------------------------------------------
 create table if not exists PAYROLL_ROW (
     PAYROLL_ROW_ID      number(38,0)   identity start 1 increment 1,
-    SHEET_LOAD_ID       number(38,0)   not null,
+    TAB_LOAD_ID         number(38,0)   not null,
     ROW_INDEX           number(38,0)   not null comment 'Index in the sheet array. Row 0 is the band, row 1 the headers, data starts at 2.',
     REPORT_YEAR         number(4,0)    not null,
 
@@ -71,7 +71,7 @@ create table if not exists PAYROLL_ROW (
     ROW_DATA            variant        not null comment 'The full cell array, kept so a HEADER_MAP fix can be replayed without re-ingesting.',
     LOADED_AT           timestamp_tz   not null default current_timestamp(),
     constraint PK_PAYROLL_ROW primary key (PAYROLL_ROW_ID),
-    constraint UQ_PAYROLL_ROW unique (SHEET_LOAD_ID, ROW_INDEX)
+    constraint UQ_PAYROLL_ROW unique (TAB_LOAD_ID, ROW_INDEX)
 ) comment = 'One row per employee line per sheet. Employee attributes informative except subsidiary.';
 
 -- ---------------------------------------------------------------------------
@@ -95,12 +95,10 @@ create table if not exists PAYROLL_ROW (
 create table if not exists FACT_PAYROLL_COMPONENT (
     MEASURE_ID          number(38,0)   identity start 1 increment 1,
     PAYROLL_ROW_ID      number(38,0)   not null,
-    SHEET_LOAD_ID       number(38,0)   not null,
+    TAB_LOAD_ID         number(38,0)   not null,
 
     EMPLOYEE_SAP_ID     varchar,
     EMPLOYMENT_KEY      varchar        comment 'Copied from PAYROLL_ROW. Aggregating on EMPLOYEE_SAP_ID alone would merge two contracts into one person.',
-    JOIN_DATE           date,
-    LEAVE_DATE          date,
     SUBSIDIARY_CODE     varchar        comment 'Point-in-time, copied from PAYROLL_ROW. Do not resolve this live.',
     REPORT_YEAR         number(4,0)    not null,
 
@@ -116,9 +114,7 @@ create table if not exists FACT_PAYROLL_COMPONENT (
         comment 'Resolved by the loader: the component''s own (Currency) column where the generation has one, otherwise the contractual currency in column J. These genuinely differ - 1988 of 2812 current rows carry a year-end bonus currency that is not the contract currency, overwhelmingly local-to-USD. Files use RMB where ISO is CNY; normalised in GOLD, not here.',
     IS_ELIGIBLE         boolean        comment 'Set where MEASURE_BASIS is ELIGIBILITY.',
     TEXT_VALUE          varchar        comment 'Set where the value is not numeric - an ATTRIBUTE, or a salary typed as text.',
-    RAW_VALUE           varchar        comment 'The cell exactly as extracted, always populated, for dispute resolution.',
 
-    SOURCE_COLUMN_INDEX number(38,0)   not null,
     LOADED_AT           timestamp_tz   not null default current_timestamp(),
     constraint PK_FACT_PAYROLL_COMPONENT primary key (MEASURE_ID),
     constraint UQ_FACT_PAYROLL_COMPONENT unique
@@ -133,7 +129,7 @@ create table if not exists FACT_PAYROLL_COMPONENT (
 create table if not exists DQ_FLAG (
     FLAG_ID             number(38,0)   identity start 1 increment 1,
     LOAD_ID             number(38,0),
-    SHEET_LOAD_ID       number(38,0),
+    TAB_LOAD_ID       number(38,0),
     PAYROLL_ROW_ID      number(38,0),
     MEASURE_ID          number(38,0),
 
@@ -161,7 +157,7 @@ create table if not exists DQ_FLAG (
 create or replace view V_GOLD_PAYROLL_COMPONENT as
 select m.*
 from FACT_PAYROLL_COMPONENT m
-join SHEET_LOAD sl on sl.SHEET_LOAD_ID = m.SHEET_LOAD_ID
+join TAB_LOAD sl on sl.TAB_LOAD_ID = m.TAB_LOAD_ID
 where m.CURRENCY_SCOPE = 'LOCAL'
   and sl.MAPPING_STATUS = 'MAPPED'   -- excludes SAMPLE sheets
   and not exists (
@@ -190,15 +186,18 @@ select REPORT_YEAR,
        SUBSIDIARY_CODE,
        EMPLOYEE_SAP_ID,
        EMPLOYMENT_KEY,
-       JOIN_DATE,
-       LEAVE_DATE,
        COMPONENT_GROUP,
        CURRENCY_CODE,
        sum(AMOUNT) as AMOUNT_PAID
 from V_GOLD_PAYROLL_COMPONENT
 where MEASURE_BASIS = 'PAYMENT'
   and COMPONENT_GROUP <> 'EXTERNAL'
-group by 1, 2, 3, 4, 5, 6, 7, 8;
+  -- Current year only. "Current" is the newest year actually loaded, capped at
+  -- today's year so a mistyped tab name cannot hijack it. History stays
+  -- available through V_GOLD_PAYROLL_COMPONENT, which is unfiltered.
+  and REPORT_YEAR = (select max(REPORT_YEAR) from FACT_PAYROLL_COMPONENT
+                     where REPORT_YEAR <= year(current_date()))
+group by 1, 2, 3, 4, 5, 6;
 
 -- A single-currency total is only safe where an employment reports exactly one
 -- currency across every component. This view says which those are, so a
@@ -211,5 +210,6 @@ select REPORT_YEAR, SUBSIDIARY_CODE, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
 from V_GOLD_ANNUAL_COMPENSATION
 group by 1, 2, 3, 4
 having count(distinct CURRENCY_CODE) = 1;
+-- Inherits the current-year filter from V_GOLD_ANNUAL_COMPENSATION above.
 
 show tables in schema SANDBOX_DB.HR_PAYROLL_QIMA;

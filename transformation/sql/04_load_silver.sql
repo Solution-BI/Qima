@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- transformation / 04 - Load SILVER from RAW
 --
--- RAW_CONTENT -> SHEET_LOAD -> PAYROLL_ROW -> FACT_PAYROLL_COMPONENT.
+-- RAW_CONTENT -> TAB_LOAD -> PAYROLL_ROW -> FACT_PAYROLL_COMPONENT.
 --
 -- Plain SQL, no Python. The reconciliation test proved the whole pattern: a
 -- cell is located by joining HEADER_MAP on (generation, column index) and
@@ -9,8 +9,22 @@
 -- which is what lets one script handle all seven generations - the employee id
 -- is at index 0 in 2026 and index 1 in 2024/2025.
 --
--- Idempotent. Each step skips sheets already loaded, so a re-run after adding
--- a file loads only the new one.
+-- ALWAYS RUN THIS AS A FULL RELOAD. Truncate FACT_PAYROLL_COMPONENT,
+-- PAYROLL_ROW and TAB_LOAD first - never HEADER_MAP, which loads from CSV
+-- and would leave the loader with nothing to interpret columns with.
+--
+-- Each step does carry a skip-check, but it keys on FILE_LOAD.LOAD_ID, and
+-- ingestion writes a new row - and so a new LOAD_ID - on every run, including
+-- re-ingestions of a file it has already seen. So after ingestion re-runs, the
+-- skip-check does not recognise the same file and a plain re-run loads a
+-- second copy of everything rather than skipping it. That is what happened on
+-- 7 September: the three source files were re-ingested as 905/906/1001,
+-- orphaning a model built on 723/811/813.
+--
+-- The skip-check is therefore only safe within a single ingestion generation,
+-- which is not a condition worth relying on. A rebuild takes seconds.
+-- Incremental loading keyed on SHAREPOINT_ITEM_ID plus SHAREPOINT_MODIFIED_AT
+-- is possible if volumes ever make it worth it - they do not today.
 --
 -- Two things to know about the VARIANT data:
 --   * an empty spreadsheet cell arrives as a JSON null, which Snowflake reports
@@ -24,18 +38,18 @@ use warehouse SANDBOX_WH;
 use schema SANDBOX_DB.HR_PAYROLL_QIMA;
 
 -- ---------------------------------------------------------------------------
--- Step 1: SHEET_LOAD. One row per sheet in every file worth processing.
+-- Step 1: TAB_LOAD. One row per tab in every file worth processing.
 --
 -- Non-year sheets ("Instructions") are recorded as NOT_APPLICABLE rather than
 -- skipped, so the sheet inventory of a file is complete and auditable.
 -- ---------------------------------------------------------------------------
-insert into SHEET_LOAD
-    (LOAD_ID, SHEET_NAME, SHEET_YEAR, GENERATION, COLUMN_COUNT,
+insert into TAB_LOAD
+    (LOAD_ID, TAB_NAME, TAB_YEAR, GENERATION, COLUMN_COUNT,
      HEADER_HASH, HEADER_JSON, TOTAL_ROWS, DATA_ROWS, MAPPING_STATUS)
 with sheets as (
     select f.LOAD_ID,
-           s.key                                              as SHEET_NAME,
-           try_to_number(s.key)                               as SHEET_YEAR,
+           s.key                                              as TAB_NAME,
+           try_to_number(s.key)                               as TAB_YEAR,
            s.value                                            as GRID,
            array_size(s.value)                                as TOTAL_ROWS,
            array_size(s.value[1])                             as COLUMN_COUNT,
@@ -52,13 +66,13 @@ id_col as (
 -- Flatten once, then join. A correlated subquery containing its own FLATTEN is
 -- rejected by Snowflake with "unsupported subquery type".
 flat as (
-    select sh.LOAD_ID, sh.SHEET_NAME, sh.GENERATION, r.value as RV
+    select sh.LOAD_ID, sh.TAB_NAME, sh.GENERATION, r.value as RV
     from sheets sh,
          lateral flatten(input => sh.GRID) r
     where r.index >= 2
 ),
 row_counts as (
-    select f.LOAD_ID, f.SHEET_NAME, count(*) as DATA_ROWS
+    select f.LOAD_ID, f.TAB_NAME, count(*) as DATA_ROWS
     from flat f
     join id_col i on i.GENERATION = f.GENERATION
     where not coalesce(is_null_value(get(f.RV, i.COLUMN_INDEX)), true)
@@ -68,20 +82,20 @@ row_counts as (
 gen_status as (
     select distinct GENERATION, GENERATION_STATUS from HEADER_MAP
 )
-select sh.LOAD_ID, sh.SHEET_NAME, sh.SHEET_YEAR, sh.GENERATION, sh.COLUMN_COUNT,
+select sh.LOAD_ID, sh.TAB_NAME, sh.TAB_YEAR, sh.GENERATION, sh.COLUMN_COUNT,
        hash(sh.GRID[1]::string), sh.GRID[1], sh.TOTAL_ROWS,
        coalesce(rc.DATA_ROWS, 0),
        case
-           when sh.SHEET_YEAR is null           then 'NOT_APPLICABLE'
+           when sh.TAB_YEAR is null           then 'NOT_APPLICABLE'
            when g.GENERATION_STATUS = 'SAMPLE'  then 'SAMPLE'
            when g.GENERATION is not null        then 'MAPPED'
            else 'UNMAPPED'
        end
 from sheets sh
-left join row_counts rc on rc.LOAD_ID = sh.LOAD_ID and rc.SHEET_NAME = sh.SHEET_NAME
+left join row_counts rc on rc.LOAD_ID = sh.LOAD_ID and rc.TAB_NAME = sh.TAB_NAME
 left join gen_status g   on g.GENERATION = sh.GENERATION
-left join SHEET_LOAD sl  on sl.LOAD_ID = sh.LOAD_ID and sl.SHEET_NAME = sh.SHEET_NAME
-where sl.SHEET_LOAD_ID is null;
+left join TAB_LOAD sl  on sl.LOAD_ID = sh.LOAD_ID and sl.TAB_NAME = sh.TAB_NAME
+where sl.TAB_LOAD_ID is null;
 
 -- ---------------------------------------------------------------------------
 -- Step 2: PAYROLL_ROW. One row per employee line on a mapped sheet.
@@ -91,23 +105,23 @@ where sl.SHEET_LOAD_ID is null;
 -- holds two contracts or transferred subsidiary mid-year.
 -- ---------------------------------------------------------------------------
 insert into PAYROLL_ROW
-    (SHEET_LOAD_ID, ROW_INDEX, REPORT_YEAR, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+    (TAB_LOAD_ID, ROW_INDEX, REPORT_YEAR, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
      SUBSIDIARY_CODE, SUBSIDIARY_RAW, EMPLOYEE_NAME, JOIN_DATE, LEAVE_DATE,
      IS_BLANK, ROW_DATA)
 with grid as (
-    select sl.SHEET_LOAD_ID, sl.GENERATION, sl.SHEET_YEAR,
+    select sl.TAB_LOAD_ID, sl.GENERATION, sl.TAB_YEAR,
            r.index as ROW_INDEX, r.value as RV
-    from SHEET_LOAD sl
+    from TAB_LOAD sl
     join V_PAYROLL_FILE_CURRENT f on f.LOAD_ID = sl.LOAD_ID,
-         lateral flatten(input => get(f.RAW_CONTENT, sl.SHEET_NAME)) r
+         lateral flatten(input => get(f.RAW_CONTENT, sl.TAB_NAME)) r
     where sl.MAPPING_STATUS = 'MAPPED'
       and r.index >= 2
       and not exists (select 1 from PAYROLL_ROW pr
-                      where pr.SHEET_LOAD_ID = sl.SHEET_LOAD_ID)
+                      where pr.TAB_LOAD_ID = sl.TAB_LOAD_ID)
 ),
 -- One row per (sheet row, wanted field). Pivoted below.
 fields as (
-    select g.SHEET_LOAD_ID, g.SHEET_YEAR, g.ROW_INDEX, g.RV,
+    select g.TAB_LOAD_ID, g.TAB_YEAR, g.ROW_INDEX, g.RV,
            m.CANONICAL_FIELD,
            nullif(trim(replace(get(g.RV, m.COLUMN_INDEX)::string, ' ', ' ')), '') as VAL
     from grid g
@@ -117,7 +131,7 @@ fields as (
           ('EMPLOYEE_SAP_ID','EMPLOYEE_NAME','JOIN_DATE','LEAVE_DATE','SUBSIDIARY')
 ),
 pivoted as (
-    select SHEET_LOAD_ID, SHEET_YEAR, ROW_INDEX, any_value(RV) as RV,
+    select TAB_LOAD_ID, TAB_YEAR, ROW_INDEX, any_value(RV) as RV,
            max(iff(CANONICAL_FIELD = 'EMPLOYEE_SAP_ID', VAL, null)) as EMPLOYEE_SAP_ID,
            max(iff(CANONICAL_FIELD = 'EMPLOYEE_NAME',   VAL, null)) as EMPLOYEE_NAME,
            max(iff(CANONICAL_FIELD = 'JOIN_DATE',       VAL, null)) as JOIN_RAW,
@@ -126,7 +140,7 @@ pivoted as (
     from fields
     group by 1, 2, 3
 )
-select SHEET_LOAD_ID, ROW_INDEX, SHEET_YEAR,
+select TAB_LOAD_ID, ROW_INDEX, TAB_YEAR,
        EMPLOYEE_SAP_ID,
        EMPLOYEE_SAP_ID || '|' || coalesce(JOIN_RAW, '~') || '|' || coalesce(LEAVE_RAW, '~'),
        -- "BR02 - QIMA BRASIL LTDA." -> BR02. CPQUALI/CPHOSP carry no prefix,
@@ -150,32 +164,30 @@ from pivoted;
 -- usually USD, so this cannot default to one currency per row.
 -- ---------------------------------------------------------------------------
 insert into FACT_PAYROLL_COMPONENT
-    (PAYROLL_ROW_ID, SHEET_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
-     JOIN_DATE, LEAVE_DATE, SUBSIDIARY_CODE, REPORT_YEAR,
+    (PAYROLL_ROW_ID, TAB_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+     SUBSIDIARY_CODE, REPORT_YEAR,
      COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY,
-     CURRENCY_SCOPE, AMOUNT, CURRENCY_CODE, IS_ELIGIBLE, TEXT_VALUE, RAW_VALUE,
-     SOURCE_COLUMN_INDEX)
+     CURRENCY_SCOPE, AMOUNT, CURRENCY_CODE, IS_ELIGIBLE, TEXT_VALUE)
 with cells as (
-    select pr.PAYROLL_ROW_ID, pr.SHEET_LOAD_ID, pr.EMPLOYEE_SAP_ID,
-           pr.EMPLOYMENT_KEY, pr.JOIN_DATE, pr.LEAVE_DATE,
-           pr.SUBSIDIARY_CODE, pr.REPORT_YEAR,
+    select pr.PAYROLL_ROW_ID, pr.TAB_LOAD_ID, pr.EMPLOYEE_SAP_ID,
+           pr.EMPLOYMENT_KEY, pr.SUBSIDIARY_CODE, pr.REPORT_YEAR,
            m.COMPONENT_GROUP, m.COMPONENT_NAME, m.MEASURE_BASIS,
            m.PERIOD_TYPE, m.PERIOD_KEY, m.CURRENCY_SCOPE, m.COLUMN_INDEX,
            nullif(trim(replace(get(pr.ROW_DATA, m.COLUMN_INDEX)::string, ' ', ' ')), '') as RAW_VALUE
     from PAYROLL_ROW pr
-    join SHEET_LOAD sl on sl.SHEET_LOAD_ID = pr.SHEET_LOAD_ID
+    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
     join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
     where not pr.IS_BLANK
       and m.MEASURE_BASIS in ('PAYMENT','RATE','FEE','ELIGIBILITY')
       and not exists (select 1 from FACT_PAYROLL_COMPONENT pm
-                      where pm.SHEET_LOAD_ID = pr.SHEET_LOAD_ID)
+                      where pm.TAB_LOAD_ID = pr.TAB_LOAD_ID)
 ),
 -- Currency per component, and the contractual fallback, resolved per row.
 ccy as (
     select pr.PAYROLL_ROW_ID, m.COMPONENT_NAME,
            nullif(trim(get(pr.ROW_DATA, m.COLUMN_INDEX)::string), '') as CURRENCY_CODE
     from PAYROLL_ROW pr
-    join SHEET_LOAD sl on sl.SHEET_LOAD_ID = pr.SHEET_LOAD_ID
+    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
     join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
     where m.MEASURE_BASIS = 'CURRENCY' and not pr.IS_BLANK
 ),
@@ -183,12 +195,12 @@ contract_ccy as (
     select pr.PAYROLL_ROW_ID,
            nullif(trim(get(pr.ROW_DATA, m.COLUMN_INDEX)::string), '') as CURRENCY_CODE
     from PAYROLL_ROW pr
-    join SHEET_LOAD sl on sl.SHEET_LOAD_ID = pr.SHEET_LOAD_ID
+    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
     join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
     where m.CANONICAL_FIELD = 'CONTRACT_CURRENCY' and not pr.IS_BLANK
 )
-select c.PAYROLL_ROW_ID, c.SHEET_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
-       c.JOIN_DATE, c.LEAVE_DATE, c.SUBSIDIARY_CODE, c.REPORT_YEAR,
+select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
+       c.SUBSIDIARY_CODE, c.REPORT_YEAR,
        c.COMPONENT_GROUP, c.COMPONENT_NAME, c.MEASURE_BASIS,
        c.PERIOD_TYPE, c.PERIOD_KEY, c.CURRENCY_SCOPE,
        iff(c.MEASURE_BASIS <> 'ELIGIBILITY', try_to_number(c.RAW_VALUE, 18, 2), null),
@@ -201,8 +213,6 @@ select c.PAYROLL_ROW_ID, c.SHEET_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
        -- "salary entered as text" case, rather than silently dropped.
        iff(c.MEASURE_BASIS <> 'ELIGIBILITY' and c.RAW_VALUE is not null
            and try_to_number(c.RAW_VALUE, 18, 2) is null, c.RAW_VALUE, null),
-       c.RAW_VALUE,
-       c.COLUMN_INDEX
 from cells c
 left join ccy          cc on cc.PAYROLL_ROW_ID = c.PAYROLL_ROW_ID
                         and cc.COMPONENT_NAME  = c.COMPONENT_NAME

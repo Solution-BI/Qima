@@ -19,9 +19,12 @@ TRANSFORMATION = HERE.parents[1]
 sys.path.insert(0, str(TRANSFORMATION / "lib"))
 from snowflake_helper import connect, query  # noqa: E402
 
+# FILE_EXCLUSION was retired on 11 September - the rule now lives in
+# V_PAYROLL_FILE_CURRENT as a filename pattern. excluded_files.csv is kept in
+# the repository as the record of why each file was judged a non-submission,
+# but it is no longer loaded.
 SEEDS = [
-    ("HEADER_MAP",     HERE / "header_map_seed.csv"),
-    ("FILE_EXCLUSION", TRANSFORMATION / "reference_data" / "file_exclusion" / "excluded_files.csv"),
+    ("HEADER_MAP", HERE / "header_map_seed.csv"),
 ]
 
 

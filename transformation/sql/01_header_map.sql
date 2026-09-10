@@ -90,18 +90,18 @@ create file format if not exists FF_HEADER_MAP_CSV
 -- on_error = 'ABORT_STATEMENT';
 
 -- ---------------------------------------------------------------------------
--- Generation lookup: resolves a sheet in FILE_LOAD to a HEADER_MAP generation.
+-- Generation lookup: resolves a tab in FILE_LOAD to a HEADER_MAP generation.
 -- Matching on (sheet name, column count) rather than a header hash is
 -- deliberate - a single corrected typo in one header would change the hash and
 -- orphan the file, whereas the column count is stable across such edits.
 -- Sheets that match nothing here are convention-class, not rejections.
 -- ---------------------------------------------------------------------------
-create or replace view V_SHEET_GENERATION as
+create or replace view V_TAB_GENERATION as
 select f.LOAD_ID,
        f.FILE_NAME,
        f.IS_CURRENT,
-       s.key                                            as SHEET_NAME,
-       try_to_number(s.key)                             as SHEET_YEAR,
+       s.key                                            as TAB_NAME,
+       try_to_number(s.key)                             as TAB_YEAR,
        array_size(s.value)                              as TOTAL_ROWS,
        array_size(s.value[1])                           as COLUMN_COUNT,
        s.key || '-' || array_size(s.value[1]) || 'col'  as GENERATION,
