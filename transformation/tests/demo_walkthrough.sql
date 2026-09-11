@@ -189,23 +189,26 @@ left join reported r on r.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID;
 -- IS_CURRENT = FALSE, keyed on the SharePoint item id. The requirement is to
 -- process only what is current.
 --
--- IS_CURRENT alone proved insufficient: one of the four current files is a
--- sample workbook parked inside a live submission folder, holding four rows
--- copied from the real BR02 file. Loading it would have duplicated genuine
--- payroll.
+-- IS_CURRENT alone proved insufficient: one of the current files is a sample
+-- workbook parked inside a live submission folder, holding rows copied from
+-- the real BR02 file. Loading it would have duplicated genuine payroll.
 --
--- FILE_EXCLUSION is keyed on SHAREPOINT_ITEM_ID rather than file name, because
--- that sample has already been renamed once while keeping the same item id -
--- a name-based rule would have stopped working silently at that rename.
+-- This was a FILE_EXCLUSION table keyed on SHAREPOINT_ITEM_ID, on the
+-- reasoning that a rename cannot defeat an id. That held for a rename and not
+-- for a delete and re-upload, which issues a new id - the BR02 sample has been
+-- through three, and by 10 September the list matched none of them.
+--
+-- The rule is now a filename pattern inside V_PAYROLL_FILE_CURRENT, which
+-- catches every upload of that file with nothing to maintain. SKIP_REASON
+-- says why anything left out was left out.
 -- ===========================================================================
 select FILE_NAME,
        IS_CURRENT,
-       IS_EXCLUDED,
-       EXCLUSION_REASON,
+       INGEST_STATUS,
+       coalesce(SKIP_REASON, 'processed') as OUTCOME,
        FILE_SIZE_BYTES
 from V_PAYROLL_FILE
-where IS_CURRENT
-order by IS_EXCLUDED, FILE_NAME;
+order by OUTCOME, FILE_NAME;
 
 
 -- ===========================================================================

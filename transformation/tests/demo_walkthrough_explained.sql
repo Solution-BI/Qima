@@ -206,40 +206,48 @@ left join reported r on r.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID;
 
 
 -- ===========================================================================
--- 6. RULE ONE - only current, non-excluded files
+-- 6. RULE ONE - only current files that are real submissions
 --
 -- IS_CURRENT alone is not sufficient. It returns four files, and one of them
--- is a sample workbook: a four-row extract whose employee ids and salaries all
+-- is a sample workbook: a short extract whose employee ids and salaries all
 -- match rows in the real BR02 file. Loading it would duplicate genuine
 -- payroll.
 --
--- Three design decisions sit in this one view.
+-- This was a FILE_EXCLUSION table keyed on SHAREPOINT_ITEM_ID, on the
+-- reasoning that a rename cannot defeat an id. That reasoning was sound but
+-- incomplete: an item id survives a rename, and does not survive a delete and
+-- re-upload, which issues a new one. The BR02 sample has been through three
+-- item ids, and by 10 September the list matched none of them - the file was
+-- reaching the loader, stopped only by its column width happening to match a
+-- generation already flagged SAMPLE.
 --
---   * Exclusion is keyed on SHAREPOINT_ITEM_ID, never on filename. The sample
---     has already been renamed once while keeping the same item id; a
---     name-based rule would have silently stopped working at that rename.
+-- Three things still hold in the replacement.
 --
---   * Nothing is deleted. FILE_EXCLUSION is a separate table joined with a
---     LEFT JOIN, so an excluded file keeps its FILE_LOAD row and its full
---     RAW_CONTENT. The decision stays auditable and is reversed by deleting
---     one row.
+--   * The rule lives in exactly one view, so there is one place to change it.
 --
---   * Every exclusion carries stated evidence. Excluding payroll data needs a
---     reason on the record, not a preference - hence REASON and EVIDENCE, and
---     the size comparison visible in this result.
+--   * Nothing is deleted. A skipped file keeps its FILE_LOAD row and its full
+--     RAW_CONTENT, so the decision stays auditable and reversible.
 --
--- This view is also what makes the agreed deletion behaviour free: when
--- ingestion sets IS_CURRENT = 0 on a file that has disappeared, it drops out
--- here on the next run with no change to the transformation layer.
+--   * Every file left out says why. SKIP_REASON distinguishes SUPERSEDED from
+--     INGEST_FAILED from SAMPLE, so "why has my upload not appeared" has an
+--     answer without reading the view definition.
+--
+-- The trade-off: a genuine submission named "..._Sample..." would be skipped.
+-- That has never happened, and it would be visible rather than silent - the
+-- tab is still recorded in TAB_LOAD and a missing subsidiary shows up in
+-- reporting. The previous mechanism's failure mode was silence, which is worse.
+--
+-- This view also makes the agreed deletion behaviour free: when ingestion sets
+-- IS_CURRENT = 0 on a file that has disappeared, it drops out here on the next
+-- run with no change to the transformation layer.
 -- ===========================================================================
 select FILE_NAME,
        IS_CURRENT,
-       IS_EXCLUDED,
-       EXCLUSION_REASON,
+       INGEST_STATUS,
+       coalesce(SKIP_REASON, 'processed') as OUTCOME,
        FILE_SIZE_BYTES
 from V_PAYROLL_FILE
-where IS_CURRENT
-order by IS_EXCLUDED, FILE_NAME;
+order by OUTCOME, FILE_NAME;
 
 
 -- ===========================================================================

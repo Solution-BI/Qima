@@ -19,13 +19,27 @@ reproduces it.
 | | Scenarios | Result |
 |---|---|---|
 | Covered by an executable test | 7 | 7 pass, 0 fail |
-| Known findings, reproducible but not yet flagged in `DQ_FLAG` | 3 | recorded below |
+| Structural checks, 11 September rebuild | 40 | 40 pass, 0 fail |
+| Findings now written to `DQ_FLAG` | 5 rules | 1,704 findings |
 | Not covered – no test, and in most cases no data that would exercise one | 7 | listed below |
 
 No test currently fails. The honest caveat is what is **not** tested: the
 coverage below validates salary mapping and loader fidelity, and does **not**
 validate the bonus scheme classification, because nothing in the source files
 cross-checks it.
+
+**11 September rebuild.** The model was rebuilt after `SHEET_LOAD` became
+`TAB_LOAD`, four columns were dropped from the fact, `FILE_EXCLUSION` was
+replaced by a filename rule, and reporting gained a current-year default. It
+was verified with 40 checks across two passes:
+
+- row counts and value distribution identical to before the change
+- the 2,784 / 0 reconciliation unchanged
+- a second full reload reproduces an **identical content hash**, so the build
+  is deterministic
+- both loaders are idempotent – running them twice gives the same result
+- no deployed view references a dropped object
+- the `EMPLOYEE_MISSING_FROM_ROSTER` count recomputed independently and matched
 
 ---
 
@@ -152,10 +166,13 @@ leak through the others.
 | Object | Column | Policy |
 |---|---|---|
 | FACT_PAYROLL_COMPONENT | AMOUNT | MP_PAYROLL_AMOUNT |
-| FACT_PAYROLL_COMPONENT | RAW_VALUE | MP_PAYROLL_AMOUNT_TEXT |
 | FACT_PAYROLL_COMPONENT | TEXT_VALUE | MP_PAYROLL_AMOUNT_TEXT |
 | DQ_FLAG | RAW_VALUE | MP_PAYROLL_AMOUNT_TEXT |
 | PAYROLL_ROW | ROW_DATA | MP_PAYROLL_ROW_VARIANT |
+
+`FACT_PAYROLL_COMPONENT.RAW_VALUE` was a fifth masked column until it was
+dropped on 11 September, which removed a path to the figure rather than opening
+one.
 
 **Result: pass**, with a caveat on how it was verified. GOLD views inherit the
 policy from the column they select, so they need none of their own. The
@@ -170,11 +187,32 @@ see "not covered" below.
 
 ---
 
-## 2. Known findings – reproducible, not yet flagged
+## 2. Known findings – now written to `DQ_FLAG`
 
-These are real and repeatable in SQL. `DQ_FLAG` holds **0 rows**: the table and
-its four contract classes exist, the loader does not write to it, so nothing
-downstream can filter on them.
+`05_load_dq_flags.sql` populates the table. **1,704 findings across five active
+rules**, all `VALUE` class, so nothing is withheld from reporting.
+
+| Rule | Class | Findings | Origin |
+|---|---|---|---|
+| `EMPLOYEE_MISSING_FROM_ROSTER` | VALUE | 1,187 | open question |
+| `SALARY_AS_TEXT` | VALUE | 274 | source data |
+| `INVALID_CURRENCY_CODE` | VALUE | 191 | source data |
+| `MISSING_CURRENCY` | VALUE | 28 | source data |
+| `MISSING_ANNUAL_TOTAL` | VALUE | 24 | source data, benign |
+| `UNMAPPED_GENERATION` | STRUCTURAL | 0 | fires on an unknown template |
+| `SAMPLE_FILE_INGESTED` | STRUCTURAL | 0 | backstop for the filename rule |
+| `DUPLICATE_SAP_ID_ACROSS_FILES` | IDENTITY | 0 | would withhold from GOLD |
+
+Three rules report zero, which is the correct result rather than an untested
+one – they exist so that an unrecognised template, a sample reaching the model,
+or the same employee on two submissions becomes visible instead of silent.
+
+`UNRESOLVED_COLUMN_CLASSIFICATION` was retired when `SOURCE_COLUMN_INDEX` was
+dropped from the fact: it matched a value back to its spreadsheet column, and
+that link no longer exists. It found nothing at the time, but a future
+unreviewed column will now load unflagged.
+
+The original findings, for reference:
 
 | Finding | Count | Class per contract §6 |
 |---|---|---|

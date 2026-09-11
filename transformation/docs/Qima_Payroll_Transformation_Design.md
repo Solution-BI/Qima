@@ -43,16 +43,16 @@ convention-class issue to log -- never a reason to reject a file.
 ## 2. Data flow
 
 ```
-                          FILE_EXCLUSION          HEADER_MAP
-                        (not real payroll)   (what each column means)
-                                 |                     |
-                                 v                     |
+                                                 HEADER_MAP
+                                          (what each column means)
+                                                       |
    FILE_LOAD  ------->  V_PAYROLL_FILE_CURRENT         |
    (RAW, JSON)          three submissions              |
+                        current, loaded, not a sample  |
                                  |                     |
                                  v                     |
-                          SHEET_LOAD  <----------------+
-                          one row per sheet            |
+                          TAB_LOAD  <------------------+
+                          one row per tab              |
                                  |                     |
                                  v                     |
                           PAYROLL_ROW  <---------------+
@@ -71,8 +71,14 @@ Solid path carries data. `HEADER_MAP` carries meaning -- it tells each step
 where to find a column, which is what lets the same three queries handle all
 seven template versions.
 
-**Current volumes:** 3 files, 11 sheets, 21,811 employee rows (8,137 carrying
-data, the rest formatted-but-empty padding), 216,101 individual values.
+**Current volumes:** 3 files, 11 tabs, 21,811 employee rows (8,137 carrying
+data, the rest formatted-but-empty padding), 216,101 individual values,
+1,704 data-quality findings.
+
+Of those 216,101, only 74,045 are payments in local currency. The rest are
+contractual rates (46,962), eligibility flags (34,303) and the USD copies the
+2024/2025 templates carry (60,791). Reporting sees 115,906. Worth stating
+plainly, because "216,101 payroll records" reads as 216,101 payments.
 
 ---
 
@@ -100,7 +106,8 @@ they do not.
 ### Step 1 -- Select the files to process
 
 `V_PAYROLL_FILE_CURRENT` filters `FILE_LOAD` to rows that are `IS_CURRENT`,
-successfully ingested and extracted, and not present in `FILE_EXCLUSION`.
+successfully ingested and extracted, and whose filename does not match
+`%sample%`, `%dummy%` or `%test%`.
 
 `IS_CURRENT` alone is not sufficient. It returns four files, one of which is a
 sample workbook parked inside a live submission folder -- a four-row extract
@@ -109,7 +116,7 @@ duplicate genuine payroll.
 
 ### Step 2 -- Resolve each sheet's template version
 
-Populates `SHEET_LOAD`. A workbook is not one dataset: each holds several year
+Populates `TAB_LOAD`. A workbook is not one dataset: each holds several year
 sheets plus `Instructions`, and the year sheets are different template versions
 from one another -- BR02's 2024 sheet is `2024-91col` while its 2026 sheet is
 `2026-67col`.
@@ -208,35 +215,43 @@ says which scheme a column belongs to; it does not say which *field* it is. All
 `CANONICAL_FIELD` the loader cannot find the employee ID. Position cannot be
 assumed either -- the ID is at index 0 in 2026 and index 1 in 2024/2025.
 
-### Table: FILE_EXCLUSION
+### Why file selection is a pattern, not a table
 
-SharePoint items that are not genuine payroll submissions.
+There was a `FILE_EXCLUSION` table, keyed on the SharePoint item id, on the
+reasoning that a rename cannot defeat an id. That reasoning was sound but
+incomplete. An item id survives a rename; it does **not** survive a delete and
+re-upload, which issues a new one.
 
-| Column | Description |
-|---|---|
-| SHAREPOINT_ITEM_ID | Primary key. The stable SharePoint item id. |
-| KNOWN_AS | Every file name this item has been seen under. Informational -- never join on it. |
-| REASON | `SAMPLE`, `TEST`, `DUPLICATE`, `WITHDRAWN` or `NOT_PAYROLL`. |
-| EVIDENCE | Why this was judged not a submission. Excluding payroll data requires a stated reason. |
-| EXCLUDED_ON | Date of the decision. |
-| EXCLUDED_BY | Who made it. |
+The BR02 sample workbook has been through three item ids for that reason. By
+10 September the exclusion list matched none of them and the file was reaching
+the loader, stopped only by its column width happening to match a generation
+already flagged `SAMPLE`.
 
-**Why the item id and not the file name.** The one excluded workbook has
-already been renamed once while keeping the same item id. A name-based rule
-would have stopped working at that rename, silently, with no error to notice.
+The rule is now a filename pattern inside `V_PAYROLL_FILE_CURRENT`, which
+catches every upload of that file, past and future, with nothing to maintain.
+`V_PAYROLL_FILE` exposes a `SKIP_REASON` so any file left out says why.
+
+**The trade-off, stated plainly.** A genuine submission named `..._Sample...`
+would be skipped. That has never happened, and it would be visible rather than
+silent: the tab is still recorded in `TAB_LOAD`, and a missing subsidiary shows
+up in reporting. The previous mechanism's failure mode was silence, which is
+worse.
+
+`reference_data/file_exclusion/excluded_files.csv` is kept as the record of why
+each known file was judged a non-submission. It is no longer loaded.
 
 ---
 
 ## 5. Model tables
 
-### Table: SHEET_LOAD
+### Table: TAB_LOAD
 
 One row per sheet inside an ingested workbook, with its resolved template
 version. Makes template drift visible before anything tries to parse it.
 
 | Column | Description |
 |---|---|
-| SHEET_LOAD_ID | Surrogate key. |
+| TAB_LOAD_ID | Surrogate key. |
 | LOAD_ID | FK to `FILE_LOAD`. |
 | SHEET_NAME | Key from `RAW_CONTENT`, e.g. `2026` or `Instructions`. |
 | SHEET_YEAR | Parsed from SHEET_NAME when it is a four-digit year; null otherwise. |
@@ -262,7 +277,7 @@ must not have historic payments re-attributed to the new entity.
 | Column | Description |
 |---|---|
 | PAYROLL_ROW_ID | Surrogate key. |
-| SHEET_LOAD_ID | FK to `SHEET_LOAD`. |
+| TAB_LOAD_ID | FK to `TAB_LOAD`. |
 | ROW_INDEX | Index in the sheet array. Row 0 is the merged band, row 1 the headers, data starts at 2. |
 | REPORT_YEAR | The year this row reports on. |
 | EMPLOYEE_SAP_ID | Authoritative. Held as text, not numeric -- a non-numeric id must not be silently dropped. |
@@ -294,11 +309,9 @@ hardcoded component list.
 |---|---|
 | MEASURE_ID | Surrogate key. |
 | PAYROLL_ROW_ID | FK to `PAYROLL_ROW`. Lineage back to the original cell array. |
-| SHEET_LOAD_ID | FK to `SHEET_LOAD`. |
+| TAB_LOAD_ID | FK to `TAB_LOAD`. |
 | EMPLOYEE_SAP_ID | Copied from PAYROLL_ROW. |
 | EMPLOYMENT_KEY | Copied from PAYROLL_ROW. Aggregating on SAP ID alone would merge two contracts into one person. |
-| JOIN_DATE | Copied, so GOLD can group without joining back. |
-| LEAVE_DATE | Copied. |
 | SUBSIDIARY_CODE | Point-in-time, copied from PAYROLL_ROW. Do not resolve this live. |
 | REPORT_YEAR | The year this value reports on. |
 | COMPONENT_GROUP | From HEADER_MAP. |
@@ -311,22 +324,43 @@ hardcoded component list.
 | CURRENCY_CODE | The component's own currency where the template has one, otherwise the contractual currency. Files use `RMB` where ISO is `CNY`. |
 | IS_ELIGIBLE | Set where MEASURE_BASIS is ELIGIBILITY, from the Y/N dropdown. |
 | TEXT_VALUE | Set where a value that should be numeric is not -- the contract's "salary entered as text" case. Kept, not dropped. **Masked.** |
-| RAW_VALUE | The cell exactly as extracted, always populated, for dispute resolution. **Masked.** |
-| SOURCE_COLUMN_INDEX | Which column this value came from. Lineage back to HEADER_MAP. |
 | LOADED_AT | When the row was written. |
 
 ### Table: DQ_FLAG
 
-Data quality findings, classified per the input data contract. **The table and
-its four classes exist; the loader does not yet write to it.**
+Data quality findings, classified per the input data contract. Populated by
+`05_load_dq_flags.sql` -- **1,704 findings across five active rules**, all
+`VALUE` class, so nothing is withheld from reporting.
+
+| Rule | Class | Findings | Whose |
+|---|---|---|---|
+| `EMPLOYEE_MISSING_FROM_ROSTER` | VALUE | 1,187 | open question |
+| `SALARY_AS_TEXT` | VALUE | 274 | source data |
+| `INVALID_CURRENCY_CODE` | VALUE | 191 | source data |
+| `MISSING_CURRENCY` | VALUE | 28 | source data |
+| `MISSING_ANNUAL_TOTAL` | VALUE | 24 | source data, benign |
+| `UNMAPPED_GENERATION` | STRUCTURAL | 0 | fires on an unknown template |
+| `SAMPLE_FILE_INGESTED` | STRUCTURAL | 0 | backstop for the filename rule |
+| `DUPLICATE_SAP_ID_ACROSS_FILES` | IDENTITY | 0 | would withhold from GOLD |
+
+`EMPLOYEE_MISSING_FROM_ROSTER` answers *"are we getting all the current
+employees?"* rather than *"is this employee valid?"*. It compares against
+`STG_CONSOLIDATED_2026`, scoped to the subsidiaries we hold files for and to the
+current year, and looks for absence -- so its rows carry no foreign keys by
+design.
+
+`UNRESOLVED_COLUMN_CLASSIFICATION` was retired when `SOURCE_COLUMN_INDEX` was
+dropped: it matched a fact row back to its column, and that link no longer
+exists. It found nothing at the time, but a future unreviewed column will now
+load unflagged.
 
 | Column | Description |
 |---|---|
 | FLAG_ID | Surrogate key. |
-| LOAD_ID / SHEET_LOAD_ID / PAYROLL_ROW_ID / MEASURE_ID | Whichever level the finding applies to. |
+| LOAD_ID / TAB_LOAD_ID / PAYROLL_ROW_ID / MEASURE_ID | Whichever level the finding applies to. |
 | DQ_CLASS | `STRUCTURAL` rejects the file or sheet. `IDENTITY` loads but is excluded from GOLD until resolved. `VALUE` loads and stays in GOLD with the flag visible. `CONVENTION` is auto-resolved where possible and logged for a HEADER_MAP update. |
 | RULE_NAME | e.g. `UNMAPPED_GENERATION`, `SALARY_AS_TEXT`, `MISSING_CURRENCY`, `SUBSIDIARY_NOT_DECLARED_BY_FOLDER`, `TOTAL_MISMATCH`. |
-| COLUMN_INDEX / SOURCE_HEADER / RAW_VALUE | Where and what. RAW_VALUE is **masked**. |
+| COLUMN_INDEX / SOURCE_HEADER / RAW_VALUE | Where and what. Only `RAW_VALUE` is still populated, from `TEXT_VALUE` or `CURRENCY_CODE`; the other two needed `SOURCE_COLUMN_INDEX`. **Masked.** |
 | MESSAGE | Human-readable detail. |
 | CREATED_AT | When the finding was raised. |
 
@@ -336,10 +370,33 @@ its four classes exist; the loader does not yet write to it.**
 |---|---|
 | `V_PAYROLL_FILE` | Every file with whether it is excluded and why. |
 | `V_PAYROLL_FILE_CURRENT` | The files the loader processes. The single place that rule lives. |
-| `V_SHEET_GENERATION` | Resolves a sheet to its template version, and whether it is mapped or a sample. |
-| `V_GOLD_PAYROLL_COMPONENT` | Values safe for reporting: local currency, mapped versions, no identity-class flags. |
-| `V_GOLD_ANNUAL_COMPENSATION` | Totals per employment, per component group, **per currency**. Deliberately no cross-component total. |
+| `V_TAB_GENERATION` | Resolves a tab to its template version, and whether it is mapped or a sample. |
+| `V_GOLD_PAYROLL_COMPONENT` | Values safe for reporting: local currency, mapped versions, no identity-class flags. Carries **all years**, so history stays one query away. |
+| `V_GOLD_ANNUAL_COMPENSATION` | Totals per employment, per component group, **per currency**. Deliberately no cross-component total. **Current year only** -- see below. |
 | `V_GOLD_SINGLE_CURRENCY_EMPLOYMENT` | A single total, only for employments reporting one currency throughout. |
+
+### The current-year default
+
+The two consumption views return the current reporting year only. The base view
+`V_GOLD_PAYROLL_COMPONENT` is deliberately unfiltered, so history is available
+without a second set of objects.
+
+"Current" is resolved from the data rather than hardcoded:
+
+```sql
+REPORT_YEAR = (select max(REPORT_YEAR) from FACT_PAYROLL_COMPONENT
+               where REPORT_YEAR <= year(current_date()))
+```
+
+The cap matters: without it a mistyped tab name -- `2072` for `2027` -- would
+become the maximum and reporting would silently return nothing.
+
+**The known weakness.** In January, the first subsidiary to submit a new year
+moves the maximum, and reporting shows that one subsidiary until the others
+follow. No automatic rule avoids this. The robust answer is a one-row
+configuration table holding the reporting year, changed deliberately once a
+year; that is worth building when a wrong year has consequences, not while this
+sits in a sandbox.
 
 ---
 
@@ -441,9 +498,26 @@ things stand.** `FOLDER_SUBSIDIARY_MAP` lives as a CSV in
 the database currently knows which subsidiaries a folder declares. Deploying it
 is the prerequisite for reproducing these counts and for implementing the rule.
 
-The folder names are also the only source for the CPQUALI / CPHOSP codes, since
-those cells carry no code prefix. One folder names three codes for two legal
-names, so which maps to which is unconfirmed.
+The folder names were the only source for the CPQUALI / CPHOSP codes, since
+those cells carry no code prefix -- 168 rows in 2026 parse to a null
+`SUBSIDIARY_CODE` for that reason. Every other subsidiary writes
+`CODE - Legal Name`; these two write the name alone.
+
+**The ambiguity is resolved.** One folder names three codes for two legal names,
+which blocked deployment: assigning a subsidiary code on a guess is exactly the
+thing not to ship, given the code is point-in-time and tied to the payment. The
+consolidated workbook answers it:
+
+| Code | Legal name |
+|---|---|
+| BR09 | CPQUALI PESQUISA CLINICA LTDA |
+| BR12 | CPHOSP MEDICINA, ENSINO E PESQUISA LTDA. |
+| BR13 | CPHOSP **MANAUS** MEDICINA, ENSINO E PESQUISA LTDA |
+
+BR13 is a third entity with two employees, not an alternative spelling. The name
+in the payroll file matches BR12 exactly, trailing period included, so the 62
+CPHOSP rows are BR12. Confirming that mapping with Qima is a courtesy rather
+than a blocker.
 
 ### 6.6 Restatement -- lock the year, not the month
 
@@ -504,7 +578,7 @@ a short window; a policy attached to the column holds even then.
 | Policy | Applies to |
 |---|---|
 | `MP_PAYROLL_AMOUNT` | `FACT_PAYROLL_COMPONENT.AMOUNT` |
-| `MP_PAYROLL_AMOUNT_TEXT` | `FACT_PAYROLL_COMPONENT.RAW_VALUE`, `.TEXT_VALUE`, `DQ_FLAG.RAW_VALUE` |
+| `MP_PAYROLL_AMOUNT_TEXT` | `FACT_PAYROLL_COMPONENT.TEXT_VALUE`, `DQ_FLAG.RAW_VALUE` |
 | `MP_PAYROLL_ROW_VARIANT` | `PAYROLL_ROW.ROW_DATA` |
 
 **Masking `AMOUNT` alone would leak.** The same figure is reachable through the
@@ -587,7 +661,7 @@ raises a flag rather than failing.
 ```sql
 TRUNCATE TABLE FACT_PAYROLL_COMPONENT;
 TRUNCATE TABLE PAYROLL_ROW;
-TRUNCATE TABLE SHEET_LOAD;
+TRUNCATE TABLE TAB_LOAD;
 ```
 
 then re-run `transformation/sql/04_load_silver.sql` followed by
@@ -603,10 +677,11 @@ column -- it will run and insert nothing.
 
 ```
 transformation/
-    sql/          01_header_map, 02_silver_model, 03_file_exclusion,
+    sql/          01_header_map, 02_silver_model, 03_file_selection,
                   04_load_silver, 05_load_dq_flags,
                   90_staging_consolidated (outside the model)
-    reference_data/  header_map/, subsidiary/, file_exclusion/
+    reference_data/  header_map/, subsidiary/,
+                     file_exclusion/ (kept as a record, no longer loaded)
     tests/        reconcile_silver.sql, reconcile_monthly_vs_total.sql,
                   demo_walkthrough.sql
     lib/          connection helper for the reference-data scripts
@@ -640,21 +715,43 @@ tested by query, and how the first two below went unnoticed.
   reload.
 - **Sample files were being skipped by coincidence** rather than by rule --
   caught only because their column count happened to match a generation flagged
-  `SAMPLE`. Three explicit exclusions added, including the current item id for
-  the BR02 sample: a SharePoint item id survives a rename but **not** a delete
-  and re-upload, so the original exclusion had silently stopped matching
-  anything.
-- **`DQ_FLAG` is now populated** by `05_load_dq_flags.sql` -- 517 findings, all
-  `VALUE` class, so nothing is withheld from GOLD.
+  `SAMPLE`. `FILE_EXCLUSION` was retired in favour of a filename pattern; see
+  section 4.
+- **`DQ_FLAG` is now populated** by `05_load_dq_flags.sql` -- 1,704 findings
+  across five active rules, all `VALUE` class, so nothing is withheld from GOLD.
+
+### Changed on 11 September
+
+- **`SHEET_LOAD` renamed to `TAB_LOAD`**, with `TAB_LOAD_ID`, `TAB_NAME`,
+  `TAB_YEAR` and `V_TAB_GENERATION`. `HEADER_MAP.SHEET_YEAR` is unchanged -- it
+  describes the template, not the renamed table.
+- **Four columns dropped from `FACT_PAYROLL_COMPONENT`**: `RAW_VALUE` and
+  `SOURCE_COLUMN_INDEX` (evidence and lineage only), `JOIN_DATE` and
+  `LEAVE_DATE` (both already inside `EMPLOYMENT_KEY`). 22 columns to 18.
+  `TEXT_VALUE` and `PERIOD_TYPE` were proposed for removal and kept:
+  `TEXT_VALUE` holds 274 values that exist nowhere else in the fact, and
+  `PERIOD_TYPE` is what the reconciliation filters on.
+- **Reporting defaults to the current year.** See section 5.
+- **`STG_CONSOLIDATED_2026`** stages the consolidated workbook outside the
+  model. 6,018 rows, 122 columns, amount columns masked. It covers 64
+  subsidiaries against our 19 and 5,982 employees against our 2,810, so it is a
+  scope and roster reference. Its amounts do **not** reconcile with ours --
+  both are independently fabricated over the same employee roster -- so it
+  cannot validate figures.
+
+Verified with 40 checks across two passes: row counts, value distribution and
+the 2,784 / 0 reconciliation all unchanged, a second full reload reproduces an
+identical content hash, and both loaders are idempotent.
 
 ### Not built
 
-- **`SUBSIDIARY_NOT_DECLARED_BY_FOLDER`.** The one data-quality rule that
-  cannot be written yet. `FOLDER_SUBSIDIARY_MAP` exists as a CSV in
-  `reference_data/subsidiary/` but was never deployed to the schema, so nothing
-  in the database knows which subsidiaries a folder declares. Deploying it is
-  the prerequisite for both this rule and for reproducing the "11 employees
-  from undeclared subsidiaries" figure in section 6.5.
+- **`FOLDER_SUBSIDIARY_MAP` deployment.** Now unblocked. It was held back
+  because one row was a guess -- three codes for two legal names in the BR09
+  folder -- and stamping a subsidiary code onto payroll on a guess is not
+  something to ship when the code is point-in-time and tied to the payment.
+  The consolidated workbook resolves it (section 6.5). Deploying the map fills
+  the 168 rows that currently parse to a null `SUBSIDIARY_CODE`, and is the
+  prerequisite for `SUBSIDIARY_NOT_DECLARED_BY_FOLDER`.
 - **Year locking.** Required by the restatement rule in section 6.6: previous
   years locked, current year open to correction. No mechanism exists.
 - **Row access policy.** Mechanism confirmed 20 August: a table of ID and
