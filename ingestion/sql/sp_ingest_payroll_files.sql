@@ -11,6 +11,9 @@
 --
 -- Scheduled via T_PAYROLL_INGEST task. See plan_stored_procedure_migration_2026-09-10.md.
 
+USE DATABASE {{ database }};
+USE SCHEMA {{ schema_raw }};
+
 CREATE OR REPLACE PROCEDURE {{ database }}.{{ schema_raw }}.SP_INGEST_PAYROLL_FILES(
     OFFSET_MINUTES NUMBER DEFAULT 1
 )
@@ -21,7 +24,7 @@ PACKAGES = ('snowflake-snowpark-python', 'requests')
 HANDLER = 'run'
 EXTERNAL_ACCESS_INTEGRATIONS = (SHAREPOINT_HR_PAYROLL_EAI)
 SECRETS = ('cred' = {{ database }}.{{ schema_raw }}.SHAREPOINT_HR_PAYROLL_CLIENT_SECRET)
-EXECUTE AS OWNER
+EXECUTE AS CALLER
 AS $$
 import io
 import json
@@ -32,15 +35,16 @@ from urllib.parse import quote
 import _snowflake
 
 # ── SharePoint constants ──────────────────────────────────────────────
-GRAPH       = 'https://graph.microsoft.com/v1.0'
+
 TENANT_ID   = '{{ sharepoint_tenant_id }}'
 CLIENT_ID   = '{{ sharepoint_client_id }}'
-TOKEN_URL   = f'https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token'
+SITE_ID     = '{{ sharepoint_site_id }}'
+DRIVE_ID    = '{{ sharepoint_drive_id }}'
+FOLDER_PATH = '{{ sharepoint_folder_path }}'
 
-SITE_ID     = 'learnfabricsbi.sharepoint.com,5cfbd818-9daa-43e7-9676-7e69ccdbd7a0,859f7104-aaf6-4d0b-8cd3-30a1bc521983'
-DRIVE_ID    = 'b!GNj7XKqd50OWdn5pzNvXoARxn4X2qgtNjNMwobxSGYOsH0CrHyfVRYKr4I5Z_tXk'
-FOLDER_PATH = 'Payroll files'
-STAGE_NAME  = 'TEMP_PAYROLL_STAGE'
+GRAPH       = 'https://graph.microsoft.com/v1.0'
+TOKEN_URL   = f'https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token'
+STAGE_NAME  = '{{ database }}.{{ schema_raw }}.TEMP_PAYROLL_STAGE'
 
 
 # ── Auth ──────────────────────────────────────────────────────────────
@@ -88,7 +92,7 @@ def list_candidates(session, all_files, offset_minutes):
             MAX(INGESTED_AT),
             '2024-01-01'::TIMESTAMP_TZ
         ) AS HWM
-        FROM FILE_LOAD
+        FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
         WHERE INGEST_STATUS = 'SUCCESS'
     """).collect()
     from_ts = row[0]['HWM']
@@ -133,7 +137,13 @@ def run(session, offset_minutes):
     all_files = walk_folder(r.json()['id'], hdr)
     candidates, from_ts, to_ts = list_candidates(session, all_files, offset_minutes)
 
-    # 3. Stage setup -- named stage with explicit cleanup (TEMPORARY not supported in procedures)
+    # 3. Stage setup.
+    # CREATE TEMPORARY STAGE is rejected inside a stored procedure
+    # ("Unsupported statement type 'temporary STAGE'"), so this is a regular
+    # stage dropped in the finally block below. Same retention guarantee,
+    # enforced by code rather than by Snowflake's session scoping.
+    # The leading DROP clears an orphan left by a prior run that died before
+    # reaching its finally block.
     session.sql(f"DROP STAGE IF EXISTS {STAGE_NAME}").collect()
     session.sql(f"CREATE STAGE {STAGE_NAME}").collect()
 
@@ -198,12 +208,12 @@ def run(session, offset_minutes):
                 session.sql("BEGIN").collect()
 
                 session.sql("""
-                    UPDATE FILE_LOAD SET IS_CURRENT = FALSE
+                    UPDATE {{ database }}.{{ schema_raw }}.FILE_LOAD SET IS_CURRENT = FALSE
                     WHERE SHAREPOINT_ITEM_ID = :1 AND IS_CURRENT = TRUE
                 """, params=[c['id']]).collect()
 
                 session.sql("""
-                    INSERT INTO FILE_LOAD (
+                    INSERT INTO {{ database }}.{{ schema_raw }}.FILE_LOAD (
                         RUN_ID, FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
                         SHAREPOINT_MODIFIED_AT, SHAREPOINT_MODIFIED_BY,
                         SHAREPOINT_CREATED_AT, SHAREPOINT_CREATED_BY,
@@ -239,13 +249,13 @@ def run(session, offset_minutes):
         # 5. Extraction via MERGE with PARSE_XLSX_TO_JSON UDF
         try:
             session.sql(f"""
-                MERGE INTO FILE_LOAD t
+                MERGE INTO {{ database }}.{{ schema_raw }}.FILE_LOAD t
                 USING (
                     SELECT LOAD_ID,
-                           PARSE_XLSX_TO_JSON(
+                           {{ database }}.{{ schema_raw }}.PARSE_XLSX_TO_JSON(
                                BUILD_SCOPED_FILE_URL(@{STAGE_NAME}, SHAREPOINT_ITEM_ID || '.xlsx')
                            ) AS PARSED
-                    FROM FILE_LOAD
+                    FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
                     WHERE RUN_ID = :1
                       AND INGEST_STATUS  = 'SUCCESS'
                       AND EXTRACT_STATUS = 'NOT_ATTEMPTED'
@@ -267,7 +277,7 @@ def run(session, offset_minutes):
         sharepoint_ids = {item['id'] for item in all_files}
         current_rows = session.sql("""
             SELECT LOAD_ID, SHAREPOINT_ITEM_ID
-            FROM FILE_LOAD
+            FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
             WHERE IS_CURRENT = TRUE
               AND SHAREPOINT_ITEM_ID IS NOT NULL
         """).collect()
@@ -276,7 +286,7 @@ def run(session, offset_minutes):
         for row in current_rows:
             if row['SHAREPOINT_ITEM_ID'] not in sharepoint_ids:
                 session.sql("""
-                    UPDATE FILE_LOAD SET IS_CURRENT = FALSE
+                    UPDATE {{ database }}.{{ schema_raw }}.FILE_LOAD SET IS_CURRENT = FALSE
                     WHERE LOAD_ID = :1
                 """, params=[row['LOAD_ID']]).collect()
                 deleted_count += 1
@@ -289,7 +299,7 @@ def run(session, offset_minutes):
     extract_rows = session.sql("""
         SELECT LOAD_ID, FILE_NAME, SHAREPOINT_ITEM_ID,
                INGEST_STATUS, EXTRACT_STATUS, ERROR_MESSAGE
-        FROM FILE_LOAD
+        FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
         WHERE RUN_ID = :1
     """, params=[run_id]).collect()
 
@@ -321,7 +331,7 @@ def run(session, offset_minutes):
 def _insert_file_load(session, run_id, candidate, result):
     """Insert a FILE_LOAD row for a file that failed before staging (unsupported format, download error)."""
     session.sql("""
-        INSERT INTO FILE_LOAD (
+        INSERT INTO {{ database }}.{{ schema_raw }}.FILE_LOAD (
             RUN_ID, FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
             SHAREPOINT_MODIFIED_AT, SHAREPOINT_MODIFIED_BY,
             SHAREPOINT_CREATED_AT, SHAREPOINT_CREATED_BY,
@@ -344,3 +354,6 @@ def _insert_file_load(session, run_id, candidate, result):
         result['error'],
     ]).collect()
 $$;
+
+-- Deploying this file only creates the procedure. To run it manually:
+--   CALL {{ database }}.{{ schema_raw }}.SP_INGEST_PAYROLL_FILES(1);

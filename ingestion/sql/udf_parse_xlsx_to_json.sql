@@ -26,10 +26,20 @@ from datetime import datetime
 from openpyxl import load_workbook
 from snowflake.snowpark.files import SnowflakeFile
 
+# Encrypted OOXML and legacy .xls are both OLE2 compound files, not zips.
+OLE2_MAGIC = b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'
+
+
 def run(file_url):
     try:
         with SnowflakeFile.open(file_url, 'rb') as f:
             data = f.read()
+
+
+        if data[:8] == OLE2_MAGIC:
+            return {'_error': (
+                'Password-protected, encrypted, or legacy .xls workbook -- cannot be read.'
+            )}
 
         wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
         workbook_data = {}
