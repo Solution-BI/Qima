@@ -14,3 +14,10 @@ sharepoint_client_id: TBD
 # client secret is NOT stored here -- it lives in Snowflake as a SECRET object.
 # See config/external_access/02_secret.sql to create it.
 sharepoint_domain: qima.sharepoint.com
+
+# SharePoint location the ingestion procedure reads from.
+# site_id and drive_id come from the Graph API:
+#   GET /sites/{hostname}:/sites/{path}   and   GET /sites/{site_id}/drives
+sharepoint_site_id: TBD
+sharepoint_drive_id: TBD
+sharepoint_folder_path: TBD           # root folder; subsidiary subfolders are walked recursively
