@@ -1,7 +1,9 @@
 -- ===========================================================================
 -- transformation / 04 - Load SILVER from RAW
 --
--- RAW_CONTENT -> TAB_LOAD -> PAYROLL_ROW -> FACT_PAYROLL_COMPONENT.
+-- RAW_CONTENT -> TAB_LOAD -> PAYROLL_ROW -> FACT_PAYROLL_PAYMENT,
+--                                          FACT_PAYROLL_ENTITLEMENT,
+--                                          PAYROLL_ATTRIBUTE.
 --
 -- Plain SQL, no Python. The reconciliation test proved the whole pattern: a
 -- cell is located by joining HEADER_MAP on (generation, column index) and
@@ -9,9 +11,10 @@
 -- which is what lets one script handle all seven generations - the employee id
 -- is at index 0 in 2026 and index 1 in 2024/2025.
 --
--- ALWAYS RUN THIS AS A FULL RELOAD. Truncate FACT_PAYROLL_COMPONENT,
--- PAYROLL_ROW and TAB_LOAD first - never HEADER_MAP, which loads from CSV
--- and would leave the loader with nothing to interpret columns with.
+-- ALWAYS RUN THIS AS A FULL RELOAD. Truncate FACT_PAYROLL_PAYMENT,
+-- FACT_PAYROLL_ENTITLEMENT, PAYROLL_ATTRIBUTE, PAYROLL_ROW and TAB_LOAD
+-- first - never HEADER_MAP, which loads from CSV and would leave the loader
+-- with nothing to interpret columns with.
 --
 -- Each step does carry a skip-check, but it keys on FILE_LOAD.LOAD_ID, and
 -- ingestion writes a new row - and so a new LOAD_ID - on every run, including
@@ -156,65 +159,136 @@ select TAB_LOAD_ID, ROW_INDEX, TAB_YEAR,
 from pivoted;
 
 -- ---------------------------------------------------------------------------
--- Step 3: FACT_PAYROLL_COMPONENT. One row per cell that carries a value.
+-- Step 3: resolve every cell once, then land it in the table that fits.
+--
+-- Storage is split three ways as of 11 September - paid, contractual, and
+-- descriptive - but the work of finding a cell and deciding its currency is
+-- identical for all three. That work lives in this view so there are not three
+-- copies of the currency rule to keep in step.
 --
 -- The currency rule from the meeting: an amount takes its own component's
 -- (Currency) column where the generation has one, and falls back to the
 -- contractual currency otherwise. Salary is in local currency while bonus is
 -- usually USD, so this cannot default to one currency per row.
 -- ---------------------------------------------------------------------------
-insert into FACT_PAYROLL_COMPONENT
-    (PAYROLL_ROW_ID, TAB_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
-     SUBSIDIARY_CODE, REPORT_YEAR,
-     COMPONENT_GROUP, COMPONENT_NAME, MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY,
-     CURRENCY_SCOPE, AMOUNT, CURRENCY_CODE, IS_ELIGIBLE, TEXT_VALUE)
-with cells as (
-    select pr.PAYROLL_ROW_ID, pr.TAB_LOAD_ID, pr.EMPLOYEE_SAP_ID,
-           pr.EMPLOYMENT_KEY, pr.SUBSIDIARY_CODE, pr.REPORT_YEAR,
-           m.COMPONENT_GROUP, m.COMPONENT_NAME, m.MEASURE_BASIS,
-           m.PERIOD_TYPE, m.PERIOD_KEY, m.CURRENCY_SCOPE, m.COLUMN_INDEX,
-           nullif(trim(replace(get(pr.ROW_DATA, m.COLUMN_INDEX)::string, ' ', ' ')), '') as RAW_VALUE
-    from PAYROLL_ROW pr
-    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
-    join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
-    where not pr.IS_BLANK
-      and m.MEASURE_BASIS in ('PAYMENT','RATE','FEE','ELIGIBILITY')
-      and not exists (select 1 from FACT_PAYROLL_COMPONENT pm
-                      where pm.TAB_LOAD_ID = pr.TAB_LOAD_ID)
-),
--- Currency per component, and the contractual fallback, resolved per row.
-ccy as (
+create or replace view V_PAYROLL_CELL
+    comment = 'Every mapped cell of every employee row, with its currency resolved. The loader reads this; nothing downstream should.'
+as
+with ccy as (
     select pr.PAYROLL_ROW_ID, m.COMPONENT_NAME,
            nullif(trim(get(pr.ROW_DATA, m.COLUMN_INDEX)::string), '') as CURRENCY_CODE
     from PAYROLL_ROW pr
-    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
-    join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
+    join TAB_LOAD   sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
+    join HEADER_MAP m  on m.GENERATION   = sl.GENERATION
     where m.MEASURE_BASIS = 'CURRENCY' and not pr.IS_BLANK
 ),
 contract_ccy as (
     select pr.PAYROLL_ROW_ID,
            nullif(trim(get(pr.ROW_DATA, m.COLUMN_INDEX)::string), '') as CURRENCY_CODE
     from PAYROLL_ROW pr
-    join TAB_LOAD sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
-    join HEADER_MAP m  on m.GENERATION     = sl.GENERATION
+    join TAB_LOAD   sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
+    join HEADER_MAP m  on m.GENERATION   = sl.GENERATION
     where m.CANONICAL_FIELD = 'CONTRACT_CURRENCY' and not pr.IS_BLANK
 )
+select pr.PAYROLL_ROW_ID, pr.TAB_LOAD_ID, pr.EMPLOYEE_SAP_ID,
+       pr.EMPLOYMENT_KEY, pr.SUBSIDIARY_CODE, pr.REPORT_YEAR,
+       m.COMPONENT_GROUP, m.COMPONENT_NAME, m.MEASURE_BASIS,
+       m.PERIOD_TYPE, m.PERIOD_KEY, m.CURRENCY_SCOPE,
+       m.CANONICAL_FIELD, m.SOURCE_HEADER, m.COLUMN_INDEX,
+       nullif(trim(replace(get(pr.ROW_DATA, m.COLUMN_INDEX)::string, ' ', ' ')), '')                          as RAW_VALUE,
+       coalesce(cc.CURRENCY_CODE, kc.CURRENCY_CODE)  as CURRENCY_CODE
+from PAYROLL_ROW pr
+join TAB_LOAD   sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
+join HEADER_MAP m  on m.GENERATION   = sl.GENERATION
+left join ccy          cc on cc.PAYROLL_ROW_ID = pr.PAYROLL_ROW_ID
+                         and cc.COMPONENT_NAME = m.COMPONENT_NAME
+left join contract_ccy kc on kc.PAYROLL_ROW_ID = pr.PAYROLL_ROW_ID
+where not pr.IS_BLANK;
+
+-- ---------------------------------------------------------------------------
+-- Step 3a: FACT_PAYROLL_PAYMENT. Money that moved.
+--
+-- An empty cell is not a measurement, which is why RAW_VALUE must be present.
+-- A value that should be a number but is not is kept in TEXT_VALUE per the
+-- contract's "salary entered as text" case, rather than silently dropped.
+-- ---------------------------------------------------------------------------
+insert into FACT_PAYROLL_PAYMENT
+    (PAYROLL_ROW_ID, TAB_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+     SUBSIDIARY_CODE, REPORT_YEAR, COMPONENT_GROUP, COMPONENT_NAME,
+     MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY, CURRENCY_SCOPE,
+     AMOUNT, CURRENCY_CODE, TEXT_VALUE)
 select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
-       c.SUBSIDIARY_CODE, c.REPORT_YEAR,
-       c.COMPONENT_GROUP, c.COMPONENT_NAME, c.MEASURE_BASIS,
-       c.PERIOD_TYPE, c.PERIOD_KEY, c.CURRENCY_SCOPE,
+       c.SUBSIDIARY_CODE, c.REPORT_YEAR, c.COMPONENT_GROUP, c.COMPONENT_NAME,
+       c.MEASURE_BASIS, c.PERIOD_TYPE, c.PERIOD_KEY, c.CURRENCY_SCOPE,
+       try_to_number(c.RAW_VALUE, 18, 2),
+       c.CURRENCY_CODE,
+       iff(try_to_number(c.RAW_VALUE, 18, 2) is null, c.RAW_VALUE, null)
+from V_PAYROLL_CELL c
+where c.MEASURE_BASIS = 'PAYMENT'
+  and c.RAW_VALUE is not null
+  and not exists (select 1 from FACT_PAYROLL_PAYMENT t
+                  where t.TAB_LOAD_ID = c.TAB_LOAD_ID);
+
+-- ---------------------------------------------------------------------------
+-- Step 3b: FACT_PAYROLL_ENTITLEMENT. What the contract says.
+--
+-- RATE carries an amount and a currency. ELIGIBILITY carries neither - it is a
+-- Yes/No cell, and writing an AMOUNT or a CURRENCY_CODE on it would invite
+-- exactly the mis-totalling the split exists to prevent.
+-- ---------------------------------------------------------------------------
+insert into FACT_PAYROLL_ENTITLEMENT
+    (PAYROLL_ROW_ID, TAB_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+     SUBSIDIARY_CODE, REPORT_YEAR, COMPONENT_GROUP, COMPONENT_NAME,
+     MEASURE_BASIS, PERIOD_TYPE, PERIOD_KEY, CURRENCY_SCOPE,
+     AMOUNT, CURRENCY_CODE, IS_ELIGIBLE, TEXT_VALUE)
+select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
+       c.SUBSIDIARY_CODE, c.REPORT_YEAR, c.COMPONENT_GROUP, c.COMPONENT_NAME,
+       c.MEASURE_BASIS, c.PERIOD_TYPE, c.PERIOD_KEY, c.CURRENCY_SCOPE,
        iff(c.MEASURE_BASIS <> 'ELIGIBILITY', try_to_number(c.RAW_VALUE, 18, 2), null),
-       iff(c.MEASURE_BASIS =  'ELIGIBILITY', null,
-           coalesce(cc.CURRENCY_CODE, kc.CURRENCY_CODE)),
+       iff(c.MEASURE_BASIS =  'ELIGIBILITY', null, c.CURRENCY_CODE),
        iff(c.MEASURE_BASIS =  'ELIGIBILITY',
            case when upper(c.RAW_VALUE) in ('Y','YES','TRUE','1')  then true
                 when upper(c.RAW_VALUE) in ('N','NO','FALSE','0') then false end, null),
-       -- A value that should be a number but is not: kept, per the contract's
-       -- "salary entered as text" case, rather than silently dropped.
-       iff(c.MEASURE_BASIS <> 'ELIGIBILITY' and c.RAW_VALUE is not null
-           and try_to_number(c.RAW_VALUE, 18, 2) is null, c.RAW_VALUE, null),
-from cells c
-left join ccy          cc on cc.PAYROLL_ROW_ID = c.PAYROLL_ROW_ID
-                        and cc.COMPONENT_NAME  = c.COMPONENT_NAME
-left join contract_ccy kc on kc.PAYROLL_ROW_ID = c.PAYROLL_ROW_ID
-where c.RAW_VALUE is not null;   -- an empty cell is not a measurement
+       iff(c.MEASURE_BASIS <> 'ELIGIBILITY'
+           and try_to_number(c.RAW_VALUE, 18, 2) is null, c.RAW_VALUE, null)
+from V_PAYROLL_CELL c
+where c.MEASURE_BASIS in ('RATE','ELIGIBILITY')
+  and c.RAW_VALUE is not null
+  and not exists (select 1 from FACT_PAYROLL_ENTITLEMENT t
+                  where t.TAB_LOAD_ID = c.TAB_LOAD_ID);
+
+-- ---------------------------------------------------------------------------
+-- Step 3c: PAYROLL_ATTRIBUTE. External headcount and remarks.
+--
+-- These columns were mapped from the start but had no table to land in, which
+-- is why Greg saw them missing from the 2026 extract on 11 September.
+--
+-- EMPLOYEE attributes are deliberately not here - name, id and the two dates
+-- already sit on PAYROLL_ROW, and duplicating them would create a second place
+-- to correct them.
+--
+-- ATTRIBUTE_NAME prefers CANONICAL_FIELD so a name is stable across template
+-- generations. The fallbacks matter for 2025-95col, whose four extra External
+-- HC columns have no canonical field, and for the 2024 sheets, which carry
+-- three Remark columns with no header at all.
+-- ---------------------------------------------------------------------------
+insert into PAYROLL_ATTRIBUTE
+    (PAYROLL_ROW_ID, TAB_LOAD_ID, EMPLOYEE_SAP_ID, EMPLOYMENT_KEY,
+     SUBSIDIARY_CODE, REPORT_YEAR, ATTRIBUTE_GROUP, ATTRIBUTE_NAME,
+     SOURCE_HEADER, TEXT_VALUE, AMOUNT, CURRENCY_CODE)
+select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
+       c.SUBSIDIARY_CODE, c.REPORT_YEAR,
+       c.COMPONENT_GROUP,
+       coalesce(c.CANONICAL_FIELD,
+                nullif(upper(regexp_replace(trim(c.SOURCE_HEADER), '[^A-Za-z0-9]+', '_')), ''),
+                c.COMPONENT_NAME || '_COL' || c.COLUMN_INDEX),
+       c.SOURCE_HEADER,
+       c.RAW_VALUE,
+       iff(c.MEASURE_BASIS = 'FEE', try_to_number(c.RAW_VALUE, 18, 2), null),
+       iff(c.MEASURE_BASIS = 'FEE', c.CURRENCY_CODE, null)
+from V_PAYROLL_CELL c
+where c.COMPONENT_GROUP in ('EXTERNAL','OTHER','ADHOC')
+  and c.MEASURE_BASIS in ('ATTRIBUTE','FEE')
+  and c.RAW_VALUE is not null
+  and not exists (select 1 from PAYROLL_ATTRIBUTE t
+                  where t.TAB_LOAD_ID = c.TAB_LOAD_ID);

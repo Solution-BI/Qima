@@ -24,10 +24,16 @@ use schema SANDBOX_DB.HR_PAYROLL_QIMA;
 -- Masking AMOUNT alone is not enough. The same figure is reachable through
 -- four other columns, so a policy on AMOUNT by itself would leak:
 --
---   FACT_PAYROLL_COMPONENT.AMOUNT       the parsed number
---   FACT_PAYROLL_COMPONENT.TEXT_VALUE   the figure where it was typed as text
+--   FACT_PAYROLL_PAYMENT.AMOUNT         the parsed number, as paid
+--   FACT_PAYROLL_ENTITLEMENT.AMOUNT     the contractual rate
+--   PAYROLL_ATTRIBUTE.AMOUNT            the agency fee
+--   .TEXT_VALUE on all three            the figure where it was typed as text
 --   PAYROLL_ROW.ROW_DATA                the entire spreadsheet line, VARIANT
 --   DQ_FLAG.RAW_VALUE                   the offending value on a flagged cell
+--
+-- Splitting storage on 11 September multiplied the columns to cover. A policy
+-- left off FACT_PAYROLL_ENTITLEMENT would leak every contractual salary, which
+-- is no less sensitive than what was paid.
 --
 -- Views inherit a policy from the column they select, so masking these base
 -- columns covers V_GOLD_PAYROLL_COMPONENT and everything downstream.
@@ -79,8 +85,14 @@ create or replace masking policy MP_PAYROLL_ROW_VARIANT as (val variant) returns
 -- ---------------------------------------------------------------------------
 -- Apply
 -- ---------------------------------------------------------------------------
-alter table FACT_PAYROLL_COMPONENT modify column AMOUNT      set masking policy MP_PAYROLL_AMOUNT;
-alter table FACT_PAYROLL_COMPONENT modify column TEXT_VALUE  set masking policy MP_PAYROLL_AMOUNT_TEXT;
+-- FACT_PAYROLL_COMPONENT is a view over the two fact tables and inherits their
+-- policies, so it is not listed here - a view cannot carry its own.
+alter table FACT_PAYROLL_PAYMENT     modify column AMOUNT      set masking policy MP_PAYROLL_AMOUNT;
+alter table FACT_PAYROLL_PAYMENT     modify column TEXT_VALUE  set masking policy MP_PAYROLL_AMOUNT_TEXT;
+alter table FACT_PAYROLL_ENTITLEMENT modify column AMOUNT      set masking policy MP_PAYROLL_AMOUNT;
+alter table FACT_PAYROLL_ENTITLEMENT modify column TEXT_VALUE  set masking policy MP_PAYROLL_AMOUNT_TEXT;
+alter table PAYROLL_ATTRIBUTE        modify column AMOUNT      set masking policy MP_PAYROLL_AMOUNT;
+alter table PAYROLL_ATTRIBUTE        modify column TEXT_VALUE  set masking policy MP_PAYROLL_AMOUNT_TEXT;
 alter table PAYROLL_ROW            modify column ROW_DATA    set masking policy MP_PAYROLL_ROW_VARIANT;
 alter table DQ_FLAG                modify column RAW_VALUE   set masking policy MP_PAYROLL_AMOUNT_TEXT;
 

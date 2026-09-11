@@ -59,8 +59,10 @@ convention-class issue to log -- never a reason to reject a file.
                           one row per employee         |
                                  |                     |
                                  v                     |
-                     FACT_PAYROLL_COMPONENT  <---------+
-                          one row per value
+              FACT_PAYROLL_PAYMENT  <----------------+
+              FACT_PAYROLL_ENTITLEMENT  <------------+
+              PAYROLL_ATTRIBUTE  <-------------------+
+                   one row per value
                                  |
                                  v
                             V_GOLD_*
@@ -291,12 +293,38 @@ must not have historic payments re-attributed to the new entity.
 | ROW_DATA | The full cell array, retained so a mapping fix can be replayed without re-ingesting. |
 | LOADED_AT | When the row was written. |
 
-### Table: FACT_PAYROLL_COMPONENT
+### Tables: FACT_PAYROLL_PAYMENT and FACT_PAYROLL_ENTITLEMENT
 
-The target model. One row per cell that carries a value.
+The target model. One row per cell that carries a value, split across two
+tables by what the number means:
 
-**Grain:** `PAYROLL_ROW` x `COMPONENT_NAME` x `MEASURE_BASIS` x `PERIOD_KEY` x
-`CURRENCY_SCOPE`.
+| Table | Holds | Rows |
+|---|---|---|
+| `FACT_PAYROLL_PAYMENT` | money that moved | 134,836 |
+| `FACT_PAYROLL_ENTITLEMENT` | contractual rates and scheme eligibility | 81,265 |
+
+`FACT_PAYROLL_COMPONENT` still exists as a view unioning the two, so the
+extract sent to Qima on 11 September, the DQ rules, the GOLD views and the test
+scripts all read unchanged. Its column order matches the old table exactly.
+
+**Why split.** Greg asked on 11 September for the contractual figures to be
+isolated from what was paid, in storage and not only behind a filter. The
+split is on `MEASURE_BASIS`, which is a closed set fixed by the data contract,
+so a new bonus column in a future template costs nothing. This is what makes it
+safe where the superseded `PAYROLL_MONTHLY_FACT` / `PAYROLL_BONUS_FACT`
+proposal was not: that one split on component, and components are added,
+merged and restructured every template generation.
+
+`FACT_PAYROLL_PAYMENT` carries no `IS_ELIGIBLE` column, because a payment is
+not a flag. `FACT_PAYROLL_ENTITLEMENT` writes no amount or currency on an
+`ELIGIBILITY` row, for the same reason.
+
+Both share one sequence, `SEQ_MEASURE_ID`, so a `MEASURE_ID` identifies one row
+across both tables -- which is what `DQ_FLAG.MEASURE_ID` points at. Verified:
+zero duplicates across the 216,101 rows.
+
+**Grain on each:** `PAYROLL_ROW` x `COMPONENT_NAME` x `MEASURE_BASIS` x
+`PERIOD_KEY` x `CURRENCY_SCOPE`.
 
 Long rather than wide, because the set of components differs per template
 version -- the Eid festival blocks exist in only one, the USD columns in two,
@@ -577,9 +605,13 @@ a short window; a policy attached to the column holds even then.
 
 | Policy | Applies to |
 |---|---|
-| `MP_PAYROLL_AMOUNT` | `FACT_PAYROLL_COMPONENT.AMOUNT` |
-| `MP_PAYROLL_AMOUNT_TEXT` | `FACT_PAYROLL_COMPONENT.TEXT_VALUE`, `DQ_FLAG.RAW_VALUE` |
+| `MP_PAYROLL_AMOUNT` | `AMOUNT` on `FACT_PAYROLL_PAYMENT`, `FACT_PAYROLL_ENTITLEMENT`, `PAYROLL_ATTRIBUTE` |
+| `MP_PAYROLL_AMOUNT_TEXT` | `TEXT_VALUE` on the same three, plus `DQ_FLAG.RAW_VALUE` |
 | `MP_PAYROLL_ROW_VARIANT` | `PAYROLL_ROW.ROW_DATA` |
+
+Splitting storage multiplied the columns to cover. A policy left off
+`FACT_PAYROLL_ENTITLEMENT` would leak every contractual salary, which is no
+less sensitive than what was paid.
 
 **Masking `AMOUNT` alone would leak.** The same figure is reachable through the
 verbatim raw value, the text value where a salary was typed as text, and
@@ -659,7 +691,9 @@ raises a flag rather than failing.
 ### Reloading the model
 
 ```sql
-TRUNCATE TABLE FACT_PAYROLL_COMPONENT;
+TRUNCATE TABLE FACT_PAYROLL_PAYMENT;
+TRUNCATE TABLE FACT_PAYROLL_ENTITLEMENT;
+TRUNCATE TABLE PAYROLL_ATTRIBUTE;
 TRUNCATE TABLE PAYROLL_ROW;
 TRUNCATE TABLE TAB_LOAD;
 ```
@@ -732,6 +766,24 @@ tested by query, and how the first two below went unnoticed.
   `TEXT_VALUE` holds 274 values that exist nowhere else in the fact, and
   `PERIOD_TYPE` is what the reconciliation filters on.
 - **Reporting defaults to the current year.** See section 5.
+- **The fact is split into `FACT_PAYROLL_PAYMENT` and
+  `FACT_PAYROLL_ENTITLEMENT`**, at Greg's request, with
+  `FACT_PAYROLL_COMPONENT` retained as a union view so nothing downstream
+  changed. Row counts reconcile exactly: 134,836 + 81,265 = 216,101.
+- **`PAYROLL_ATTRIBUTE` added** for the External HC block and Remarks, which
+  Greg flagged as missing and Antoine asked to keep separate. They were mapped
+  in `HEADER_MAP` from the start but had no table to land in.
+  **Every Agency Name and Agency Fee cell in every file holds a single
+  non-breaking space, not a value** -- the block has never been filled in, in
+  any year. Remarks carry 354 real values. The loader treats a lone
+  non-breaking space as empty, which is why the table is smaller than a naive
+  count of non-null cells suggests.
+- **`V_PAYROLL_CELL`** resolves each cell and its currency once, so the three
+  loader inserts share one copy of the currency rule.
+- **`V_GOLD_ANNUAL_COMPENSATION` now excludes the FY salary restatement.** It
+  reads `FACT_PAYROLL_PAYMENT`, where the file's own annual total sits
+  alongside the twelve monthly cells; summing both counted the same salary
+  twice. Verified equal for all 2,784 employments that carry both.
 - **`STG_CONSOLIDATED_2026`** stages the consolidated workbook outside the
   model. 6,018 rows, 122 columns, amount columns masked. It covers 64
   subsidiaries against our 19 and 5,982 employees against our 2,810, so it is a
