@@ -773,11 +773,14 @@ tested by query, and how the first two below went unnoticed.
 - **`PAYROLL_ATTRIBUTE` added** for the External HC block and Remarks, which
   Greg flagged as missing and Antoine asked to keep separate. They were mapped
   in `HEADER_MAP` from the start but had no table to land in.
-  **Every Agency Name and Agency Fee cell in every file holds a single
-  non-breaking space, not a value** -- the block has never been filled in, in
-  any year. Remarks carry 354 real values. The loader treats a lone
-  non-breaking space as empty, which is why the table is smaller than a naive
-  count of non-null cells suggests.
+  **No Agency Name or Agency Fee cell in any file holds a value.** In 2026
+  every cell is empty. In 2025, 238 of each look filled but contain only a
+  non-breaking space, which a naive non-null count reports as data. The 2024
+  template has no External HC columns at all. Remarks carry 354 real values,
+  reconciled cell for cell against the raw workbooks.
+- **An agency fee takes the contract currency.** The template gives the fee no
+  currency cell of its own, so this is an assumption rather than something the
+  file states. Proven with a controlled test row, since no real fee exists yet.
 - **`V_PAYROLL_CELL`** resolves each cell and its currency once, so the three
   loader inserts share one copy of the currency rule.
 - **`V_GOLD_ANNUAL_COMPENSATION` now excludes the FY salary restatement.** It

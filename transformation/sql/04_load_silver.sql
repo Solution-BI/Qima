@@ -283,7 +283,12 @@ select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
                 nullif(upper(regexp_replace(trim(c.SOURCE_HEADER), '[^A-Za-z0-9]+', '_')), ''),
                 c.COMPONENT_NAME || '_COL' || c.COLUMN_INDEX),
        c.SOURCE_HEADER,
-       c.RAW_VALUE,
+       -- A fee that parses lives in AMOUNT only. Writing its text as well would
+       -- hold the same figure in two columns, which the fact tables never do -
+       -- they set TEXT_VALUE only when a number fails to parse. A fee typed as
+       -- text ("TBC") still keeps it, so nothing submitted is lost.
+       iff(c.MEASURE_BASIS = 'FEE' and try_to_number(c.RAW_VALUE, 18, 2) is not null,
+           null, c.RAW_VALUE),
        iff(c.MEASURE_BASIS = 'FEE', try_to_number(c.RAW_VALUE, 18, 2), null),
        iff(c.MEASURE_BASIS = 'FEE', c.CURRENCY_CODE, null)
 from V_PAYROLL_CELL c

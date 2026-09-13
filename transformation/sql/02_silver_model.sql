@@ -196,9 +196,9 @@ create table if not exists PAYROLL_ATTRIBUTE (
         comment 'HEADER_MAP.CANONICAL_FIELD where one exists - AGENCY_NAME, AGENCY_FEE, REMARK - otherwise the source header normalised. Stable across generations, which is why Remark (2024/2025) and Remarks (2026) both arrive as REMARK.',
     SOURCE_HEADER       varchar        comment 'The header verbatim, so an attribute traces back to a cell without reopening the workbook.',
 
-    TEXT_VALUE          varchar        comment 'The cell as written. This is the value for everything except the fee.',
+    TEXT_VALUE          varchar        comment 'The cell as written. On AGENCY_FEE it is set only when the fee did not parse as a number, the same rule the fact tables follow.',
     AMOUNT              number(18,2)   comment 'Set on AGENCY_FEE only.',
-    CURRENCY_CODE       varchar(8)     comment 'Set on AGENCY_FEE only, from the contractual currency.',
+    CURRENCY_CODE       varchar(8)     comment 'Set on AGENCY_FEE only. The template has no currency cell for the fee, so this is the contractual currency - an assumption, not something the file states.',
 
     LOADED_AT           timestamp_tz   not null default current_timestamp(),
     constraint PK_PAYROLL_ATTRIBUTE primary key (ATTRIBUTE_ID),
