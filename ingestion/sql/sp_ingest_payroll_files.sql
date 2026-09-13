@@ -1,20 +1,22 @@
--- SP_INGEST_PAYROLL_FILES: main ingestion procedure for the payroll pipeline.
+-- SP_INGEST_PAYROLL_FILES: loads payroll .xlsx files from SharePoint into FILE_LOAD.
 --
--- Does everything the notebook does in one CALL:
---   1. Authenticates to SharePoint via OAuth2 client credentials
---   2. Walks the payroll folder tree, finds candidates in the HWM time window
---   3. Downloads and stages each file (one at a time, not batch)
---   4. Inserts FILE_LOAD rows with real per-file transactions
---   5. Runs MERGE with PARSE_XLSX_TO_JSON UDF for extraction
---   6. Reconciles deleted files (IS_CURRENT = FALSE)
---   7. Returns a VARIANT run manifest
+-- Follows the QIMA ETL framework (watermark, clear, insert, duplicate check,
+-- COMMIT or ROLLBACK). Python instead of LANGUAGE SQL because the SharePoint
+-- download and stage PUT need external access.
 --
--- Scheduled via T_PAYROLL_INGEST task. See plan_stored_procedure_migration_2026-09-10.md.
+-- Holds no environment values: database, schema and SharePoint identifiers are
+-- passed in by the caller (T_PAYROLL_INGEST, defined in deploy_<env>.sql).
+-- Deploy with the target database and schema set as the session context.
+-- Depends on SP_CONNECT_SHAREPOINT, LIST_SHAREPOINT_FILES and PARSE_XLSX_TO_JSON.
 
-USE DATABASE {{ database }};
-USE SCHEMA {{ schema_raw }};
-
-CREATE OR REPLACE PROCEDURE {{ database }}.{{ schema_raw }}.SP_INGEST_PAYROLL_FILES(
+CREATE OR REPLACE PROCEDURE SP_INGEST_PAYROLL_FILES(
+    DATABASE_NAME  VARCHAR,
+    SCHEMA_NAME    VARCHAR,
+    TENANT_ID      VARCHAR,
+    CLIENT_ID      VARCHAR,
+    SITE_ID        VARCHAR,
+    DRIVE_ID       VARCHAR,
+    FOLDER_PATH    VARCHAR,
     OFFSET_MINUTES NUMBER DEFAULT 1
 )
 RETURNS VARIANT
@@ -23,315 +25,25 @@ RUNTIME_VERSION = '3.11'
 PACKAGES = ('snowflake-snowpark-python', 'requests')
 HANDLER = 'run'
 EXTERNAL_ACCESS_INTEGRATIONS = (SHAREPOINT_HR_PAYROLL_EAI)
-SECRETS = ('cred' = {{ database }}.{{ schema_raw }}.SHAREPOINT_HR_PAYROLL_CLIENT_SECRET)
 EXECUTE AS CALLER
 AS $$
 import io
 import json
 import uuid
 import requests
-from datetime import datetime, timezone
-from urllib.parse import quote
-import _snowflake
 
-# ── SharePoint constants ──────────────────────────────────────────────
-
-TENANT_ID   = '{{ sharepoint_tenant_id }}'
-CLIENT_ID   = '{{ sharepoint_client_id }}'
-SITE_ID     = '{{ sharepoint_site_id }}'
-DRIVE_ID    = '{{ sharepoint_drive_id }}'
-FOLDER_PATH = '{{ sharepoint_folder_path }}'
-
-GRAPH       = 'https://graph.microsoft.com/v1.0'
-TOKEN_URL   = f'https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token'
-STAGE_NAME  = '{{ database }}.{{ schema_raw }}.TEMP_PAYROLL_STAGE'
+# DECLARE
+GRAPH            = 'https://graph.microsoft.com/v1.0'
+DATA_DUPLICATION = '-20001: Duplicate records detected in FILE_LOAD on keys: SHAREPOINT_ITEM_ID (IS_CURRENT = TRUE)'
 
 
-# ── Auth ──────────────────────────────────────────────────────────────
-def get_token():
-    secret = _snowflake.get_generic_secret_string('cred')
-    resp = requests.post(TOKEN_URL, data={
-        'client_id':     CLIENT_ID,
-        'client_secret': secret,
-        'scope':         'https://graph.microsoft.com/.default',
-        'grant_type':    'client_credentials',
-    }, timeout=30)
-    if resp.status_code != 200:
-        raise RuntimeError(f'Token request failed: HTTP {resp.status_code}')
-    return resp.json()['access_token']
-
-
-# ── Graph helpers ─────────────────────────────────────────────────────
-def list_children(url, hdr):
-    items = []
-    while url:
-        r = requests.get(url, headers=hdr, timeout=60)
-        if r.status_code != 200:
-            raise RuntimeError(f'Graph list failed: HTTP {r.status_code} - {r.text[:300]}')
-        data = r.json()
-        items.extend(data.get('value', []))
-        url = data.get('@odata.nextLink')
-    return items
-
-
-def walk_folder(folder_id, hdr, depth=0, max_depth=5):
-    if depth > max_depth:
-        return []
-    files = []
-    for item in list_children(f'{GRAPH}/drives/{DRIVE_ID}/items/{folder_id}/children', hdr):
-        if 'folder' in item:
-            files.extend(walk_folder(item['id'], hdr, depth + 1, max_depth))
-        else:
-            files.append(item)
-    return files
-
-
-def list_candidates(session, all_files, offset_minutes):
-    row = session.sql("""
-        SELECT COALESCE(
-            MAX(INGESTED_AT),
-            '2024-01-01'::TIMESTAMP_TZ
-        ) AS HWM
-        FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
-        WHERE INGEST_STATUS = 'SUCCESS'
-    """).collect()
-    from_ts = row[0]['HWM']
-    to_ts = session.sql(f"""
-        SELECT TIMESTAMPADD('MINUTE', -{offset_minutes}, CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP()))
-    """).collect()[0][0]
-
-    matched = []
-    for item in all_files:
-        mod = datetime.fromisoformat(item['lastModifiedDateTime'].replace('Z', '+00:00'))
-        if from_ts < mod < to_ts:
-            is_supported = item.get('name', '').endswith('.xlsx')
-            matched.append({
-                'id':          item['id'],
-                'name':        item['name'],
-                'path':        item.get('parentReference', {}).get('path', ''),
-                'modified_at': item['lastModifiedDateTime'],
-                'modified_by': item.get('lastModifiedBy', {}).get('user', {}).get('displayName'),
-                'created_at':  item.get('createdDateTime'),
-                'created_by':  item.get('createdBy', {}).get('user', {}).get('displayName'),
-                'size_bytes':  item.get('size'),
-                'supported':   is_supported,
-            })
-    return matched, from_ts, to_ts
-
-
-# ── Main entry point ─────────────────────────────────────────────────
-def run(session, offset_minutes):
+def run(session, database_name, schema_name, tenant_id, client_id, site_id, drive_id, folder_path, offset_minutes):
     run_id = str(uuid.uuid4())
-    file_results = []
-
-    # 1. Auth
-    hdr = {'Authorization': f'Bearer {get_token()}'}
-
-    # 2. Walk SharePoint and find candidates
-    folder = quote(FOLDER_PATH, safe='/')
-    r = requests.get(f'{GRAPH}/sites/{SITE_ID}/drives/{DRIVE_ID}/root:/{folder}',
-                     headers=hdr, timeout=60)
-    if r.status_code != 200:
-        return {'run_id': run_id, 'error': f'Folder lookup failed: HTTP {r.status_code}'}
-
-    all_files = walk_folder(r.json()['id'], hdr)
-    candidates, from_ts, to_ts = list_candidates(session, all_files, offset_minutes)
-
-    # 3. Stage setup.
-    # CREATE TEMPORARY STAGE is rejected inside a stored procedure
-    # ("Unsupported statement type 'temporary STAGE'"), so this is a regular
-    # stage dropped in the finally block below. Same retention guarantee,
-    # enforced by code rather than by Snowflake's session scoping.
-    # The leading DROP clears an orphan left by a prior run that died before
-    # reaching its finally block.
-    session.sql(f"DROP STAGE IF EXISTS {STAGE_NAME}").collect()
-    session.sql(f"CREATE STAGE {STAGE_NAME}").collect()
-
-    staged_count = 0
-    failed_count = 0
-
-    try:
-        # 4. Per-file: download -> PUT -> INSERT (with real transactions)
-        for c in candidates:
-            file_result = {
-                'id': c['id'],
-                'name': c['name'],
-                'ingest_status': None,
-                'extract_status': 'NOT_ATTEMPTED',
-                'error': None,
-            }
-
-            # Determine ingest status before DB operations
-            if not c.get('supported', True):
-                file_result['ingest_status'] = 'FAILED'
-                file_result['error'] = f"Unsupported file format: {c['name'].rsplit('.', 1)[-1].upper()}. Only .xlsx files are accepted."
-                # Still insert a FILE_LOAD row for audit trail
-                _insert_file_load(session, run_id, c, file_result)
-                failed_count += 1
-                file_results.append(file_result)
-                continue
-
-            # Download
-            try:
-                dl = requests.get(f"{GRAPH}/drives/{DRIVE_ID}/items/{c['id']}/content",
-                                  headers=hdr, timeout=120)
-                if dl.status_code != 200:
-                    raise RuntimeError(f'HTTP {dl.status_code}')
-            except Exception as e:
-                file_result['ingest_status'] = 'FAILED'
-                file_result['error'] = f'Download failed: {e}'
-                _insert_file_load(session, run_id, c, file_result)
-                failed_count += 1
-                file_results.append(file_result)
-                continue
-
-            # PUT to stage
-            try:
-                stage_filename = f"{c['id']}.xlsx"
-                session.file.put_stream(
-                    io.BytesIO(dl.content),
-                    f"@{STAGE_NAME}/{stage_filename}",
-                    auto_compress=False,
-                    overwrite=True,
-                )
-            except Exception as e:
-                file_result['ingest_status'] = 'FAILED'
-                file_result['error'] = f'Stage PUT failed: {e}'
-                _insert_file_load(session, run_id, c, file_result)
-                failed_count += 1
-                file_results.append(file_result)
-                continue
-
-            # INSERT with real transaction (fixes the rollback bug in the notebook)
-            file_result['ingest_status'] = 'SUCCESS'
-            try:
-                session.sql("BEGIN").collect()
-
-                session.sql("""
-                    UPDATE {{ database }}.{{ schema_raw }}.FILE_LOAD SET IS_CURRENT = FALSE
-                    WHERE SHAREPOINT_ITEM_ID = :1 AND IS_CURRENT = TRUE
-                """, params=[c['id']]).collect()
-
-                session.sql("""
-                    INSERT INTO {{ database }}.{{ schema_raw }}.FILE_LOAD (
-                        RUN_ID, FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
-                        SHAREPOINT_MODIFIED_AT, SHAREPOINT_MODIFIED_BY,
-                        SHAREPOINT_CREATED_AT, SHAREPOINT_CREATED_BY,
-                        FILE_SIZE_BYTES, INGESTED_AT, INGEST_STATUS,
-                        ERROR_MESSAGE, IS_CURRENT
-                    )
-                    SELECT :1, :2, :3, :4, :5, :6, :7, :8, :9,
-                           CURRENT_TIMESTAMP(), :10, :11, TRUE
-                """, params=[
-                    run_id,
-                    c['name'],
-                    c.get('path'),
-                    c['id'],
-                    c['modified_at'],
-                    c.get('modified_by'),
-                    c.get('created_at'),
-                    c.get('created_by'),
-                    c.get('size_bytes'),
-                    file_result['ingest_status'],
-                    file_result['error'],
-                ]).collect()
-
-                session.sql("COMMIT").collect()
-                staged_count += 1
-            except Exception as e:
-                session.sql("ROLLBACK").collect()
-                file_result['ingest_status'] = 'FAILED'
-                file_result['error'] = f'INSERT failed: {e}'
-                failed_count += 1
-
-            file_results.append(file_result)
-
-        # 5. Extraction via MERGE with PARSE_XLSX_TO_JSON UDF
-        try:
-            session.sql(f"""
-                MERGE INTO {{ database }}.{{ schema_raw }}.FILE_LOAD t
-                USING (
-                    SELECT LOAD_ID,
-                           {{ database }}.{{ schema_raw }}.PARSE_XLSX_TO_JSON(
-                               BUILD_SCOPED_FILE_URL(@{STAGE_NAME}, SHAREPOINT_ITEM_ID || '.xlsx')
-                           ) AS PARSED
-                    FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
-                    WHERE RUN_ID = :1
-                      AND INGEST_STATUS  = 'SUCCESS'
-                      AND EXTRACT_STATUS = 'NOT_ATTEMPTED'
-                ) s ON t.LOAD_ID = s.LOAD_ID
-                WHEN MATCHED THEN UPDATE SET
-                    t.RAW_CONTENT    = IFF(s.PARSED:"_error" IS NULL, s.PARSED, NULL),
-                    t.EXTRACT_STATUS = IFF(s.PARSED:"_error" IS NULL, 'SUCCESS', 'FAILED'),
-                    t.EXTRACTED_AT   = CURRENT_TIMESTAMP(),
-                    t.ERROR_MESSAGE  = s.PARSED:"_error"::VARCHAR
-            """, params=[run_id]).collect()
-        except Exception as e:
-            # MERGE failure is non-fatal to the run -- files are still ingested
-            for fr in file_results:
-                if fr['ingest_status'] == 'SUCCESS':
-                    fr['extract_status'] = 'MERGE_FAILED'
-                    fr['error'] = str(e)
-
-        # 6. Reconciliation -- flag deleted files as IS_CURRENT = FALSE
-        sharepoint_ids = {item['id'] for item in all_files}
-        current_rows = session.sql("""
-            SELECT LOAD_ID, SHAREPOINT_ITEM_ID
-            FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
-            WHERE IS_CURRENT = TRUE
-              AND SHAREPOINT_ITEM_ID IS NOT NULL
-        """).collect()
-
-        deleted_count = 0
-        for row in current_rows:
-            if row['SHAREPOINT_ITEM_ID'] not in sharepoint_ids:
-                session.sql("""
-                    UPDATE {{ database }}.{{ schema_raw }}.FILE_LOAD SET IS_CURRENT = FALSE
-                    WHERE LOAD_ID = :1
-                """, params=[row['LOAD_ID']]).collect()
-                deleted_count += 1
-
-    finally:
-        # 7. Drop stage -- the retention guarantee
-        session.sql(f"DROP STAGE IF EXISTS {STAGE_NAME}").collect()
-
-    # 8. Build return manifest from what FILE_LOAD actually recorded
-    extract_rows = session.sql("""
-        SELECT LOAD_ID, FILE_NAME, SHAREPOINT_ITEM_ID,
-               INGEST_STATUS, EXTRACT_STATUS, ERROR_MESSAGE
-        FROM {{ database }}.{{ schema_raw }}.FILE_LOAD
-        WHERE RUN_ID = :1
-    """, params=[run_id]).collect()
-
-    manifest_files = []
-    for row in extract_rows:
-        manifest_files.append({
-            'id':             row['SHAREPOINT_ITEM_ID'],
-            'name':           row['FILE_NAME'],
-            'ingest_status':  row['INGEST_STATUS'],
-            'extract_status': row['EXTRACT_STATUS'],
-            'error':          row['ERROR_MESSAGE'],
-        })
-
-    extracted_count = sum(1 for f in manifest_files if f['extract_status'] == 'SUCCESS')
-
-    return {
-        'run_id':     run_id,
-        'from_ts':    str(from_ts),
-        'to_ts':      str(to_ts),
-        'candidates': len(candidates),
-        'staged':     staged_count,
-        'extracted':  extracted_count,
-        'failed':     failed_count,
-        'deleted':    deleted_count,
-        'files':      manifest_files,
-    }
-
-
-def _insert_file_load(session, run_id, candidate, result):
-    """Insert a FILE_LOAD row for a file that failed before staging (unsupported format, download error)."""
-    session.sql("""
-        INSERT INTO {{ database }}.{{ schema_raw }}.FILE_LOAD (
+    schema = f'{database_name}.{schema_name}'
+    target = f'{schema}.FILE_LOAD'
+    stage  = f'{schema}.TEMP_PAYROLL_STAGE'
+    insert_file_load = f"""
+        INSERT INTO {target} (
             RUN_ID, FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
             SHAREPOINT_MODIFIED_AT, SHAREPOINT_MODIFIED_BY,
             SHAREPOINT_CREATED_AT, SHAREPOINT_CREATED_BY,
@@ -339,21 +51,219 @@ def _insert_file_load(session, run_id, candidate, result):
             ERROR_MESSAGE, IS_CURRENT
         )
         SELECT :1, :2, :3, :4, :5, :6, :7, :8, :9,
-               CURRENT_TIMESTAMP(), :10, :11, FALSE
-    """, params=[
-        run_id,
-        candidate['name'],
-        candidate.get('path'),
-        candidate['id'],
-        candidate['modified_at'],
-        candidate.get('modified_by'),
-        candidate.get('created_at'),
-        candidate.get('created_by'),
-        candidate.get('size_bytes'),
-        result['ingest_status'],
-        result['error'],
-    ]).collect()
-$$;
+               CURRENT_TIMESTAMP(), :10, :11, :12::BOOLEAN
+    """
 
+    try:
+        # ==========================================================================
+        # STEP 1: Connect to SharePoint
+        # Authenticates via OAuth2 client credentials and returns a bearer token.
+        # Delegated to SP_CONNECT_SHAREPOINT so this procedure never touches
+        # the client secret directly (secret binding lives there, not here).
+        # ==========================================================================
+        creds = session.sql(
+            f'CALL {schema}.SP_CONNECT_SHAREPOINT(:1, :2, :3, :4, :5)',
+            params=[tenant_id, client_id, site_id, drive_id, folder_path],
+        ).collect()[0][0]
+        if isinstance(creds, str):
+            creds = json.loads(creds)
+        if isinstance(creds, str):
+            creds = json.loads(creds)
+        hdr = {'Authorization': f"Bearer {creds['access_token']}"}
+
+        # ==========================================================================
+        # STEP 2: Collect candidate files modified since the watermark
+        # LIST_SHAREPOINT_FILES walks the full folder tree and returns every
+        # file. We then read the high-water mark (HWM) from FILE_LOAD -- the
+        # most recent successful INGESTED_AT -- and keep only files modified
+        # between HWM and (now - OFFSET_MINUTES). The offset prevents ingesting
+        # a file that is still being written to on SharePoint.
+        # ==========================================================================
+        all_files = [row.as_dict() for row in session.sql(
+            f'SELECT * FROM TABLE({schema}.LIST_SHAREPOINT_FILES(:1, :2, :3, :4))',
+            params=[tenant_id, client_id, drive_id, folder_path],
+        ).collect()]
+        from_ts, to_ts = session.sql(f"""
+            SELECT COALESCE(MAX(INGESTED_AT), '2024-01-01'::TIMESTAMP_TZ),
+                   TIMESTAMPADD('MINUTE', -{int(offset_minutes)}, CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP()))
+            FROM {target}
+            WHERE INGEST_STATUS = 'SUCCESS'
+        """).collect()[0]
+        candidates = [item for item in all_files if from_ts < item['SHAREPOINT_MODIFIED_AT'] < to_ts]
+
+        # ==========================================================================
+        # STEP 3: Prepare stage
+        # Creates a transient stage to hold downloaded .xlsx files until they
+        # are parsed by PARSE_XLSX_TO_JSON in Step 8. The stage is dropped in
+        # the finally block to guarantee no raw payroll files persist beyond
+        # this run. CREATE TEMPORARY STAGE is rejected inside stored procedures,
+        # so a regular stage with a manual DROP serves the same purpose.
+        # ==========================================================================
+        session.sql(f'DROP STAGE IF EXISTS {stage}').collect()
+        session.sql(f'CREATE STAGE {stage}').collect()
+
+        for item in candidates:
+            # ==========================================================================
+            # STEP 4: Download and stage the file
+            # Downloads the file bytes from SharePoint via Graph API, then PUTs
+            # them to the temporary stage. Unsupported formats (.csv, .xls, etc.)
+            # are rejected before download. Any failure at download or PUT is
+            # recorded as a FAILED row in FILE_LOAD for audit, and the loop
+            # continues to the next file -- one bad file does not abort the run.
+            # ==========================================================================
+            file_values = [
+                run_id,
+                item['FILE_NAME'],
+                item['FILE_PATH'],
+                item['SHAREPOINT_ITEM_ID'],
+                item['SHAREPOINT_MODIFIED_AT'].isoformat(),
+                item['SHAREPOINT_MODIFIED_BY'],
+                item['SHAREPOINT_CREATED_AT'].isoformat() if item['SHAREPOINT_CREATED_AT'] else None,
+                item['SHAREPOINT_CREATED_BY'],
+                item['FILE_SIZE_BYTES'],
+            ]
+            error = None
+            if not item['FILE_NAME'].endswith('.xlsx'):
+                error = f"Unsupported file format: {item['FILE_NAME'].rsplit('.', 1)[-1].upper()}. Only .xlsx files are accepted."
+            else:
+                try:
+                    dl = requests.get(f"{GRAPH}/drives/{drive_id}/items/{item['SHAREPOINT_ITEM_ID']}/content",
+                                      headers=hdr, timeout=120)
+                    if dl.status_code != 200:
+                        raise RuntimeError(f'HTTP {dl.status_code}')
+                except Exception as e:
+                    error = f'Download failed: {e}'
+                else:
+                    try:
+                        session.file.put_stream(io.BytesIO(dl.content), f"@{stage}/{item['SHAREPOINT_ITEM_ID']}.xlsx",
+                                                auto_compress=False, overwrite=True)
+                    except Exception as e:
+                        error = f'Stage PUT failed: {e}'
+
+            if error:
+                session.sql(insert_file_load, params=[*file_values, 'FAILED', error, 'FALSE']).collect()
+                continue
+
+            session.sql('START TRANSACTION').collect()
+            try:
+                # ==========================================================================
+                # STEP 5: Clear rows to be refreshed
+                # Retires the previous version of this file by setting IS_CURRENT
+                # = FALSE. This runs inside a per-file transaction so the old row
+                # and the new row are atomically swapped: if the INSERT in Step 6
+                # fails, the ROLLBACK restores IS_CURRENT = TRUE on the old row.
+                # ==========================================================================
+                session.sql(f"""
+                    UPDATE {target} SET IS_CURRENT = FALSE
+                    WHERE SHAREPOINT_ITEM_ID = :1 AND IS_CURRENT = TRUE
+                """, params=[item['SHAREPOINT_ITEM_ID']]).collect()
+
+                # ==========================================================================
+                # STEP 6: Insert the new file version
+                # Inserts the new FILE_LOAD row with IS_CURRENT = TRUE and
+                # INGEST_STATUS = SUCCESS. At this point the file is staged but
+                # not yet parsed -- EXTRACT_STATUS stays at NOT_ATTEMPTED until
+                # Step 8 runs the UDF.
+                # ==========================================================================
+                session.sql(insert_file_load, params=[*file_values, 'SUCCESS', None, 'TRUE']).collect()
+
+                # ==========================================================================
+                # STEP 7: Duplicate check on business keys
+                # Verifies that exactly one IS_CURRENT = TRUE row exists for this
+                # SHAREPOINT_ITEM_ID. If the UPDATE in Step 5 missed an edge case
+                # and two current versions coexist, the transaction is rolled back
+                # and the run is aborted with a data_duplication error. The check
+                # is scoped to this file's key -- other files are checked on their
+                # own iteration.
+                # ==========================================================================
+                v_nb_records = session.sql(f"""
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT SHAREPOINT_ITEM_ID
+                        FROM {target}
+                        WHERE SHAREPOINT_ITEM_ID = :1 AND IS_CURRENT = TRUE
+                        GROUP BY SHAREPOINT_ITEM_ID
+                        HAVING COUNT(*) > 1
+                    )
+                """, params=[item['SHAREPOINT_ITEM_ID']]).collect()[0][0]
+            except Exception as e:
+                session.sql('ROLLBACK').collect()
+                session.sql(insert_file_load, params=[*file_values, 'FAILED', f'INSERT failed: {e}', 'FALSE']).collect()
+                continue
+
+            if v_nb_records > 0:
+                session.sql('ROLLBACK').collect()
+                raise RuntimeError(DATA_DUPLICATION)
+            else:
+                session.sql('COMMIT').collect()
+
+        # ==========================================================================
+        # STEP 8: Extract staged files into RAW_CONTENT
+        # Calls PARSE_XLSX_TO_JSON on every successfully staged file. The UDF
+        # reads the .xlsx from the temporary stage, walks every sheet cell by
+        # cell, and returns a VARIANT. On success the parsed content goes into
+        # RAW_CONTENT; on failure the UDF returns {"_error": "..."} which is
+        # stored in ERROR_MESSAGE. Extraction is non-fatal: a corrupt file does
+        # not roll back the other files' ingestion.
+        # ==========================================================================
+        session.sql(f"""
+            UPDATE {target} t
+            SET RAW_CONTENT    = IFF(s.PARSED:"_error" IS NULL, s.PARSED, NULL),
+                EXTRACT_STATUS = IFF(s.PARSED:"_error" IS NULL, 'SUCCESS', 'FAILED'),
+                EXTRACTED_AT   = CURRENT_TIMESTAMP(),
+                ERROR_MESSAGE  = s.PARSED:"_error"::VARCHAR
+            FROM (
+                SELECT LOAD_ID,
+                       {schema}.PARSE_XLSX_TO_JSON(
+                           BUILD_SCOPED_FILE_URL(@{stage}, SHAREPOINT_ITEM_ID || '.xlsx')
+                       ) AS PARSED
+                FROM {target}
+                WHERE RUN_ID = :1
+                  AND INGEST_STATUS  = 'SUCCESS'
+                  AND EXTRACT_STATUS = 'NOT_ATTEMPTED'
+            ) s
+            WHERE t.LOAD_ID = s.LOAD_ID
+        """, params=[run_id]).collect()
+
+        # ==========================================================================
+        # STEP 9: Retire rows for files deleted from SharePoint
+        # Compares the full file listing from Step 2 against IS_CURRENT = TRUE
+        # rows in FILE_LOAD. Any row whose SHAREPOINT_ITEM_ID no longer appears
+        # in SharePoint is set to IS_CURRENT = FALSE. This runs even when there
+        # are zero candidates -- a file can be deleted during a quiet period.
+        # ==========================================================================
+        session.sql(f"""
+            UPDATE {target} SET IS_CURRENT = FALSE
+            WHERE IS_CURRENT = TRUE
+              AND SHAREPOINT_ITEM_ID IS NOT NULL
+              AND SHAREPOINT_ITEM_ID NOT IN (
+                  SELECT VALUE::VARCHAR FROM TABLE(FLATTEN(INPUT => PARSE_JSON(:1)))
+              )
+        """, params=[json.dumps([item['SHAREPOINT_ITEM_ID'] for item in all_files])]).collect()
+
+        return {
+            'status':     'Success',
+            'run_id':     run_id,
+            'from_ts':    str(from_ts),
+            'to_ts':      str(to_ts),
+            'candidates': len(candidates),
+        }
+
+    except Exception:
+        session.sql('ROLLBACK').collect()
+        raise
+
+    finally:
+        session.sql(f'DROP STAGE IF EXISTS {stage}').collect()
+$$;
 -- Deploying this file only creates the procedure. To run it manually:
---   CALL {{ database }}.{{ schema_raw }}.SP_INGEST_PAYROLL_FILES(1);
+  CALL SP_INGEST_PAYROLL_FILES(
+      DATABASE_NAME  => 'SANDBOX_DB',
+      SCHEMA_NAME    => 'HR_PAYROLL_QIMA',
+      TENANT_ID      => '77fc8d6c-15ec-4aea-9bd6-cf77b407a763',
+      CLIENT_ID      => 'f1343367-3e3a-4ab0-8438-e72f261a6994',
+      SITE_ID        => 'learnfabricsbi.sharepoint.com,5cfbd818-9daa-43e7-9676-7e69ccdbd7a0,859f7104-aaf6-4d0b-8cd3-30a1bc521983',
+      DRIVE_ID       => 'b!GNj7XKqd50OWdn5pzNvXoARxn4X2qgtNjNMwobxSGYOsH0CrHyfVRYKr4I5Z_tXk',
+      FOLDER_PATH    => 'Payroll files',
+      OFFSET_MINUTES => 1
+  );
