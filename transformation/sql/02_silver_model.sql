@@ -259,8 +259,16 @@ create table if not exists DQ_FLAG (
 --
 -- Three exclusions, each traceable to a decision rather than a preference:
 --   CURRENCY_SCOPE = 'LOCAL'  - FX normalisation is out of scope (contract s.3)
+--   MAPPING_STATUS = 'MAPPED' - a sample template must never reach reporting
 --   no IDENTITY flag          - identity issues are excluded until resolved (s.6)
---   NEEDS_REVIEW = FALSE      - an unreviewed mapping must not reach reporting
+--
+-- HEADER_MAP.NEEDS_REVIEW is not applied. Fact rows no longer carry the source
+-- column index, so a value cannot be traced back to its mapping row here. The
+-- four columns flagged today are blank headers with no data, so nothing slips
+-- through now - but a future unreviewed column would.
+--
+-- The descriptions users see on these views are set by 06_column_descriptions,
+-- which must run after this file: CREATE OR REPLACE VIEW discards them.
 -- ---------------------------------------------------------------------------
 create or replace view V_GOLD_PAYROLL_COMPONENT as
 select m.*

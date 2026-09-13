@@ -87,7 +87,7 @@ plainly, because "216,101 payroll records" reads as 216,101 payments.
 ## 3. Load steps
 
 All four steps are plain SQL in `transformation/sql/`, followed by
-`05_load_dq_flags.sql`. No Python runs in the pipeline; the scripts under
+`05_load_dq_flags.sql` and `06_column_descriptions.sql`. No Python runs in the pipeline; the scripts under
 `reference_data/` exist only to regenerate `HEADER_MAP` when a new template
 version appears.
 
@@ -206,7 +206,7 @@ CREATE TABLE HEADER_MAP (
 | PERIOD_TYPE | `MONTH`, `QUARTER` or `FY`. Null for eligibility, currency and attribute columns. |
 | PERIOD_KEY | `YYYY-MM`, `YYYY-Qn` or `YYYY`. Null where PERIOD_TYPE is null. |
 | CURRENCY_SCOPE | `LOCAL`, `USD` or `NA`. The 2024/2025 templates carry a second copy of most amounts converted to USD at unknown rates -- 154 of 668 columns. |
-| NEEDS_REVIEW | True where the classification could not be decided. Loads anyway, excluded from GOLD. |
+| NEEDS_REVIEW | True where the classification still needs confirming. Not applied in reporting: fact rows no longer trace back to their mapping row. The four flagged columns are blank headers with no data. |
 | REVIEW_REASON | Why it could not be decided. |
 | RESOLUTION_NOTE | Set where a band/header conflict was resolved deliberately -- see section 6.4. |
 | CREATED_AT | When the row was loaded. |
@@ -698,8 +698,10 @@ TRUNCATE TABLE PAYROLL_ROW;
 TRUNCATE TABLE TAB_LOAD;
 ```
 
-then re-run `transformation/sql/04_load_silver.sql` followed by
-`05_load_dq_flags.sql`. Rebuild takes seconds.
+then re-run `transformation/sql/04_load_silver.sql`, `05_load_dq_flags.sql` and
+`06_column_descriptions.sql`. Rebuild takes seconds. The last one matters even
+on a data-only reload: `04` rebuilds `V_PAYROLL_CELL`, and rebuilding a view
+discards its column descriptions.
 
 This is the only supported way to run the loader -- see section 3.
 
@@ -712,7 +714,7 @@ column -- it will run and insert nothing.
 ```
 transformation/
     sql/          01_header_map, 02_silver_model, 03_file_selection,
-                  04_load_silver, 05_load_dq_flags,
+                  04_load_silver, 05_load_dq_flags, 06_column_descriptions,
                   90_staging_consolidated (outside the model)
     reference_data/  header_map/, subsidiary/,
                      file_exclusion/ (kept as a record, no longer loaded)
@@ -797,6 +799,18 @@ tested by query, and how the first two below went unnoticed.
 Verified with 40 checks across two passes: row counts, value distribution and
 the 2,784 / 0 reconciliation all unchanged, a second full reload reproduces an
 identical content hash, and both loaders are idempotent.
+
+### Changed on 14 September
+
+- **Every table, view and column in the model has a description**, so anyone
+  browsing the payroll objects in Snowsight sees what each column holds, its
+  values, and how to use it. 18 objects, 252 columns, set by
+  `06_column_descriptions.sql`. Written for the reader of the data. The design
+  reasoning stays in the SQL comments. `FILE_LOAD` is described by ingestion,
+  and `STG_CONSOLIDATED_2026` sits outside the model.
+- **Two notes claimed `NEEDS_REVIEW` keeps a column out of reporting.** It does
+  not, and has not since the source column index was dropped from the fact.
+  Both notes now say so.
 
 ### Not built
 
