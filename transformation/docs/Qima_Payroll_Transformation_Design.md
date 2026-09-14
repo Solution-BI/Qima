@@ -488,9 +488,26 @@ would be arithmetic across units presented as a total.
 `V_GOLD_SINGLE_CURRENCY_EMPLOYMENT` provides a safe total only where one
 currency applies throughout.
 
-The 2024 and 2025 templates additionally carry a USD copy of most amounts,
-converted at rates the contract describes as inconsistent and unknown. Those
-load tagged `CURRENCY_SCOPE = 'USD'` and never reach GOLD.
+The 2024 and 2025 templates additionally carry USD columns, converted at rates
+the contract describes as inconsistent and unknown. Those load tagged
+`CURRENCY_SCOPE = 'USD'` and never reach GOLD.
+
+**That is only safe where a local column sits alongside, and for most bonuses it
+does not.** Salary has both. But in every 2024 and 2025 template, year-end,
+half-year, 13th month, Aguinaldo, CCLAB and commission have a USD paid column
+only, as do auditor bonus and gratuity in some 2025 versions. Those payments
+therefore reach no reporting at all:
+
+| Year | Group | Employments paid | Reaching GOLD |
+|---|---|---|---|
+| 2024 | Bonus | 2,269 | 0 |
+| 2024 | Commission | 100 | 0 |
+| 2025 | Bonus | 2,261 | 23 |
+| 2025 | Commission | 138 | 0 |
+
+Whether those USD figures are the amounts actually paid, or conversions of a
+local figure held elsewhere, is open with Tess. 2026 carries no USD values and
+is unaffected.
 
 ### 6.4 Two template defects, resolved in opposite directions
 
@@ -838,6 +855,9 @@ identical content hash, and both loaders are idempotent.
 
 ### Needs a decision
 
+- **2024 and 2025 bonuses reach no reporting.** Most bonus and all commission
+  columns in those templates exist only in USD, and GOLD excludes USD. Tess to
+  say whether those figures are real payments. See section 6.3.
 - **`FILE_LOAD.RAW_CONTENT` is not masked.** It holds every amount in every
   workbook, so masking downstream does not protect anyone who can read that
   table. It belongs to the ingestion stage. The likely answer is that RAW is
