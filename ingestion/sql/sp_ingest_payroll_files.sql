@@ -4,14 +4,14 @@
 -- COMMIT or ROLLBACK). Python instead of LANGUAGE SQL because the SharePoint
 -- download and stage PUT need external access.
 --
--- Holds no environment values: database, schema and SharePoint identifiers are
--- passed in by the caller (T_PAYROLL_INGEST, defined in deploy_<env>.sql).
+-- Holds no environment values: SharePoint identifiers are passed in by the caller
+-- (T_PAYROLL_INGEST, defined in deploy_<env>.sql), and object names are unqualified,
+-- so they resolve against the caller's current database and schema.
 -- Deploy with the target database and schema set as the session context.
--- Depends on SP_CONNECT_SHAREPOINT, LIST_SHAREPOINT_FILES and PARSE_XLSX_TO_JSON.
+-- Reads the client secret itself to get the Graph token.
+-- Depends on LIST_SHAREPOINT_FILES and PARSE_XLSX_TO_JSON.
 
 CREATE OR REPLACE PROCEDURE SP_INGEST_PAYROLL_FILES(
-    DATABASE_NAME  VARCHAR,
-    SCHEMA_NAME    VARCHAR,
     TENANT_ID      VARCHAR,
     CLIENT_ID      VARCHAR,
     SITE_ID        VARCHAR,
@@ -25,23 +25,27 @@ RUNTIME_VERSION = '3.11'
 PACKAGES = ('snowflake-snowpark-python', 'requests')
 HANDLER = 'run'
 EXTERNAL_ACCESS_INTEGRATIONS = (SHAREPOINT_HR_PAYROLL_EAI)
+SECRETS = ('cred' = SHAREPOINT_HR_PAYROLL_CLIENT_SECRET)
 EXECUTE AS CALLER
 AS $$
 import io
 import json
 import uuid
 import requests
+import _snowflake
+from datetime import datetime, timezone
 
 # DECLARE
 GRAPH            = 'https://graph.microsoft.com/v1.0'
+TOKEN_BASE       = 'https://login.microsoftonline.com'
+SCOPE            = 'https://graph.microsoft.com/.default'
 DATA_DUPLICATION = '-20001: Duplicate records detected in FILE_LOAD on keys: SHAREPOINT_ITEM_ID (IS_CURRENT = TRUE)'
 
 
-def run(session, database_name, schema_name, tenant_id, client_id, site_id, drive_id, folder_path, offset_minutes):
+def run(session, tenant_id, client_id, site_id, drive_id, folder_path, offset_minutes):
     run_id = str(uuid.uuid4())
-    schema = f'{database_name}.{schema_name}'
-    target = f'{schema}.FILE_LOAD'
-    stage  = f'{schema}.TEMP_PAYROLL_STAGE'
+    target = 'FILE_LOAD'
+    stage  = 'TEMP_PAYROLL_STAGE'
     insert_file_load = f"""
         INSERT INTO {target} (
             RUN_ID, FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
@@ -57,19 +61,22 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
     try:
         # ==========================================================================
         # STEP 1: Connect to SharePoint
-        # Authenticates via OAuth2 client credentials and returns a bearer token.
-        # Delegated to SP_CONNECT_SHAREPOINT so this procedure never touches
-        # the client secret directly (secret binding lives there, not here).
+        # Exchanges the client secret (bound via SECRETS) for a bearer token
+        # using the OAuth2 client credentials grant.
         # ==========================================================================
-        creds = session.sql(
-            f'CALL {schema}.SP_CONNECT_SHAREPOINT(:1, :2, :3, :4, :5)',
-            params=[tenant_id, client_id, site_id, drive_id, folder_path],
-        ).collect()[0][0]
-        if isinstance(creds, str):
-            creds = json.loads(creds)
-        if isinstance(creds, str):
-            creds = json.loads(creds)
-        hdr = {'Authorization': f"Bearer {creds['access_token']}"}
+        resp = requests.post(
+            f'{TOKEN_BASE}/{tenant_id}/oauth2/v2.0/token',
+            data={
+                'client_id':     client_id,
+                'client_secret': _snowflake.get_generic_secret_string('cred'),
+                'scope':         SCOPE,
+                'grant_type':    'client_credentials',
+            },
+            timeout=30,
+        )
+        if resp.status_code != 200:
+            raise RuntimeError(f'Token request failed: HTTP {resp.status_code}')
+        hdr = {'Authorization': f"Bearer {resp.json()['access_token']}"}
 
         # ==========================================================================
         # STEP 2: Collect candidate files modified since the watermark
@@ -79,17 +86,26 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
         # between HWM and (now - OFFSET_MINUTES). The offset prevents ingesting
         # a file that is still being written to on SharePoint.
         # ==========================================================================
-        all_files = [row.as_dict() for row in session.sql(
-            f'SELECT * FROM TABLE({schema}.LIST_SHAREPOINT_FILES(:1, :2, :3, :4))',
+        all_files_raw = session.sql(
+            'SELECT LIST_SHAREPOINT_FILES(:1, :2, :3, :4) AS FILES',
             params=[tenant_id, client_id, drive_id, folder_path],
-        ).collect()]
+        ).collect()[0]['FILES']
+        if isinstance(all_files_raw, str):
+            all_files_raw = json.loads(all_files_raw)
+        all_files = all_files_raw if all_files_raw else []
+
         from_ts, to_ts = session.sql(f"""
             SELECT COALESCE(MAX(INGESTED_AT), '2024-01-01'::TIMESTAMP_TZ),
                    TIMESTAMPADD('MINUTE', -{int(offset_minutes)}, CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP()))
             FROM {target}
             WHERE INGEST_STATUS = 'SUCCESS'
         """).collect()[0]
-        candidates = [item for item in all_files if from_ts < item['SHAREPOINT_MODIFIED_AT'] < to_ts]
+
+        candidates = []
+        for item in all_files:
+            mod = datetime.fromisoformat(item['SHAREPOINT_MODIFIED_AT'].replace('Z', '+00:00'))
+            if from_ts < mod < to_ts:
+                candidates.append(item)
 
         # ==========================================================================
         # STEP 3: Prepare stage
@@ -116,11 +132,11 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
                 item['FILE_NAME'],
                 item['FILE_PATH'],
                 item['SHAREPOINT_ITEM_ID'],
-                item['SHAREPOINT_MODIFIED_AT'].isoformat(),
+                item['SHAREPOINT_MODIFIED_AT'],
                 item['SHAREPOINT_MODIFIED_BY'],
-                item['SHAREPOINT_CREATED_AT'].isoformat() if item['SHAREPOINT_CREATED_AT'] else None,
-                item['SHAREPOINT_CREATED_BY'],
-                item['FILE_SIZE_BYTES'],
+                item.get('SHAREPOINT_CREATED_AT'),
+                item.get('SHAREPOINT_CREATED_BY'),
+                item.get('FILE_SIZE_BYTES'),
             ]
             error = None
             if not item['FILE_NAME'].endswith('.xlsx'):
@@ -214,7 +230,7 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
                 ERROR_MESSAGE  = s.PARSED:"_error"::VARCHAR
             FROM (
                 SELECT LOAD_ID,
-                       {schema}.PARSE_XLSX_TO_JSON(
+                       PARSE_XLSX_TO_JSON(
                            BUILD_SCOPED_FILE_URL(@{stage}, SHAREPOINT_ITEM_ID || '.xlsx')
                        ) AS PARSED
                 FROM {target}
@@ -226,20 +242,70 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
         """, params=[run_id]).collect()
 
         # ==========================================================================
+        # STEP 8b: Per-file outcome for the return manifest
+        # Reads back every FILE_LOAD row written by this run -- ingest failures
+        # (Step 4/6) and extract results (Step 8) -- so failures such as a
+        # password-protected workbook show up in the procedure's result, not
+        # only in FILE_LOAD.ERROR_MESSAGE.
+        # ==========================================================================
+        file_rows = session.sql(f"""
+            SELECT FILE_NAME, FILE_PATH, SHAREPOINT_ITEM_ID,
+                   INGEST_STATUS, EXTRACT_STATUS, ERROR_MESSAGE
+            FROM {target}
+            WHERE RUN_ID = :1
+            ORDER BY FILE_PATH, FILE_NAME
+        """, params=[run_id]).collect()
+
+        files = [{
+            'file_name':          row['FILE_NAME'],
+            'file_path':          row['FILE_PATH'],
+            'sharepoint_item_id': row['SHAREPOINT_ITEM_ID'],
+            'ingest_status':      row['INGEST_STATUS'],
+            'extract_status':     row['EXTRACT_STATUS'],
+            'error_message':      row['ERROR_MESSAGE'],
+        } for row in file_rows]
+
+        # ==========================================================================
         # STEP 9: Retire rows for files deleted from SharePoint
         # Compares the full file listing from Step 2 against IS_CURRENT = TRUE
         # rows in FILE_LOAD. Any row whose SHAREPOINT_ITEM_ID no longer appears
         # in SharePoint is set to IS_CURRENT = FALSE. This runs even when there
         # are zero candidates -- a file can be deleted during a quiet period.
         # ==========================================================================
-        session.sql(f"""
-            UPDATE {target} SET IS_CURRENT = FALSE
+        # Before the UPDATE, capture which rows will be retired so we can
+        # include their metadata in the return manifest.
+        sharepoint_ids_json = json.dumps([item['SHAREPOINT_ITEM_ID'] for item in all_files])
+        deleted_rows = session.sql(f"""
+            SELECT SHAREPOINT_ITEM_ID, FILE_NAME, FILE_PATH,
+                   SHAREPOINT_MODIFIED_AT, SHAREPOINT_MODIFIED_BY,
+                   SHAREPOINT_CREATED_AT, SHAREPOINT_CREATED_BY
+            FROM {target}
             WHERE IS_CURRENT = TRUE
               AND SHAREPOINT_ITEM_ID IS NOT NULL
               AND SHAREPOINT_ITEM_ID NOT IN (
                   SELECT VALUE::VARCHAR FROM TABLE(FLATTEN(INPUT => PARSE_JSON(:1)))
               )
-        """, params=[json.dumps([item['SHAREPOINT_ITEM_ID'] for item in all_files])]).collect()
+        """, params=[sharepoint_ids_json]).collect()
+
+        deleted_files = [{
+            'sharepoint_item_id':  row['SHAREPOINT_ITEM_ID'],
+            'file_name':           row['FILE_NAME'],
+            'file_path':           row['FILE_PATH'],
+            'modified_at':         str(row['SHAREPOINT_MODIFIED_AT']),
+            'modified_by':         row['SHAREPOINT_MODIFIED_BY'],
+            'created_at':          str(row['SHAREPOINT_CREATED_AT']) if row['SHAREPOINT_CREATED_AT'] else None,
+            'created_by':          row['SHAREPOINT_CREATED_BY'],
+        } for row in deleted_rows]
+
+        if deleted_files:
+            session.sql(f"""
+                UPDATE {target} SET IS_CURRENT = FALSE
+                WHERE IS_CURRENT = TRUE
+                  AND SHAREPOINT_ITEM_ID IS NOT NULL
+                  AND SHAREPOINT_ITEM_ID NOT IN (
+                      SELECT VALUE::VARCHAR FROM TABLE(FLATTEN(INPUT => PARSE_JSON(:1)))
+                  )
+            """, params=[sharepoint_ids_json]).collect()
 
         return {
             'status':     'Success',
@@ -247,6 +313,10 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
             'from_ts':    str(from_ts),
             'to_ts':      str(to_ts),
             'candidates': len(candidates),
+            'failed':     sum(f['ingest_status'] == 'FAILED' or f['extract_status'] == 'FAILED' for f in files),
+            'files':      files,
+            'deleted':    len(deleted_files),
+            'deleted_files': deleted_files,
         }
 
     except Exception:
@@ -258,12 +328,10 @@ def run(session, database_name, schema_name, tenant_id, client_id, site_id, driv
 $$;
 -- Deploying this file only creates the procedure. To run it manually:
   CALL SP_INGEST_PAYROLL_FILES(
-      DATABASE_NAME  => 'SANDBOX_DB',
-      SCHEMA_NAME    => 'HR_PAYROLL_QIMA',
       TENANT_ID      => '77fc8d6c-15ec-4aea-9bd6-cf77b407a763',
       CLIENT_ID      => 'f1343367-3e3a-4ab0-8438-e72f261a6994',
       SITE_ID        => 'learnfabricsbi.sharepoint.com,5cfbd818-9daa-43e7-9676-7e69ccdbd7a0,859f7104-aaf6-4d0b-8cd3-30a1bc521983',
-      DRIVE_ID       => 'b!GNj7XKqd50OWdn5pzNvXoARxn4X2qgtNjNMwobxSGYOsH0CrHyfVRYKr4I5Z_tXk',
+      DRIVE_ID       => 'b!GNj7XKqd50OWdn5pzNvXoARxn4X2qgwtNjNMwobxSGYOsH0CrHyfVRYKr4I5Z_tXk',
       FOLDER_PATH    => 'Payroll files',
       OFFSET_MINUTES => 1
   );
