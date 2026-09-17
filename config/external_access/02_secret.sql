@@ -12,9 +12,8 @@ USE ROLE ACCOUNTADMIN;
 USE DATABASE {{ database }};
 USE SCHEMA {{ schema_raw }};
 
-CREATE OR REPLACE SECRET SHAREPOINT_HR_PAYROLL_CLIENT_SECRET
-    TYPE          = GENERIC_STRING
-    SECRET_STRING = '{{ sharepoint_client_secret }}'
-    COMMENT       = 'Azure AD client secret for the payroll SharePoint app registration.';
 
-SHOW SECRETS;
+CREATE OR REPLACE SECRET SHAREPOINT_HR_PAYROLL_CLIENT_SECRET
+    TYPE = GENERIC_STRING
+    SECRET_STRING = ''; // Client secret for authentication to key vault
+    COMMENT       = 'Azure AD client secret for the payroll SharePoint app registration.';
