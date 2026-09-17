@@ -301,7 +301,7 @@ tables by what the number means:
 | Table | Holds | Rows |
 |---|---|---|
 | `FACT_PAYROLL_PAYMENT` | money that moved | 134,836 |
-| `FACT_PAYROLL_ENTITLEMENT` | contractual rates and scheme eligibility | 81,265 |
+| `FACT_PAYROLL_ENTITLEMENT` | contractual rates, budget ceilings and scheme eligibility | 81,265 |
 
 `FACT_PAYROLL_COMPONENT` still exists as a view unioning the two, so the
 extract sent to Qima on 11 September, the DQ rules, the GOLD views and the test
@@ -357,19 +357,29 @@ hardcoded component list.
 ### Table: DQ_FLAG
 
 Data quality findings, classified per the input data contract. Populated by
-`05_load_dq_flags.sql` -- **1,704 findings across five active rules**, all
-`VALUE` class, so nothing is withheld from reporting.
+`05_load_dq_flags.sql` -- **1,700 findings across six active rules**, all
+`VALUE` class, so nothing is withheld from reporting today.
 
 | Rule | Class | Findings | Whose |
 |---|---|---|---|
 | `EMPLOYEE_MISSING_FROM_ROSTER` | VALUE | 1,187 | open question |
 | `SALARY_AS_TEXT` | VALUE | 274 | source data |
-| `INVALID_CURRENCY_CODE` | VALUE | 191 | source data |
-| `MISSING_CURRENCY` | VALUE | 28 | source data |
+| `INVALID_CURRENCY_CODE` | VALUE | 187 | source data |
 | `MISSING_ANNUAL_TOTAL` | VALUE | 24 | source data, benign |
+| `MISSING_CURRENCY` | VALUE | 14 | source data |
+| `SALARY_CURRENCY_NOT_LOCAL` | VALUE | 14 | source data |
+| `ANNUAL_TOTAL_MISMATCH` | VALUE | 0 | catches a mistyped decimal |
+| `EMPLOYEE_IN_TWO_SUBSIDIARIES` | VALUE | 0 | intentional per Qima, reported |
 | `UNMAPPED_GENERATION` | STRUCTURAL | 0 | fires on an unknown template |
 | `SAMPLE_FILE_INGESTED` | STRUCTURAL | 0 | backstop for the filename rule |
-| `DUPLICATE_SAP_ID_ACROSS_FILES` | IDENTITY | 0 | would withhold from GOLD |
+| `DUPLICATE_SAP_ID_SAME_SUBSIDIARY` | IDENTITY | 0 | would withhold from GOLD |
+| `ROW_WITHOUT_SAP_ID` | IDENTITY | 0 | a row that loaded nothing |
+| `EXACT_DUPLICATE_ROW` | IDENTITY | 0 | would double count |
+
+`MISSING_CURRENCY` fell from 28 to 14 and `INVALID_CURRENCY_CODE` from 191 to
+187 on 17 September, without anything being hidden: those findings were USD
+columns whose currency cell was blank or held a number, and a USD column now
+takes its currency from its own header.
 
 `EMPLOYEE_MISSING_FROM_ROSTER` answers *"are we getting all the current
 employees?"* rather than *"is this employee valid?"*. It compares against
@@ -488,26 +498,39 @@ would be arithmetic across units presented as a total.
 `V_GOLD_SINGLE_CURRENCY_EMPLOYMENT` provides a safe total only where one
 currency applies throughout.
 
-The 2024 and 2025 templates additionally carry USD columns, converted at rates
-the contract describes as inconsistent and unknown. Those load tagged
-`CURRENCY_SCOPE = 'USD'` and never reach GOLD.
+The 2024 and 2025 templates additionally carry USD columns. Excluding them
+wholesale was safe only where a local column sat alongside, and for most bonuses
+it did not: in every 2024 and 2025 template, year-end, half-year, 13th month,
+Aguinaldo, CCLAB and commission have a USD paid column only, as do auditor bonus
+and gratuity in some 2025 versions. Around 4,700 payments reached no reporting
+at all.
 
-**That is only safe where a local column sits alongside, and for most bonuses it
-does not.** Salary has both. But in every 2024 and 2025 template, year-end,
-half-year, 13th month, Aguinaldo, CCLAB and commission have a USD paid column
-only, as do auditor bonus and gratuity in some 2025 versions. Those payments
-therefore reach no reporting at all:
+**Tess settled it on 15 September**: in those two years local HR converted to
+USD before submitting, so the local figure was never recorded anywhere. The USD
+column is not a restatement of something we hold -- it is the only record that
+exists. From 2026 the subsidiaries provide local currency and Qima applies one
+monthly FX rate from finance.
 
-| Year | Group | Employments paid | Reaching GOLD |
-|---|---|---|---|
-| 2024 | Bonus | 2,269 | 0 |
-| 2024 | Commission | 100 | 0 |
-| 2025 | Bonus | 2,261 | 23 |
-| 2025 | Commission | 138 | 0 |
+So the rule is no longer "local only". GOLD takes the local value where there is
+one, and the USD value where the same measure has no local counterpart on the
+same row. The existence of the local row is precisely what excludes its USD
+twin, which makes double counting impossible rather than merely unlikely.
 
-Whether those USD figures are the amounts actually paid, or conversions of a
-local figure held elsewhere, is open with Tess. 2026 carries no USD values and
-is unaffected.
+| Year | Payment values in GOLD before | After |
+|---|---|---|
+| 2024 | 24,484 | 28,667 |
+| 2025 | 27,687 | 32,158 |
+| 2026 | 21,874 | 21,874 |
+
+What entered: half-year and year-end bonus above all, then commission, plus a
+handful of salary, gratuity and the Bangladesh March Eid bonus. 2026 is
+unchanged, and so is the extract already sent to Qima -- still 61,054 rows for
+2,810 employees.
+
+The rule is row-driven rather than template-driven on purpose. A template can
+offer a local column that a subsidiary never fills, and the question that
+matters is whether this employee's value exists in local currency, not whether
+the layout allows for one.
 
 ### 6.4 Two template defects, resolved in opposite directions
 
@@ -829,6 +852,58 @@ identical content hash, and both loaders are idempotent.
   not, and has not since the source column index was dropped from the fact.
   Both notes now say so.
 
+### Changed on 17 September
+
+Qima answered eleven interpretation questions on 15 September, and Deepanjali
+confirmed the Bangladesh one with their HR on the 16th, alongside a data quality
+framework of their own. Five model changes and five rules follow from those.
+
+- **2024 and 2025 USD-only payments now reach reporting**, 8,654 values in all:
+  4,183 in 2024 and 4,471 in 2025. Reasoning and the before-and-after in
+  section 6.3.
+- **A column whose header states USD is USD**, whatever the row's currency cell
+  says. Bangladesh forced it: all 23 of its 2025 March Eid amounts sit in a
+  column headed "(USD)" while the block's currency cell reads BDT, and the
+  values -- 79 to 191 -- are only sane as dollars. Trusting the cell would have
+  published dollars labelled BDT the moment those rows reached GOLD.
+- **Max columns became their own basis, `LIMIT`.** Tess: a Max amount is the
+  ceiling finance budgets against, not an entitlement. 90 columns, 15,501 rows,
+  moved out of `RATE`, so a sum of contractual pay can no longer quietly include
+  budget ceilings. On an existing database the check constraint has to be
+  widened with `ALTER TABLE ... ADD CONSTRAINT ... CHECK (...) ENABLE
+  NOVALIDATE`; Snowflake rejects the plain form.
+- **Bangladesh's Eid bonus is named as such.** Deepanjali confirmed Bangladesh
+  files Eid in the 13th month and Christmas blocks of `2025-96col` -- the band
+  labels say so out loud. The rename is keyed on subsidiary, through the new
+  `COMPONENT_OVERRIDE` table, because that same block is Cebu's 13th month and
+  Mexico's SBE MX bonus. Renaming the column would have relabelled theirs.
+  23 employments per block.
+- **The 2026 block that merges three schemes is no longer called
+  `THIRTEENTH_MONTH`.** Tess: 13th month, Aguinaldo and Christmas are three
+  separate country schemes that behave alike, all fixed pay on top of salary.
+  The 2026 template merges them into one block, so the component is now
+  `THIRTEENTH_MONTH_EQUIVALENT` across all three 2026 versions. Which country
+  uses which scheme cannot be derived from the files we hold -- no Mexico or
+  Cebu file has been loaded -- so it is not split further yet.
+- **The duplicate rule stopped withholding legitimate payments.** Tess described
+  an employee paid locally by one subsidiary and from Hong Kong in USD in the
+  same month, and Qima's own duplicate review lists entity transfer and split
+  payroll as intentional, both rows kept. `DUPLICATE_SAP_ID_ACROSS_FILES` split
+  in two: same subsidiary stays IDENTITY, different subsidiary becomes
+  `EMPLOYEE_IN_TWO_SUBSIDIARIES`, VALUE class, reported rather than withheld.
+- **Four rules added from Qima's framework**: `ROW_WITHOUT_SAP_ID` for a row
+  with payroll values but no employee id, which the loader would otherwise skip
+  in silence; `EXACT_DUPLICATE_ROW`, kept apart from the legitimate rehire case;
+  `ANNUAL_TOTAL_MISMATCH`, which promotes the existing reconciliation from a
+  test someone runs to a finding that raises itself, and is the only guard
+  against their decimal-separator case, where "2.274" parses cleanly as 2.274;
+  and `SALARY_CURRENCY_NOT_LOCAL`, which compares against the subsidiary's own
+  norm and only where one exists -- HK04 pays around 550 people in seventeen
+  currencies, and an unqualified version of that rule raised 700 findings there,
+  every one of them wrong.
+- **Descriptions**: 274 columns across 19 objects, including the new
+  `COMPONENT_OVERRIDE`.
+
 ### Not built
 
 - **`FOLDER_SUBSIDIARY_MAP` deployment.** Now unblocked. It was held back
@@ -855,15 +930,14 @@ identical content hash, and both loaders are idempotent.
 
 ### Needs a decision
 
-- **2024 and 2025 bonuses reach no reporting.** Most bonus and all commission
-  columns in those templates exist only in USD, and GOLD excludes USD. Tess to
-  say whether those figures are real payments. See section 6.3.
 - **`FILE_LOAD.RAW_CONTENT` is not masked.** It holds every amount in every
   workbook, so masking downstream does not protect anyone who can read that
   table. It belongs to the ingestion stage. The likely answer is that RAW is
   not granted to the roles this defends against -- worth confirming rather than
   assuming.
-- **Masked value format** -- hidden, anonymised or fixed. Currently null.
+- **Masked value format** -- hidden, anonymised or fixed. Currently null. Tess
+  said on 15 September this was settled in that day's meeting; it needs writing
+  down before the policy is set to anything else.
 - **HEADER_MAP review.** The classification is a draft. Nothing in the source
   file cross-checks the bonus schemes, so a review by Tess is the only way to
   confirm them.

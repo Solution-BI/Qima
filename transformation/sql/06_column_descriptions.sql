@@ -76,16 +76,16 @@ comment on column FACT_PAYROLL_PAYMENT.COMPONENT_NAME is 'The specific pay compo
 comment on column FACT_PAYROLL_PAYMENT.MEASURE_BASIS is 'Always PAYMENT: an amount actually paid.';
 comment on column FACT_PAYROLL_PAYMENT.PERIOD_TYPE is 'MONTH, QUARTER or FY: the kind of period the payment covers.';
 comment on column FACT_PAYROLL_PAYMENT.PERIOD_KEY is 'The period the payment covers: YYYY-MM for a month, YYYY-Qn for a quarter, YYYY for a year.';
-comment on column FACT_PAYROLL_PAYMENT.CURRENCY_SCOPE is 'LOCAL for an amount in local currency. USD for a value from the USD columns of the 2024 and 2025 templates, which mostly repeat local amounts converted at an unknown rate. Reporting views use LOCAL.';
+comment on column FACT_PAYROLL_PAYMENT.CURRENCY_SCOPE is 'LOCAL for an amount in local currency. USD for a value from the USD columns of the 2024 and 2025 templates. Most USD values restate a local amount, and reporting uses the local one. Where no local amount exists - most 2024 and 2025 bonuses and all commission, which local HR converted before submitting - the USD value is the only record there is, and reporting uses it.';
 comment on column FACT_PAYROLL_PAYMENT.AMOUNT is 'The amount paid, in CURRENCY_CODE. Masked for roles not entitled to see payroll amounts.';
-comment on column FACT_PAYROLL_PAYMENT.CURRENCY_CODE is 'Currency of AMOUNT. Taken from the component''s own currency column where the template has one, otherwise from the contract currency, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
+comment on column FACT_PAYROLL_PAYMENT.CURRENCY_CODE is 'Currency of AMOUNT. A column whose header states USD is always USD, whatever the row''s currency cell says. Otherwise it comes from the component''s own currency column where the template has one, and from the contract currency where it does not, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
 comment on column FACT_PAYROLL_PAYMENT.TEXT_VALUE is 'The value as typed, kept only when it could not be read as a number, such as a salary entered as text. Empty whenever AMOUNT is set. Masked for roles not entitled to see payroll amounts.';
 comment on column FACT_PAYROLL_PAYMENT.LOADED_AT is 'When this row was loaded.';
 
 -- ---------------------------------------------------------------------------
 -- FACT_PAYROLL_ENTITLEMENT
 -- ---------------------------------------------------------------------------
-comment on table FACT_PAYROLL_ENTITLEMENT is 'The contractual position, one row per value: agreed rates such as gross monthly salary and bonus maximums, and bonus scheme eligibility. Nothing here is money paid, so never add these rows to payments.';
+comment on table FACT_PAYROLL_ENTITLEMENT is 'The contractual position, one row per value: agreed rates such as gross monthly salary, the ceilings finance budgets against, and bonus scheme eligibility. Nothing here is money paid, so never add these rows to payments.';
 comment on column FACT_PAYROLL_ENTITLEMENT.MEASURE_ID is 'Unique identifier of this value. It is unique across FACT_PAYROLL_PAYMENT and FACT_PAYROLL_ENTITLEMENT together, so it identifies one row in either table.';
 comment on column FACT_PAYROLL_ENTITLEMENT.PAYROLL_ROW_ID is 'The employee line in the submitted workbook this row came from. Join to PAYROLL_ROW.';
 comment on column FACT_PAYROLL_ENTITLEMENT.TAB_LOAD_ID is 'The workbook tab this row came from. Join to TAB_LOAD.';
@@ -95,12 +95,12 @@ comment on column FACT_PAYROLL_ENTITLEMENT.SUBSIDIARY_CODE is 'Subsidiary code a
 comment on column FACT_PAYROLL_ENTITLEMENT.REPORT_YEAR is 'Reporting year of the workbook tab the value came from.';
 comment on column FACT_PAYROLL_ENTITLEMENT.COMPONENT_GROUP is 'Pay component family: SALARY, BONUS, COMMISSION or ADHOC.';
 comment on column FACT_PAYROLL_ENTITLEMENT.COMPONENT_NAME is 'The specific pay component, such as MONTHLY_SALARY, YEAR_END or THIRTEENTH_MONTH. The list comes from HEADER_MAP, so a new component appears here without any change to the table.';
-comment on column FACT_PAYROLL_ENTITLEMENT.MEASURE_BASIS is 'RATE for a contractual figure such as gross monthly salary, allowance or a bonus maximum. ELIGIBILITY for a yes or no bonus scheme flag.';
-comment on column FACT_PAYROLL_ENTITLEMENT.PERIOD_TYPE is 'FY on bonus maximums, which the template states per year. Empty on salary rates and eligibility flags, which are standing positions rather than events in a period.';
-comment on column FACT_PAYROLL_ENTITLEMENT.PERIOD_KEY is 'The year a bonus maximum applies to. Empty where PERIOD_TYPE is empty.';
-comment on column FACT_PAYROLL_ENTITLEMENT.CURRENCY_SCOPE is 'LOCAL or USD on rates, as for payments. NA on eligibility flags, which have no currency.';
-comment on column FACT_PAYROLL_ENTITLEMENT.AMOUNT is 'The contractual amount on RATE rows, in CURRENCY_CODE. Empty on eligibility flags. Masked for roles not entitled to see payroll amounts.';
-comment on column FACT_PAYROLL_ENTITLEMENT.CURRENCY_CODE is 'Currency of AMOUNT on RATE rows. Taken from the component''s own currency column where the template has one, otherwise from the contract currency. Empty on eligibility flags.';
+comment on column FACT_PAYROLL_ENTITLEMENT.MEASURE_BASIS is 'RATE for a contractual figure such as gross monthly salary or an allowance. LIMIT for a Max column, which is the ceiling finance uses for budgeting rather than anything the employee is owed. ELIGIBILITY for a yes or no bonus scheme flag. Never total RATE and LIMIT together.';
+comment on column FACT_PAYROLL_ENTITLEMENT.PERIOD_TYPE is 'FY on bonus ceilings, which the template states per year. Empty on salary rates and eligibility flags, which are standing positions rather than events in a period.';
+comment on column FACT_PAYROLL_ENTITLEMENT.PERIOD_KEY is 'The year a bonus ceiling applies to. Empty where PERIOD_TYPE is empty.';
+comment on column FACT_PAYROLL_ENTITLEMENT.CURRENCY_SCOPE is 'LOCAL or USD on rates and ceilings, as for payments. NA on eligibility flags, which have no currency.';
+comment on column FACT_PAYROLL_ENTITLEMENT.AMOUNT is 'The contractual amount on RATE rows and the ceiling on LIMIT rows, in CURRENCY_CODE. Empty on eligibility flags. Masked for roles not entitled to see payroll amounts.';
+comment on column FACT_PAYROLL_ENTITLEMENT.CURRENCY_CODE is 'Currency of AMOUNT. A column whose header states USD is always USD; otherwise it comes from the component''s own currency column where the template has one, and from the contract currency where it does not. Empty on eligibility flags.';
 comment on column FACT_PAYROLL_ENTITLEMENT.IS_ELIGIBLE is 'Set on eligibility flags only: TRUE for yes, FALSE for no, empty if the cell held anything else.';
 comment on column FACT_PAYROLL_ENTITLEMENT.TEXT_VALUE is 'A rate as typed, kept only when it could not be read as a number. Empty whenever AMOUNT is set. Masked for roles not entitled to see payroll amounts.';
 comment on column FACT_PAYROLL_ENTITLEMENT.LOADED_AT is 'When this row was loaded.';
@@ -134,7 +134,7 @@ comment on column DQ_FLAG.TAB_LOAD_ID is 'The workbook tab the finding concerns.
 comment on column DQ_FLAG.PAYROLL_ROW_ID is 'The employee line the finding concerns. Join to PAYROLL_ROW.';
 comment on column DQ_FLAG.MEASURE_ID is 'The value the finding concerns. Join to FACT_PAYROLL_COMPONENT, which covers both payments and entitlements.';
 comment on column DQ_FLAG.DQ_CLASS is 'STRUCTURAL: the file or tab was not loaded. IDENTITY: loaded, but held out of reporting until resolved. VALUE: loaded and kept in reporting with the finding visible. CONVENTION: resolved automatically and logged.';
-comment on column DQ_FLAG.RULE_NAME is 'The check that raised the finding: SALARY_AS_TEXT, MISSING_CURRENCY, INVALID_CURRENCY_CODE, MISSING_ANNUAL_TOTAL, EMPLOYEE_MISSING_FROM_ROSTER, DUPLICATE_SAP_ID_ACROSS_FILES, UNMAPPED_GENERATION or SAMPLE_FILE_INGESTED.';
+comment on column DQ_FLAG.RULE_NAME is 'The check that raised the finding: SALARY_AS_TEXT, MISSING_CURRENCY, INVALID_CURRENCY_CODE, SALARY_CURRENCY_NOT_LOCAL, MISSING_ANNUAL_TOTAL, ANNUAL_TOTAL_MISMATCH, EMPLOYEE_MISSING_FROM_ROSTER, EMPLOYEE_IN_TWO_SUBSIDIARIES, DUPLICATE_SAP_ID_SAME_SUBSIDIARY, ROW_WITHOUT_SAP_ID, EXACT_DUPLICATE_ROW, UNMAPPED_GENERATION or SAMPLE_FILE_INGESTED.';
 comment on column DQ_FLAG.COLUMN_INDEX is 'Reserved for the column position of a finding. No current check fills it.';
 comment on column DQ_FLAG.SOURCE_HEADER is 'Reserved for the column header of a finding. No current check fills it.';
 comment on column DQ_FLAG.RAW_VALUE is 'The offending value, where the check has one, such as a salary typed as text or an invalid currency code. Masked for roles not entitled to see payroll amounts.';
@@ -154,7 +154,7 @@ comment on column HEADER_MAP.GROUP_HEADER is 'The band label above the header ro
 comment on column HEADER_MAP.SOURCE_HEADER is 'The column header exactly as it appears in the template.';
 comment on column HEADER_MAP.COMPONENT_GROUP is 'SALARY, BONUS, COMMISSION, EXTERNAL or ADHOC for pay-related columns. EMPLOYEE and OTHER for descriptive columns.';
 comment on column HEADER_MAP.COMPONENT_NAME is 'The component the column belongs to, such as MONTHLY_SALARY or YEAR_END.';
-comment on column HEADER_MAP.MEASURE_BASIS is 'What the column holds: PAYMENT, RATE, FEE or ELIGIBILITY for values, CURRENCY for a currency cell, ATTRIBUTE for descriptive content.';
+comment on column HEADER_MAP.MEASURE_BASIS is 'What the column holds: PAYMENT, RATE, LIMIT, FEE or ELIGIBILITY for values, CURRENCY for a currency cell, ATTRIBUTE for descriptive content. LIMIT marks a Max column, which is a budget ceiling rather than an entitlement.';
 comment on column HEADER_MAP.PERIOD_TYPE is 'MONTH, QUARTER or FY for a column tied to a period. Empty otherwise.';
 comment on column HEADER_MAP.PERIOD_KEY is 'The period the column covers: YYYY-MM, YYYY-Qn or YYYY. Empty where PERIOD_TYPE is empty.';
 comment on column HEADER_MAP.CURRENCY_SCOPE is 'LOCAL for a local-currency column, USD for a USD column in the 2024 and 2025 templates, NA for a column without a currency.';
@@ -177,12 +177,12 @@ alter view FACT_PAYROLL_COMPONENT alter column SUBSIDIARY_CODE comment 'Subsidia
 alter view FACT_PAYROLL_COMPONENT alter column REPORT_YEAR comment 'Reporting year of the workbook tab the value came from.';
 alter view FACT_PAYROLL_COMPONENT alter column COMPONENT_GROUP comment 'Pay component family: SALARY, BONUS, COMMISSION or ADHOC.';
 alter view FACT_PAYROLL_COMPONENT alter column COMPONENT_NAME comment 'The specific pay component, such as MONTHLY_SALARY, YEAR_END or THIRTEENTH_MONTH. The list comes from HEADER_MAP, so a new component appears here without any change to the table.';
-alter view FACT_PAYROLL_COMPONENT alter column MEASURE_BASIS comment 'What the value is. PAYMENT is an amount actually paid. RATE is a contractual figure such as gross monthly salary or a bonus maximum. ELIGIBILITY is a yes or no bonus scheme flag. Only PAYMENT rows are money paid.';
+alter view FACT_PAYROLL_COMPONENT alter column MEASURE_BASIS comment 'What the value is. PAYMENT is an amount actually paid. RATE is a contractual figure such as gross monthly salary. LIMIT is a Max column, the ceiling finance budgets against. ELIGIBILITY is a yes or no bonus scheme flag. Only PAYMENT rows are money paid.';
 alter view FACT_PAYROLL_COMPONENT alter column PERIOD_TYPE comment 'MONTH, QUARTER or FY: the kind of period the value covers. Empty on contractual salary rates and eligibility flags, which are not tied to a period.';
 alter view FACT_PAYROLL_COMPONENT alter column PERIOD_KEY comment 'The period the value covers: YYYY-MM for a month, YYYY-Qn for a quarter, YYYY for a year. Empty where PERIOD_TYPE is empty.';
-alter view FACT_PAYROLL_COMPONENT alter column CURRENCY_SCOPE comment 'LOCAL for an amount in local currency. USD for a value from the USD columns of the 2024 and 2025 templates, which mostly repeat local amounts converted at an unknown rate. NA for eligibility flags, which have no currency. Reporting views use LOCAL.';
+alter view FACT_PAYROLL_COMPONENT alter column CURRENCY_SCOPE comment 'LOCAL for an amount in local currency. USD for a value from the USD columns of the 2024 and 2025 templates. NA for eligibility flags. Reporting uses the local value, and the USD value only where the same measure has no local counterpart on that row.';
 alter view FACT_PAYROLL_COMPONENT alter column AMOUNT comment 'The amount, in CURRENCY_CODE. Empty on eligibility flags. Masked for roles not entitled to see payroll amounts.';
-alter view FACT_PAYROLL_COMPONENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. Taken from the component''s own currency column where the template has one, otherwise from the contract currency, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
+alter view FACT_PAYROLL_COMPONENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. A column whose header states USD is always USD, whatever the row''s currency cell says. Otherwise it comes from the component''s own currency column where the template has one, and from the contract currency where it does not, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
 alter view FACT_PAYROLL_COMPONENT alter column IS_ELIGIBLE comment 'Set on eligibility flags only: TRUE for yes, FALSE for no, empty if the cell held anything else.';
 alter view FACT_PAYROLL_COMPONENT alter column TEXT_VALUE comment 'The value as typed, kept only when it could not be read as a number, such as a salary entered as text. Empty whenever AMOUNT is set. Masked for roles not entitled to see payroll amounts.';
 alter view FACT_PAYROLL_COMPONENT alter column LOADED_AT comment 'When this row was loaded.';
@@ -190,7 +190,7 @@ alter view FACT_PAYROLL_COMPONENT alter column LOADED_AT comment 'When this row 
 -- ---------------------------------------------------------------------------
 -- V_GOLD_PAYROLL_COMPONENT
 -- ---------------------------------------------------------------------------
-comment on view V_GOLD_PAYROLL_COMPONENT is 'Reporting view of amounts paid and contractual rates in local currency, all years. Leaves out sample templates and values held back by identity findings. Eligibility flags are not included, see V_GOLD_ENTITLEMENT.';
+comment on view V_GOLD_PAYROLL_COMPONENT is 'Reporting view of amounts paid and contractual figures, all years. Local currency, plus the USD value where a measure has no local counterpart on the same row - which is how most 2024 and 2025 bonuses appear, since local HR converted them before submitting. Leaves out sample templates and values held back by identity findings. Eligibility flags are not included, see V_GOLD_ENTITLEMENT.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column MEASURE_ID comment 'Unique identifier of this value. It is unique across FACT_PAYROLL_PAYMENT and FACT_PAYROLL_ENTITLEMENT together, so it identifies one row in either table.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column PAYROLL_ROW_ID comment 'The employee line in the submitted workbook this row came from. Join to PAYROLL_ROW.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column TAB_LOAD_ID comment 'The workbook tab this row came from. Join to TAB_LOAD.';
@@ -200,12 +200,12 @@ alter view V_GOLD_PAYROLL_COMPONENT alter column SUBSIDIARY_CODE comment 'Subsid
 alter view V_GOLD_PAYROLL_COMPONENT alter column REPORT_YEAR comment 'Reporting year of the workbook tab the value came from.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column COMPONENT_GROUP comment 'Pay component family: SALARY, BONUS, COMMISSION or ADHOC.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column COMPONENT_NAME comment 'The specific pay component, such as MONTHLY_SALARY, YEAR_END or THIRTEENTH_MONTH. The list comes from HEADER_MAP, so a new component appears here without any change to the table.';
-alter view V_GOLD_PAYROLL_COMPONENT alter column MEASURE_BASIS comment 'PAYMENT for an amount actually paid, RATE for a contractual figure. Only PAYMENT rows are money paid.';
+alter view V_GOLD_PAYROLL_COMPONENT alter column MEASURE_BASIS comment 'PAYMENT for an amount actually paid, RATE for a contractual figure, LIMIT for a budget ceiling. Only PAYMENT rows are money paid.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column PERIOD_TYPE comment 'MONTH, QUARTER or FY: the kind of period the value covers. Empty on contractual salary rates.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column PERIOD_KEY comment 'The period the value covers: YYYY-MM for a month, YYYY-Qn for a quarter, YYYY for a year. Empty where PERIOD_TYPE is empty.';
-alter view V_GOLD_PAYROLL_COMPONENT alter column CURRENCY_SCOPE comment 'Always LOCAL in this view.';
+alter view V_GOLD_PAYROLL_COMPONENT alter column CURRENCY_SCOPE comment 'LOCAL for a value taken from a local-currency column. USD where the 2024 or 2025 template recorded this measure only in USD, which is the case for most bonuses and all commission in those years. Never both for the same measure on the same row.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column AMOUNT comment 'The amount, in CURRENCY_CODE. Masked for roles not entitled to see payroll amounts.';
-alter view V_GOLD_PAYROLL_COMPONENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. Taken from the component''s own currency column where the template has one, otherwise from the contract currency, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
+alter view V_GOLD_PAYROLL_COMPONENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. A column whose header states USD is always USD, whatever the row''s currency cell says. Otherwise it comes from the component''s own currency column where the template has one, and from the contract currency where it does not, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column IS_ELIGIBLE comment 'Always empty in this view, because eligibility flags are not included.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column TEXT_VALUE comment 'The value as typed, kept only when it could not be read as a number, such as a salary entered as text. Empty whenever AMOUNT is set. Masked for roles not entitled to see payroll amounts.';
 alter view V_GOLD_PAYROLL_COMPONENT alter column LOADED_AT comment 'When this row was loaded.';
@@ -213,7 +213,7 @@ alter view V_GOLD_PAYROLL_COMPONENT alter column LOADED_AT comment 'When this ro
 -- ---------------------------------------------------------------------------
 -- V_GOLD_PAYROLL_PAYMENT
 -- ---------------------------------------------------------------------------
-comment on view V_GOLD_PAYROLL_PAYMENT is 'Reporting view of amounts actually paid, in local currency, all years. Leaves out sample templates and values held back by identity findings.';
+comment on view V_GOLD_PAYROLL_PAYMENT is 'Reporting view of amounts actually paid, all years. Local currency, plus the USD value where a payment has no local counterpart on the same row - which is how most 2024 and 2025 bonuses and all commission appear. Leaves out sample templates and values held back by identity findings.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column MEASURE_ID comment 'Unique identifier of this value. It is unique across FACT_PAYROLL_PAYMENT and FACT_PAYROLL_ENTITLEMENT together, so it identifies one row in either table.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column PAYROLL_ROW_ID comment 'The employee line in the submitted workbook this row came from. Join to PAYROLL_ROW.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column TAB_LOAD_ID comment 'The workbook tab this row came from. Join to TAB_LOAD.';
@@ -226,25 +226,25 @@ alter view V_GOLD_PAYROLL_PAYMENT alter column COMPONENT_NAME comment 'The speci
 alter view V_GOLD_PAYROLL_PAYMENT alter column MEASURE_BASIS comment 'Always PAYMENT: an amount actually paid.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column PERIOD_TYPE comment 'MONTH, QUARTER or FY: the kind of period the payment covers.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column PERIOD_KEY comment 'The period the payment covers: YYYY-MM for a month, YYYY-Qn for a quarter, YYYY for a year.';
-alter view V_GOLD_PAYROLL_PAYMENT alter column CURRENCY_SCOPE comment 'Always LOCAL in this view.';
+alter view V_GOLD_PAYROLL_PAYMENT alter column CURRENCY_SCOPE comment 'LOCAL for a value taken from a local-currency column. USD where the 2024 or 2025 template recorded this measure only in USD, which is the case for most bonuses and all commission in those years. Never both for the same measure on the same row.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column AMOUNT comment 'The amount paid, in CURRENCY_CODE. Masked for roles not entitled to see payroll amounts.';
-alter view V_GOLD_PAYROLL_PAYMENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. Taken from the component''s own currency column where the template has one, otherwise from the contract currency, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
+alter view V_GOLD_PAYROLL_PAYMENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. A column whose header states USD is always USD, whatever the row''s currency cell says. Otherwise it comes from the component''s own currency column where the template has one, and from the contract currency where it does not, so salary and bonus can differ for the same employee. Codes are as submitted, so Chinese yuan appears as RMB, and invalid codes are flagged in DQ_FLAG.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column TEXT_VALUE comment 'The value as typed, kept only when it could not be read as a number, such as a salary entered as text. Empty whenever AMOUNT is set. Masked for roles not entitled to see payroll amounts.';
 alter view V_GOLD_PAYROLL_PAYMENT alter column LOADED_AT comment 'When this row was loaded.';
 
 -- ---------------------------------------------------------------------------
 -- V_GOLD_ENTITLEMENT
 -- ---------------------------------------------------------------------------
-comment on view V_GOLD_ENTITLEMENT is 'Reporting view of the contractual position, all years: agreed rates in local currency, and bonus scheme eligibility. Never add these rows to amounts paid.';
+comment on view V_GOLD_ENTITLEMENT is 'Reporting view of the contractual position, all years: agreed rates, budget ceilings and bonus scheme eligibility. Never add these rows to amounts paid, and never total rates and ceilings together - separate them on MEASURE_BASIS.';
 alter view V_GOLD_ENTITLEMENT alter column REPORT_YEAR comment 'Reporting year of the workbook tab the value came from.';
 alter view V_GOLD_ENTITLEMENT alter column SUBSIDIARY_CODE comment 'Subsidiary code as recorded on the submission, such as BR02. It stays as it stood at the time, so an employee who later transfers keeps earlier values under the original subsidiary. Empty where the submission gives the entity name without a code.';
 alter view V_GOLD_ENTITLEMENT alter column EMPLOYEE_SAP_ID comment 'Employee identifier from SAP, as submitted. This is the authoritative employee key. Stored as text so that a non-numeric identifier is never lost.';
 alter view V_GOLD_ENTITLEMENT alter column EMPLOYMENT_KEY comment 'Identifies one employment: SAP ID, join date and leave date, separated by a vertical bar. Group by this rather than by EMPLOYEE_SAP_ID, because one employee can hold two contracts or move between subsidiaries.';
 alter view V_GOLD_ENTITLEMENT alter column COMPONENT_GROUP comment 'Pay component family: SALARY, BONUS, COMMISSION or ADHOC.';
 alter view V_GOLD_ENTITLEMENT alter column COMPONENT_NAME comment 'The specific pay component, such as MONTHLY_SALARY, YEAR_END or THIRTEENTH_MONTH. The list comes from HEADER_MAP, so a new component appears here without any change to the table.';
-alter view V_GOLD_ENTITLEMENT alter column MEASURE_BASIS comment 'RATE for a contractual figure such as gross monthly salary, allowance or a bonus maximum. ELIGIBILITY for a yes or no bonus scheme flag.';
-alter view V_GOLD_ENTITLEMENT alter column AMOUNT comment 'The contractual amount on RATE rows, in CURRENCY_CODE. Empty on eligibility flags. Masked for roles not entitled to see payroll amounts.';
-alter view V_GOLD_ENTITLEMENT alter column CURRENCY_CODE comment 'Currency of AMOUNT on RATE rows. Empty on eligibility flags.';
+alter view V_GOLD_ENTITLEMENT alter column MEASURE_BASIS comment 'RATE for a contractual figure such as gross monthly salary or an allowance. LIMIT for a Max column, which is the ceiling finance uses for budgeting rather than anything the employee is owed. ELIGIBILITY for a yes or no bonus scheme flag. Never total RATE and LIMIT together.';
+alter view V_GOLD_ENTITLEMENT alter column AMOUNT comment 'The contractual amount on RATE rows and the ceiling on LIMIT rows, in CURRENCY_CODE. Empty on eligibility flags. Masked for roles not entitled to see payroll amounts.';
+alter view V_GOLD_ENTITLEMENT alter column CURRENCY_CODE comment 'Currency of AMOUNT. Empty on eligibility flags.';
 alter view V_GOLD_ENTITLEMENT alter column IS_ELIGIBLE comment 'Set on eligibility flags only: TRUE for yes, FALSE for no, empty if the cell held anything else.';
 
 -- ---------------------------------------------------------------------------
@@ -365,3 +365,15 @@ alter view V_TAB_GENERATION alter column GENERATION comment 'Template version, w
 alter view V_TAB_GENERATION alter column HEADER_HASH comment 'Fingerprint of the header row. A change on a known template version means headers were edited.';
 alter view V_TAB_GENERATION alter column IS_MAPPED comment 'TRUE when HEADER_MAP knows this template version as a real submission template.';
 alter view V_TAB_GENERATION alter column IS_SAMPLE comment 'TRUE when HEADER_MAP knows this template version as a test template.';
+
+
+-- ---------------------------------------------------------------------------
+-- COMPONENT_OVERRIDE
+-- ---------------------------------------------------------------------------
+comment on table COMPONENT_OVERRIDE is 'Where one template column means different things to different subsidiaries. Small by design: today it holds only Bangladesh, whose Eid festival bonus is filed in the 13th month and Christmas blocks of the 2025 template.';
+comment on column COMPONENT_OVERRIDE.GENERATION is 'The template version the override applies to, such as 2025-96col.';
+comment on column COMPONENT_OVERRIDE.COMPONENT_NAME_FROM is 'The component the column normally means, as recorded in HEADER_MAP.';
+comment on column COMPONENT_OVERRIDE.SUBSIDIARY_CODE is 'The subsidiary this override applies to. Every other subsidiary keeps the HEADER_MAP name.';
+comment on column COMPONENT_OVERRIDE.COMPONENT_NAME_TO is 'What the column means for that subsidiary.';
+comment on column COMPONENT_OVERRIDE.NOTE is 'Who confirmed the override and when. An override without a source is a guess.';
+comment on column COMPONENT_OVERRIDE.CREATED_AT is 'When the row was inserted.';
