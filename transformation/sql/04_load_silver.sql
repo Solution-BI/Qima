@@ -170,6 +170,14 @@ from pivoted;
 -- (Currency) column where the generation has one, and falls back to the
 -- contractual currency otherwise. Salary is in local currency while bonus is
 -- usually USD, so this cannot default to one currency per row.
+--
+-- Above both, from 17 September: a column whose header states USD is USD. The
+-- currency cell describes the block, not that column, and where the two
+-- disagree the header is the one written by whoever designed the template
+-- rather than by whoever filled the row in.
+--
+-- This view also applies COMPONENT_OVERRIDE, which is where a subsidiary uses
+-- a shared column for a different scheme than the template names.
 -- ---------------------------------------------------------------------------
 create or replace view V_PAYROLL_CELL
     comment = 'Every mapped cell of every employee row, with its currency resolved. The loader reads this; nothing downstream should.'
@@ -192,14 +200,30 @@ contract_ccy as (
 )
 select pr.PAYROLL_ROW_ID, pr.TAB_LOAD_ID, pr.EMPLOYEE_SAP_ID,
        pr.EMPLOYMENT_KEY, pr.SUBSIDIARY_CODE, pr.REPORT_YEAR,
-       m.COMPONENT_GROUP, m.COMPONENT_NAME, m.MEASURE_BASIS,
+       m.COMPONENT_GROUP,
+       -- COMPONENT_OVERRIDE is empty for all but one subsidiary, so this is
+       -- m.COMPONENT_NAME everywhere except Bangladesh's two 2025 blocks.
+       coalesce(ov.COMPONENT_NAME_TO, m.COMPONENT_NAME) as COMPONENT_NAME,
+       m.MEASURE_BASIS,
        m.PERIOD_TYPE, m.PERIOD_KEY, m.CURRENCY_SCOPE,
        m.CANONICAL_FIELD, m.SOURCE_HEADER, m.COLUMN_INDEX,
        nullif(trim(replace(get(pr.ROW_DATA, m.COLUMN_INDEX)::string, ' ', ' ')), '')                          as RAW_VALUE,
-       coalesce(cc.CURRENCY_CODE, kc.CURRENCY_CODE)  as CURRENCY_CODE
+       -- A column whose own header states USD is denominated in USD, whatever
+       -- the row's currency cell says. Bangladesh is why this is explicit: all
+       -- 23 of its 2025 rows put the March Eid bonus in the column headed
+       -- "Actual Paid amount in Dec 2025 (USD)" while the block's currency cell
+       -- reads BDT, and the amounts - 79 to 191 - are only sane as dollars.
+       -- Trusting the cell would have published USD figures labelled BDT once
+       -- those rows started reaching GOLD.
+       iff(m.CURRENCY_SCOPE = 'USD', 'USD',
+           coalesce(cc.CURRENCY_CODE, kc.CURRENCY_CODE)) as CURRENCY_CODE
 from PAYROLL_ROW pr
 join TAB_LOAD   sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
 join HEADER_MAP m  on m.GENERATION   = sl.GENERATION
+left join COMPONENT_OVERRIDE ov
+       on  ov.GENERATION          = sl.GENERATION
+       and ov.COMPONENT_NAME_FROM = m.COMPONENT_NAME
+       and ov.SUBSIDIARY_CODE     = pr.SUBSIDIARY_CODE
 left join ccy          cc on cc.PAYROLL_ROW_ID = pr.PAYROLL_ROW_ID
                          and cc.COMPONENT_NAME = m.COMPONENT_NAME
 left join contract_ccy kc on kc.PAYROLL_ROW_ID = pr.PAYROLL_ROW_ID
@@ -232,7 +256,8 @@ where c.MEASURE_BASIS = 'PAYMENT'
 -- ---------------------------------------------------------------------------
 -- Step 3b: FACT_PAYROLL_ENTITLEMENT. What the contract says.
 --
--- RATE carries an amount and a currency. ELIGIBILITY carries neither - it is a
+-- RATE and LIMIT carry an amount and a currency - what the contract says, and
+-- the ceiling finance budgets against. ELIGIBILITY carries neither: it is a
 -- Yes/No cell, and writing an AMOUNT or a CURRENCY_CODE on it would invite
 -- exactly the mis-totalling the split exists to prevent.
 -- ---------------------------------------------------------------------------
@@ -252,7 +277,7 @@ select c.PAYROLL_ROW_ID, c.TAB_LOAD_ID, c.EMPLOYEE_SAP_ID, c.EMPLOYMENT_KEY,
        iff(c.MEASURE_BASIS <> 'ELIGIBILITY'
            and try_to_number(c.RAW_VALUE, 18, 2) is null, c.RAW_VALUE, null)
 from V_PAYROLL_CELL c
-where c.MEASURE_BASIS in ('RATE','ELIGIBILITY')
+where c.MEASURE_BASIS in ('RATE','LIMIT','ELIGIBILITY')
   and c.RAW_VALUE is not null
   and not exists (select 1 from FACT_PAYROLL_ENTITLEMENT t
                   where t.TAB_LOAD_ID = c.TAB_LOAD_ID);

@@ -146,12 +146,12 @@ create table if not exists FACT_PAYROLL_ENTITLEMENT (
 
     COMPONENT_GROUP     varchar        not null,
     COMPONENT_NAME      varchar        not null,
-    MEASURE_BASIS       varchar        not null comment 'RATE or ELIGIBILITY.',
-    PERIOD_TYPE         varchar        comment 'Null on the salary rates - a contractual monthly salary is a standing figure, not a monthly event. FY on the 15501 bonus maximums, which the template does state per year ("Max Year End Bonus Amount in 2026"). Never MONTH: nothing here is a monthly occurrence, which is the point of separating it from FACT_PAYROLL_PAYMENT.',
+    MEASURE_BASIS       varchar        not null comment 'RATE, LIMIT or ELIGIBILITY. RATE is what the contract says a person gets. LIMIT is a Max column, which Tess confirmed on 15 September is the ceiling finance budgets against rather than an entitlement - kept apart from RATE so a sum of contractual pay cannot quietly pick up budget ceilings.',
+    PERIOD_TYPE         varchar        comment 'Null on the salary rates - a contractual monthly salary is a standing figure, not a monthly event. FY on the bonus ceilings, which the template does state per year ("Max Year End Bonus Amount in 2026"). Never MONTH: nothing here is a monthly occurrence, which is the point of separating it from FACT_PAYROLL_PAYMENT.',
     PERIOD_KEY          varchar,
     CURRENCY_SCOPE      varchar        not null,
 
-    AMOUNT              number(18,2)   comment 'Set on RATE rows - a contractual monthly salary, allowance or bonus maximum. Null on ELIGIBILITY.',
+    AMOUNT              number(18,2)   comment 'Set on RATE and LIMIT rows - a contractual monthly salary or allowance on RATE, a bonus ceiling on LIMIT. Null on ELIGIBILITY.',
     CURRENCY_CODE       varchar(8),
     IS_ELIGIBLE         boolean        comment 'Set on ELIGIBILITY rows only.',
     TEXT_VALUE          varchar,
@@ -160,8 +160,8 @@ create table if not exists FACT_PAYROLL_ENTITLEMENT (
     constraint PK_FACT_PAYROLL_ENTITLEMENT primary key (MEASURE_ID),
     constraint UQ_FACT_PAYROLL_ENTITLEMENT unique
         (PAYROLL_ROW_ID, COMPONENT_NAME, MEASURE_BASIS, PERIOD_KEY, CURRENCY_SCOPE),
-    constraint CHK_FACT_ENTITLEMENT_BASIS check (MEASURE_BASIS in ('RATE','ELIGIBILITY'))
-) comment = 'The contractual position: agreed rates and scheme eligibility. Never money that moved.';
+    constraint CHK_FACT_ENTITLEMENT_BASIS check (MEASURE_BASIS in ('RATE','LIMIT','ELIGIBILITY'))
+) comment = 'The contractual position: agreed rates, budget ceilings and scheme eligibility. Never money that moved.';
 
 -- ---------------------------------------------------------------------------
 -- PAYROLL_ATTRIBUTE - the descriptive block. External headcount and remarks.
@@ -244,7 +244,7 @@ create table if not exists DQ_FLAG (
     DQ_CLASS            varchar        not null
         comment 'STRUCTURAL rejects the file or sheet. IDENTITY loads but is excluded from GOLD until resolved. VALUE loads and stays in GOLD with the flag visible. CONVENTION is auto-resolved where possible and logged for a HEADER_MAP update.',
     RULE_NAME           varchar        not null
-        comment 'e.g. UNMAPPED_GENERATION, SAMPLE_FILE_INGESTED, UNMAPPED_COLUMN, SALARY_AS_TEXT, UNPARSEABLE_DATE, MISSING_CURRENCY, UNKNOWN_SUBSIDIARY, SUBSIDIARY_NOT_DECLARED_BY_FOLDER, TOTAL_MISMATCH, DUPLICATE_SAP_ID_ACROSS_FILES',
+        comment 'The rules 05_load_dq_flags actually raises. STRUCTURAL: UNMAPPED_GENERATION, SAMPLE_FILE_INGESTED. IDENTITY: DUPLICATE_SAP_ID_SAME_SUBSIDIARY, ROW_WITHOUT_SAP_ID, EXACT_DUPLICATE_ROW. VALUE: EMPLOYEE_IN_TWO_SUBSIDIARIES, SALARY_AS_TEXT, MISSING_CURRENCY, INVALID_CURRENCY_CODE, MISSING_ANNUAL_TOTAL, ANNUAL_TOTAL_MISMATCH, SALARY_CURRENCY_NOT_LOCAL, EMPLOYEE_MISSING_FROM_ROSTER.',
     COLUMN_INDEX        number(38,0),
     SOURCE_HEADER       varchar,
     RAW_VALUE           varchar,
@@ -258,9 +258,27 @@ create table if not exists DQ_FLAG (
 -- GOLD views.
 --
 -- Three exclusions, each traceable to a decision rather than a preference:
---   CURRENCY_SCOPE = 'LOCAL'  - FX normalisation is out of scope (contract s.3)
+--   currency rule below       - FX normalisation is out of scope (contract s.3)
 --   MAPPING_STATUS = 'MAPPED' - a sample template must never reach reporting
 --   no IDENTITY flag          - identity issues are excluded until resolved (s.6)
+--
+-- The currency rule was CURRENCY_SCOPE = 'LOCAL' until 17 September, on the
+-- assumption that a USD column always restated a local figure we also held.
+-- Tess corrected that on the 15th: in 2024 and 2025, local HR converted to USD
+-- before submitting, so for those components no local figure was ever recorded.
+-- Dropping the USD column therefore dropped the only record that exists - most
+-- of two years of bonuses and all commission.
+--
+-- So GOLD now takes the local value where there is one, and the USD value only
+-- where the same measure has no local counterpart on that row. The existence of
+-- the local row is exactly what excludes its USD twin, which is what makes
+-- double counting impossible rather than merely unlikely: where 2024 and 2025
+-- restate a figure in both currencies, only the local one qualifies.
+--
+-- Row-driven rather than template-driven on purpose. A component can have a
+-- local column in the template that a subsidiary never fills, and the question
+-- that matters is whether this employee's value exists in local currency, not
+-- whether the layout allows for one.
 --
 -- HEADER_MAP.NEEDS_REVIEW is not applied. Fact rows no longer carry the source
 -- column index, so a value cannot be traced back to its mapping row here. The
@@ -274,7 +292,15 @@ create or replace view V_GOLD_PAYROLL_COMPONENT as
 select m.*
 from FACT_PAYROLL_COMPONENT m
 join TAB_LOAD sl on sl.TAB_LOAD_ID = m.TAB_LOAD_ID
-where m.CURRENCY_SCOPE = 'LOCAL'
+where (m.CURRENCY_SCOPE = 'LOCAL'
+       or (m.CURRENCY_SCOPE = 'USD'
+           and not exists (
+               select 1 from FACT_PAYROLL_COMPONENT l
+               where l.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID
+                 and l.COMPONENT_NAME = m.COMPONENT_NAME
+                 and l.MEASURE_BASIS  = m.MEASURE_BASIS
+                 and l.PERIOD_KEY is not distinct from m.PERIOD_KEY
+                 and l.CURRENCY_SCOPE = 'LOCAL')))
   and sl.MAPPING_STATUS = 'MAPPED'   -- excludes SAMPLE sheets
   and not exists (
       select 1 from DQ_FLAG f
@@ -289,7 +315,14 @@ create or replace view V_GOLD_PAYROLL_PAYMENT as
 select m.*
 from FACT_PAYROLL_PAYMENT m
 join TAB_LOAD sl on sl.TAB_LOAD_ID = m.TAB_LOAD_ID
-where m.CURRENCY_SCOPE = 'LOCAL'
+where (m.CURRENCY_SCOPE = 'LOCAL'
+       or (m.CURRENCY_SCOPE = 'USD'
+           and not exists (
+               select 1 from FACT_PAYROLL_PAYMENT l
+               where l.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID
+                 and l.COMPONENT_NAME = m.COMPONENT_NAME
+                 and l.PERIOD_KEY is not distinct from m.PERIOD_KEY
+                 and l.CURRENCY_SCOPE = 'LOCAL')))
   and sl.MAPPING_STATUS = 'MAPPED'
   and not exists (
       select 1 from DQ_FLAG f
@@ -305,6 +338,14 @@ where m.CURRENCY_SCOPE = 'LOCAL'
 -- currency, RMB salary against USD bonus being the single largest pattern
 -- (1480 rows). Adding those together would be arithmetic on mixed units, and
 -- FX normalisation is out of scope per the contract.
+--
+-- From 17 September this view also carries the 2024 and 2025 components that
+-- only ever existed in USD, so for those years an employment commonly shows two
+-- rows - local salary on one, USD bonus on the other. That is the file telling
+-- the truth about itself, not a defect: Tess confirmed the local figure was
+-- never recorded. V_GOLD_SINGLE_CURRENCY_EMPLOYMENT below is the view that
+-- answers "what did this person get in total", and it deliberately returns
+-- nothing for an employment paid in two currencies rather than adding them.
 --
 -- The grain is EMPLOYMENT_KEY, not EMPLOYEE_SAP_ID: an employee on two
 -- contracts, or who transferred subsidiary mid-year, is two employments and
@@ -348,13 +389,26 @@ having count(distinct CURRENCY_CODE) = 1;
 
 -- The contractual position per employment: what was agreed, not what was paid.
 -- Separated from compensation so the two are never accidentally summed.
+--
+-- MEASURE_BASIS is exposed because the rows are not interchangeable. RATE is
+-- what the contract says a person gets. LIMIT is a Max column - the ceiling
+-- finance budgets against, per Tess on 15 September. Summing across both gives
+-- a number that is neither. Filter first.
 create or replace view V_GOLD_ENTITLEMENT as
 select e.REPORT_YEAR, e.SUBSIDIARY_CODE, e.EMPLOYEE_SAP_ID, e.EMPLOYMENT_KEY,
        e.COMPONENT_GROUP, e.COMPONENT_NAME, e.MEASURE_BASIS,
        e.AMOUNT, e.CURRENCY_CODE, e.IS_ELIGIBLE
 from FACT_PAYROLL_ENTITLEMENT e
 join TAB_LOAD sl on sl.TAB_LOAD_ID = e.TAB_LOAD_ID
-where e.CURRENCY_SCOPE in ('LOCAL','NA')
+where (e.CURRENCY_SCOPE in ('LOCAL','NA')
+       or (e.CURRENCY_SCOPE = 'USD'
+           and not exists (
+               select 1 from FACT_PAYROLL_ENTITLEMENT l
+               where l.PAYROLL_ROW_ID = e.PAYROLL_ROW_ID
+                 and l.COMPONENT_NAME = e.COMPONENT_NAME
+                 and l.MEASURE_BASIS  = e.MEASURE_BASIS
+                 and l.PERIOD_KEY is not distinct from e.PERIOD_KEY
+                 and l.CURRENCY_SCOPE = 'LOCAL')))
   and sl.MAPPING_STATUS = 'MAPPED'
   and not exists (
       select 1 from DQ_FLAG f
