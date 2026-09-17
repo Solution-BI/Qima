@@ -64,27 +64,122 @@ where sl.MAPPING_STATUS = 'SAMPLE';
 
 
 -- ---------------------------------------------------------------------------
--- IDENTITY - the same employee id on two sheets of the same reporting year.
+-- The same employee id on two sheets of the same reporting year.
 --
--- Zero today. Held out of GOLD if it fires, because it is not knowable which
--- submission is authoritative without asking.
+-- This was one IDENTITY rule until 17 September, which held every such row out
+-- of GOLD. Both Tess and Qima's own duplicate and overlap review say that is
+-- wrong for the common case: an employee who transfers entity mid-year, or one
+-- paid partly by two entities, legitimately appears in two files, and Qima
+-- keeps both rows deliberately. Withholding them loses real payments.
+--
+-- So it splits on whether the subsidiary differs:
+--
+--   different subsidiary - intentional per Qima. VALUE, reported, visible.
+--   same subsidiary      - two submissions for the same employment, and which
+--                          one is authoritative is not knowable here. IDENTITY.
+--
+-- Both are zero today: no employee appears on two sheets in any year. They
+-- matter when the full file set arrives, particularly the Asia consolidated
+-- file, which Qima's review flags as overlapping the dedicated entity files.
 -- ---------------------------------------------------------------------------
+-- Written as joins rather than a correlated EXISTS throughout this file's newer
+-- rules: Snowflake rejects a correlated subquery whose correlation is anything
+-- other than a plain equality, and "same subsidiary" has to be null-safe.
+-- EQUAL_NULL is that comparison, and it is only available in a join.
 insert into DQ_FLAG (PAYROLL_ROW_ID, TAB_LOAD_ID, DQ_CLASS, RULE_NAME, MESSAGE)
-select pr.PAYROLL_ROW_ID,
+select distinct
+       pr.PAYROLL_ROW_ID,
        pr.TAB_LOAD_ID,
        'IDENTITY',
-       'DUPLICATE_SAP_ID_ACROSS_FILES',
+       'DUPLICATE_SAP_ID_SAME_SUBSIDIARY',
        'Employee id appears on more than one sheet for ' ||
-       pr.REPORT_YEAR::string || '. Which submission is authoritative needs ' ||
-       'confirming before these values can be reported on.'
+       pr.REPORT_YEAR::string || ' under the same subsidiary. Which submission ' ||
+       'is authoritative needs confirming before these values can be reported on.'
 from PAYROLL_ROW pr
+join PAYROLL_ROW o
+  on  o.EMPLOYEE_SAP_ID = pr.EMPLOYEE_SAP_ID
+  and o.REPORT_YEAR     = pr.REPORT_YEAR
+  and o.TAB_LOAD_ID    <> pr.TAB_LOAD_ID
+  and equal_null(o.SUBSIDIARY_CODE, pr.SUBSIDIARY_CODE)
 where not pr.IS_BLANK
-  and exists (
-      select 1 from PAYROLL_ROW o
-      where o.EMPLOYEE_SAP_ID = pr.EMPLOYEE_SAP_ID
-        and o.REPORT_YEAR     = pr.REPORT_YEAR
-        and o.TAB_LOAD_ID  <> pr.TAB_LOAD_ID
-        and not o.IS_BLANK);
+  and not o.IS_BLANK;
+
+insert into DQ_FLAG (PAYROLL_ROW_ID, TAB_LOAD_ID, DQ_CLASS, RULE_NAME, MESSAGE)
+select distinct
+       pr.PAYROLL_ROW_ID,
+       pr.TAB_LOAD_ID,
+       'VALUE',
+       'EMPLOYEE_IN_TWO_SUBSIDIARIES',
+       'Employee id appears for ' || pr.REPORT_YEAR::string || ' under ' ||
+       coalesce(pr.SUBSIDIARY_CODE, '(no code)') || ' and under at least one ' ||
+       'other subsidiary. Qima treats entity transfers and split payroll as ' ||
+       'intentional, so both rows are kept and both are reported.'
+from PAYROLL_ROW pr
+join PAYROLL_ROW o
+  on  o.EMPLOYEE_SAP_ID = pr.EMPLOYEE_SAP_ID
+  and o.REPORT_YEAR     = pr.REPORT_YEAR
+  and o.TAB_LOAD_ID    <> pr.TAB_LOAD_ID
+  and not equal_null(o.SUBSIDIARY_CODE, pr.SUBSIDIARY_CODE)
+where not pr.IS_BLANK
+  and not o.IS_BLANK;
+
+
+-- ---------------------------------------------------------------------------
+-- IDENTITY - a row with payroll values but no employee id.
+--
+-- Qima's own error list opens with this one. Our loader marks such a row blank
+-- and skips it entirely, so without this rule a line with a full year of salary
+-- on it disappears silently for want of one cell.
+--
+-- Zero today across all three years. The check is deliberately "does any mapped
+-- payment column hold anything", not "is the row non-empty": sheets carry
+-- thousands of formatted-but-empty padding rows, and every one of them would
+-- otherwise be a finding.
+-- ---------------------------------------------------------------------------
+insert into DQ_FLAG (TAB_LOAD_ID, PAYROLL_ROW_ID, DQ_CLASS, RULE_NAME, MESSAGE)
+select distinct
+       pr.TAB_LOAD_ID,
+       pr.PAYROLL_ROW_ID,
+       'IDENTITY',
+       'ROW_WITHOUT_SAP_ID',
+       'Row ' || pr.ROW_INDEX::string || ' of sheet ' || sl.TAB_NAME ||
+       ' carries payroll values but no employee id, so none of it was loaded. ' ||
+       'The id has to be filled at source and the file resubmitted.'
+from PAYROLL_ROW pr
+join TAB_LOAD   sl on sl.TAB_LOAD_ID = pr.TAB_LOAD_ID
+join HEADER_MAP h  on h.GENERATION   = sl.GENERATION
+                  and h.MEASURE_BASIS = 'PAYMENT'
+where pr.IS_BLANK
+  and nullif(trim(replace(get(pr.ROW_DATA, h.COLUMN_INDEX)::string,
+                          chr(160), '')), '') is not null;
+
+
+-- ---------------------------------------------------------------------------
+-- IDENTITY - the same row twice on the same sheet, cell for cell.
+--
+-- Qima's review separates two same-file cases. A rehire or a second contract is
+-- legitimate and both rows count - our EMPLOYMENT_KEY already keeps them apart,
+-- and all 8 same-sheet repeats in the current data are of that kind. An exact
+-- duplicate is a data entry slip, and counting it twice inflates the total.
+--
+-- Zero today. Matching on the whole row rather than on the id is what separates
+-- the two cases without needing to interpret dates.
+-- ---------------------------------------------------------------------------
+insert into DQ_FLAG (TAB_LOAD_ID, PAYROLL_ROW_ID, DQ_CLASS, RULE_NAME, MESSAGE)
+select distinct
+       pr.TAB_LOAD_ID,
+       pr.PAYROLL_ROW_ID,
+       'IDENTITY',
+       'EXACT_DUPLICATE_ROW',
+       'This row is identical to another row on the same sheet, cell for cell. ' ||
+       'Both would be counted, so one of them needs removing at source.'
+from PAYROLL_ROW pr
+join PAYROLL_ROW o
+  on  o.TAB_LOAD_ID      = pr.TAB_LOAD_ID
+  and o.EMPLOYEE_SAP_ID  = pr.EMPLOYEE_SAP_ID
+  and hash(o.ROW_DATA)   = hash(pr.ROW_DATA)
+  and o.PAYROLL_ROW_ID  <> pr.PAYROLL_ROW_ID
+where not pr.IS_BLANK;
 
 
 -- ---------------------------------------------------------------------------
@@ -181,6 +276,108 @@ where not exists (
     where r.PAYROLL_ROW_ID = m.PAYROLL_ROW_ID
       and r.COMPONENT_NAME = 'MONTHLY_SALARY' and r.MEASURE_BASIS = 'PAYMENT'
       and r.PERIOD_TYPE = 'FY' and r.CURRENCY_SCOPE = 'LOCAL');
+
+
+-- ---------------------------------------------------------------------------
+-- VALUE - the twelve monthly cells do not add up to the file's own annual total.
+--
+-- This is the rule that catches the one error on Qima's list that corrupts a
+-- number silently instead of failing loudly. Their scenario 6 is a European
+-- decimal comma: "2.274,00" does not parse and lands in SALARY_AS_TEXT, which
+-- is fine - but a bare "2.274" parses perfectly as 2.274, a thousandfold error
+-- with nothing to show for it. The file's own annual total is the only
+-- independent check we hold, and a mistyped month breaks it.
+--
+-- Zero today: all 2,784 employments that carry both reconcile exactly. That
+-- reconciliation has been in transformation/tests since the model was built;
+-- this promotes it from a test someone has to run to a finding that appears on
+-- its own.
+--
+-- The amounts go in RAW_VALUE, not the message. RAW_VALUE carries the masking
+-- policy; MESSAGE does not, and a message is no place to leak a salary to
+-- someone the policy is meant to keep it from.
+-- ---------------------------------------------------------------------------
+insert into DQ_FLAG (TAB_LOAD_ID, PAYROLL_ROW_ID, DQ_CLASS, RULE_NAME,
+                     RAW_VALUE, MESSAGE)
+select t.TAB_LOAD_ID,
+       t.PAYROLL_ROW_ID,
+       'VALUE',
+       'ANNUAL_TOTAL_MISMATCH',
+       t.MONTHS_TOTAL::string || ' vs ' || t.FILE_TOTAL::string,
+       'The monthly salary cells do not add up to the annual total stated in ' ||
+       'the same file. One of the two is mistyped - a decimal separator read ' ||
+       'as a thousands separator is the usual cause. RAW_VALUE holds the two ' ||
+       'figures.'
+from (select PAYROLL_ROW_ID,
+             TAB_LOAD_ID,
+             sum(iff(PERIOD_TYPE = 'MONTH', AMOUNT, 0)) as MONTHS_TOTAL,
+             max(iff(PERIOD_TYPE = 'FY',    AMOUNT, null)) as FILE_TOTAL
+      from FACT_PAYROLL_PAYMENT
+      where COMPONENT_NAME = 'MONTHLY_SALARY'
+        and CURRENCY_SCOPE = 'LOCAL'
+      group by 1, 2) t
+where t.FILE_TOTAL   is not null
+  and t.MONTHS_TOTAL > 0
+  and abs(t.MONTHS_TOTAL - t.FILE_TOTAL) > 0.01;
+
+
+-- ---------------------------------------------------------------------------
+-- VALUE - a salary in a currency nobody else at that subsidiary is paid in.
+--
+-- Qima's scenario 7, salary entered in the wrong currency, which distorts any
+-- conversion. Their suggested check is to eyeball the amount against country
+-- benchmarks; we hold no benchmarks, but we do hold every other employee at the
+-- same entity, so the entity's own norm is the reference.
+--
+-- Only where there is a norm to compare against. HK04 pays around 550 people in
+-- seventeen currencies - USD, INR, BDT, IDR, EUR, PKR and more - because it
+-- employs across the region, and its largest currency is barely 60 per cent of
+-- it. Applied there, this rule raised 700 findings and every one of them was
+-- wrong. So it only runs where one currency covers at least 95 per cent of a
+-- subsidiary's salaries, and stays quiet where mixed currency is the norm.
+--
+-- One finding per employee row, not per month, or a single mistyped currency
+-- would raise twelve identical findings.
+-- ---------------------------------------------------------------------------
+insert into DQ_FLAG (TAB_LOAD_ID, PAYROLL_ROW_ID, DQ_CLASS, RULE_NAME,
+                     RAW_VALUE, MESSAGE)
+with per_subsidiary as (
+    select SUBSIDIARY_CODE,
+           CURRENCY_CODE,
+           count(distinct PAYROLL_ROW_ID) as EMPLOYMENTS
+    from FACT_PAYROLL_PAYMENT
+    where COMPONENT_NAME = 'MONTHLY_SALARY'
+      and CURRENCY_SCOPE = 'LOCAL'
+      and CURRENCY_CODE   is not null
+      and SUBSIDIARY_CODE is not null
+    group by 1, 2),
+ranked as (
+    select SUBSIDIARY_CODE,
+           CURRENCY_CODE,
+           EMPLOYMENTS / nullif(sum(EMPLOYMENTS) over (partition by SUBSIDIARY_CODE), 0) as SHARE,
+           row_number() over (partition by SUBSIDIARY_CODE
+                              order by EMPLOYMENTS desc, CURRENCY_CODE) as RN
+    from per_subsidiary),
+norm as (
+    select SUBSIDIARY_CODE, CURRENCY_CODE, SHARE
+    from ranked
+    where RN = 1 and SHARE >= 0.95)
+select distinct
+       m.TAB_LOAD_ID,
+       m.PAYROLL_ROW_ID,
+       'VALUE',
+       'SALARY_CURRENCY_NOT_LOCAL',
+       m.CURRENCY_CODE,
+       'Monthly salary is in ' || m.CURRENCY_CODE || ', where subsidiary ' ||
+       m.SUBSIDIARY_CODE || ' pays almost everyone in ' || j.CURRENCY_CODE ||
+       '. Either the currency cell is wrong or this employee is a genuine ' ||
+       'exception worth knowing about.'
+from FACT_PAYROLL_PAYMENT m
+join norm j on j.SUBSIDIARY_CODE = m.SUBSIDIARY_CODE
+where m.COMPONENT_NAME = 'MONTHLY_SALARY'
+  and m.CURRENCY_SCOPE = 'LOCAL'
+  and m.CURRENCY_CODE is not null
+  and m.CURRENCY_CODE <> j.CURRENCY_CODE;
 
 
 -- ---------------------------------------------------------------------------
