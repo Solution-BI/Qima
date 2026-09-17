@@ -39,7 +39,7 @@ create table if not exists HEADER_MAP (
     COMPONENT_NAME      varchar        not null
         comment 'The specific scheme, e.g. YEAR_END, CCLAB, EID_FESTIVAL_FEB, MONTHLY_SALARY.',
     MEASURE_BASIS       varchar        not null
-        comment 'PAYMENT | RATE | FEE per the contract, plus ELIGIBILITY, CURRENCY and ATTRIBUTE for the columns that qualify a payment rather than being one.',
+        comment 'PAYMENT | RATE | FEE per the contract, plus ELIGIBILITY, CURRENCY and ATTRIBUTE for the columns that qualify a payment rather than being one, and LIMIT for the Max columns. Tess confirmed on 15 September that a Max amount is the ceiling finance budgets against, not what the employee is owed, so it is separated from RATE: summing every RATE would otherwise add contractual pay to budget ceilings.',
     CANONICAL_FIELD     varchar
         comment 'Which specific field this column is, where the loader needs it by name - EMPLOYEE_SAP_ID, SUBSIDIARY, JOIN_DATE, LEAVE_DATE, CONTRACT_CURRENCY and so on. COMPONENT_NAME says which scheme a column belongs to, not which field it is: all 88 employee columns are EMPLOYEE_ATTR. Position cannot be assumed either - the employee id is at index 0 in the 2026 generations and index 1 in 2024/2025, and the subsidiary is called Company Code in 2024.',
     PERIOD_TYPE         varchar
@@ -62,7 +62,7 @@ create table if not exists HEADER_MAP (
     constraint CHK_COMPONENT_GROUP check (COMPONENT_GROUP in
         ('SALARY','BONUS','COMMISSION','EXTERNAL','ADHOC','EMPLOYEE','OTHER','UNKNOWN')),
     constraint CHK_MEASURE_BASIS check (MEASURE_BASIS in
-        ('PAYMENT','RATE','FEE','ELIGIBILITY','CURRENCY','ATTRIBUTE','UNKNOWN')),
+        ('PAYMENT','RATE','LIMIT','FEE','ELIGIBILITY','CURRENCY','ATTRIBUTE','UNKNOWN')),
     constraint CHK_PERIOD_TYPE check (PERIOD_TYPE is null or PERIOD_TYPE in ('MONTH','QUARTER','FY')),
     constraint CHK_CURRENCY_SCOPE check (CURRENCY_SCOPE in ('LOCAL','USD','NA')),
     constraint CHK_GENERATION_STATUS check (GENERATION_STATUS in ('SUPPORTED','SAMPLE'))
@@ -88,6 +88,48 @@ create file format if not exists FF_HEADER_MAP_CSV
 -- from @%HEADER_MAP/header_map_seed.csv
 -- file_format = (format_name = FF_HEADER_MAP_CSV)
 -- on_error = 'ABORT_STATEMENT';
+
+-- ---------------------------------------------------------------------------
+-- COMPONENT_OVERRIDE - where one column means different things to different
+-- subsidiaries.
+--
+-- HEADER_MAP answers "what is this column" per generation. That is enough
+-- everywhere except one case Deepanjali confirmed with Qima's HR on 16
+-- September: in 2025-96col, Bangladesh files the Eid festival bonus into the
+-- 13th month and Christmas blocks. The band labels say so out loud - "13th
+-- Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus
+-- (Mar)" - so the same column is a 13th month for Cebu and Mexico and an Eid
+-- bonus for Bangladesh.
+--
+-- Renaming the column in HEADER_MAP would relabel Cebu's and Mexico's 13th
+-- month as Eid, which is why this is keyed on subsidiary rather than folded
+-- into the generation. Today BD01 is the only subsidiary with values in those
+-- blocks, but the template is shared, so the narrow key is the point.
+--
+-- Keyed on component rather than column index: a block is four or five columns
+-- that all carry the same component, and all of them move together.
+-- ---------------------------------------------------------------------------
+create table if not exists COMPONENT_OVERRIDE (
+    GENERATION          varchar        not null,
+    COMPONENT_NAME_FROM varchar        not null comment 'The component HEADER_MAP resolves the column to.',
+    SUBSIDIARY_CODE     varchar        not null comment 'PAYROLL_ROW.SUBSIDIARY_CODE this override applies to. Every other subsidiary keeps the HEADER_MAP name.',
+    COMPONENT_NAME_TO   varchar        not null,
+    NOTE                varchar        not null comment 'Who confirmed it and when. An override without a source is a guess.',
+    CREATED_AT          timestamp_tz   not null default current_timestamp(),
+    constraint PK_COMPONENT_OVERRIDE primary key (GENERATION, COMPONENT_NAME_FROM, SUBSIDIARY_CODE)
+) comment = 'Per-subsidiary component renames, for columns a shared template uses for two different schemes.';
+
+-- Seeded, not accumulated: this is reference data small enough to read in full,
+-- and a rerun of this script must leave exactly these rows.
+delete from COMPONENT_OVERRIDE;
+
+insert into COMPONENT_OVERRIDE
+    (GENERATION, COMPONENT_NAME_FROM, SUBSIDIARY_CODE, COMPONENT_NAME_TO, NOTE)
+values
+    ('2025-96col', 'THIRTEENTH_MONTH', 'BD01', 'EID_FESTIVAL_MAR',
+     'Deepanjali Bhatt, 16 Sep 2026, confirmed with the respective HR: Bangladesh values in this block are the Eid festival bonus paid in March. The 2026 template gives Eid its own blocks.'),
+    ('2025-96col', 'CHRISTMAS', 'BD01', 'EID_FESTIVAL_MAY',
+     'Deepanjali Bhatt, 16 Sep 2026, confirmed with the respective HR: Bangladesh values in this block are the Eid festival bonus paid in May. The 2026 template gives Eid its own blocks.');
 
 -- ---------------------------------------------------------------------------
 -- Generation lookup: resolves a tab in FILE_LOAD to a HEADER_MAP generation.

@@ -44,39 +44,39 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2024-89col,SUPPORTED,2024,41,AP,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-11-01T00:00:00,SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2024-11,USD,FALSE,,
 2024-89col,SUPPORTED,2024,42,AQ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-12-01T00:00:00,SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2024-12,USD,FALSE,,
 2024-89col,SUPPORTED,2024,43,AR,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),BONUS,YEAR_END,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),BONUS,YEAR_END,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,45,AT,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2024(USD),BONUS,YEAR_END,PAYMENT,,FY,2024,USD,FALSE,,
 2024-89col,SUPPORTED,2024,46,AU,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,BONUS,HALF_YEAR,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,BONUS,HALF_YEAR,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,48,AW,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2023/ SBE paid in July (USD),BONUS,HALF_YEAR,PAYMENT,,FY,2023,USD,FALSE,,
 2024-89col,SUPPORTED,2024,49,AX,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Eligible 13th Month salary/ SBE MX Retation bonus,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,BONUS,THIRTEENTH_MONTH,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,51,AZ,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Currency,BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2024-89col,SUPPORTED,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),BONUS,THIRTEENTH_MONTH,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,53,BB,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Actual Paid amount in Dec 2024(USD),BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2024,USD,FALSE,,
 2024-89col,SUPPORTED,2024,54,BC,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible Aguinaldo bonus,BONUS,AGUINALDO,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,BONUS,AGUINALDO,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,BONUS,AGUINALDO,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency,BONUS,AGUINALDO,CURRENCY,,,,LOCAL,FALSE,,
-2024-89col,SUPPORTED,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),BONUS,AGUINALDO,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),BONUS,AGUINALDO,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2023(USD),BONUS,AGUINALDO,PAYMENT,,FY,2023,USD,FALSE,,
 2024-89col,SUPPORTED,2024,59,BH,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,BONUS,CHRISTMAS,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,BONUS,CHRISTMAS,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,BONUS,CHRISTMAS,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,61,BJ,Christmas Bonus (Paid in each Dec),Currency,BONUS,CHRISTMAS,CURRENCY,,,,LOCAL,FALSE,,
-2024-89col,SUPPORTED,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),BONUS,CHRISTMAS,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),BONUS,CHRISTMAS,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,63,BL,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),BONUS,CHRISTMAS,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-89col,SUPPORTED,2024,64,BM,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,BONUS,HOLIDAY,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,BONUS,HOLIDAY,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Currency,BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2024-89col,SUPPORTED,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),BONUS,HOLIDAY,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),BONUS,HOLIDAY,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),BONUS,HOLIDAY,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-89col,SUPPORTED,2024,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),BONUS,HOLIDAY,PAYMENT,,FY,2024,USD,FALSE,,
 2024-89col,SUPPORTED,2024,70,BS,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,RESOLVED (band wins: stale header text copy-pasted from the Holiday block)
-2024-89col,SUPPORTED,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,BONUS,PROFIT_SHARING,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,BONUS,PROFIT_SHARING,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,72,BU,Profit sharing-NYCE (Paid in each April),Currency,BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2024-89col,SUPPORTED,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),BONUS,PROFIT_SHARING,RATE,,FY,2024,USD,FALSE,,
+2024-89col,SUPPORTED,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),BONUS,PROFIT_SHARING,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,74,BW,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),BONUS,PROFIT_SHARING,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-89col,SUPPORTED,2024,75,BX,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2024  (Yes / No),BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
-2024-89col,SUPPORTED,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),BONUS,CCLAB,RATE,,FY,2024,LOCAL,FALSE,,
+2024-89col,SUPPORTED,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),BONUS,CCLAB,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-89col,SUPPORTED,2024,77,BZ,CCLAB Bonus (paid in Jan),Local Currency,BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
 2024-89col,SUPPORTED,2024,78,CA,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2024 (USD),BONUS,CCLAB,PAYMENT,,FY,2024,USD,FALSE,,
 2024-89col,SUPPORTED,2024,79,CB,Auditor Bonus (Paid Quarterly),Actual Payout in Q1,BONUS,AUDITOR,PAYMENT,,QUARTER,2024-Q1,LOCAL,FALSE,,
@@ -134,39 +134,39 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2024-91col,SUPPORTED,2024,41,AP,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-11-01T00:00:00,SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2024-11,USD,FALSE,,
 2024-91col,SUPPORTED,2024,42,AQ,QIMA 2024 Monthly Total Salary cost (USD)--not included any bonus or commission,2024-12-01T00:00:00,SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2024-12,USD,FALSE,,
 2024-91col,SUPPORTED,2024,43,AR,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),BONUS,YEAR_END,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,44,AS,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2024 (USD),BONUS,YEAR_END,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,45,AT,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2024(USD),BONUS,YEAR_END,PAYMENT,,FY,2024,USD,FALSE,,
 2024-91col,SUPPORTED,2024,46,AU,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,BONUS,HALF_YEAR,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,47,AV,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2024,BONUS,HALF_YEAR,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,48,AW,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2023/ SBE paid in July (USD),BONUS,HALF_YEAR,PAYMENT,,FY,2023,USD,FALSE,,
 2024-91col,SUPPORTED,2024,49,AX,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Eligible 13th Month salary/ SBE MX Retation bonus,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,BONUS,THIRTEENTH_MONTH,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,50,AY,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2024,BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,51,AZ,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Currency,BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2024-91col,SUPPORTED,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),BONUS,THIRTEENTH_MONTH,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,52,BA,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Max  amount in 2024 (USD),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,53,BB,13th Month slary-Cebu/SBE MX bonus   (paid in each Dec),Actual Paid amount in Dec 2024(USD),BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2024,USD,FALSE,,
 2024-91col,SUPPORTED,2024,54,BC,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible Aguinaldo bonus,BONUS,AGUINALDO,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,BONUS,AGUINALDO,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2024,BONUS,AGUINALDO,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency,BONUS,AGUINALDO,CURRENCY,,,,LOCAL,FALSE,,
-2024-91col,SUPPORTED,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),BONUS,AGUINALDO,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2024 (USD),BONUS,AGUINALDO,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2023(USD),BONUS,AGUINALDO,PAYMENT,,FY,2023,USD,FALSE,,
 2024-91col,SUPPORTED,2024,59,BH,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,BONUS,CHRISTMAS,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,BONUS,CHRISTMAS,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,60,BI,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024,BONUS,CHRISTMAS,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,61,BJ,Christmas Bonus (Paid in each Dec),Currency,BONUS,CHRISTMAS,CURRENCY,,,,LOCAL,FALSE,,
-2024-91col,SUPPORTED,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),BONUS,CHRISTMAS,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,62,BK,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2024 (USD),BONUS,CHRISTMAS,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,63,BL,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),BONUS,CHRISTMAS,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-91col,SUPPORTED,2024,64,BM,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,BONUS,HOLIDAY,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024,BONUS,HOLIDAY,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Currency,BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2024-91col,SUPPORTED,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),BONUS,HOLIDAY,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2024 (USD),BONUS,HOLIDAY,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),BONUS,HOLIDAY,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-91col,SUPPORTED,2024,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),BONUS,HOLIDAY,PAYMENT,,FY,2024,USD,FALSE,,
 2024-91col,SUPPORTED,2024,70,BS,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,RESOLVED (band wins: stale header text copy-pasted from the Holiday block)
-2024-91col,SUPPORTED,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,BONUS,PROFIT_SHARING,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,71,BT,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024,BONUS,PROFIT_SHARING,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,72,BU,Profit sharing-NYCE (Paid in each April),Currency,BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2024-91col,SUPPORTED,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),BONUS,PROFIT_SHARING,RATE,,FY,2024,USD,FALSE,,
+2024-91col,SUPPORTED,2024,73,BV,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2024 (USD),BONUS,PROFIT_SHARING,LIMIT,,FY,2024,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,74,BW,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),BONUS,PROFIT_SHARING,PAYMENT,,FY,2024,LOCAL,FALSE,,
 2024-91col,SUPPORTED,2024,75,BX,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2024  (Yes / No),BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
-2024-91col,SUPPORTED,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),BONUS,CCLAB,RATE,,FY,2024,LOCAL,FALSE,,
+2024-91col,SUPPORTED,2024,76,BY,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2024 (Local currency),BONUS,CCLAB,LIMIT,,FY,2024,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2024-91col,SUPPORTED,2024,77,BZ,CCLAB Bonus (paid in Jan),Local Currency,BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
 2024-91col,SUPPORTED,2024,78,CA,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2024 (USD),BONUS,CCLAB,PAYMENT,,FY,2024,USD,FALSE,,
 2024-91col,SUPPORTED,2024,79,CB,Auditor Bonus (Paid Quarterly),Actual Payout in Q1,BONUS,AUDITOR,PAYMENT,,QUARTER,2024-Q1,LOCAL,FALSE,,
@@ -226,39 +226,39 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2025-91col,SUPPORTED,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-11,USD,FALSE,,
 2025-91col,SUPPORTED,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-12,USD,FALSE,,
 2025-91col,SUPPORTED,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),BONUS,YEAR_END,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),BONUS,HALF_YEAR,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Eligible for 13th Month salary/ SBE MX Retation bonus,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Currency (13th Month salary),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2025-91col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Actual Paid amount in Dec 2025 (USD),BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,BONUS,AGUINALDO,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),BONUS,AGUINALDO,CURRENCY,,,,LOCAL,FALSE,,
-2025-91col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),BONUS,AGUINALDO,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,60,BI,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,BONUS,CHRISTMAS,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,62,BK,Christmas Bonus (Paid in each Dec),Currency (Christmas Bonus),BONUS,CHRISTMAS,CURRENCY,,,,LOCAL,FALSE,,
-2025-91col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,64,BM,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),BONUS,CHRISTMAS,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-91col,SUPPORTED,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2025-91col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),BONUS,HOLIDAY,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-91col,SUPPORTED,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),BONUS,HOLIDAY,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,RESOLVED (band wins: stale header text copy-pasted from the Holiday block)
-2025-91col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2025-91col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,RATE,,FY,2025,USD,FALSE,,
+2025-91col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),BONUS,PROFIT_SHARING,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-91col,SUPPORTED,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
-2025-91col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,RATE,,FY,2025,LOCAL,FALSE,,
+2025-91col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-91col,SUPPORTED,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
 2025-91col,SUPPORTED,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),BONUS,CCLAB,PAYMENT,,FY,2025,USD,FALSE,,
 2025-91col,SUPPORTED,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),BONUS,AUDITOR,PAYMENT,,QUARTER,2025-Q1,USD,FALSE,,
@@ -317,39 +317,39 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2025-95col,SUPPORTED,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-11,USD,FALSE,,
 2025-95col,SUPPORTED,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-12,USD,FALSE,,
 2025-95col,SUPPORTED,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),BONUS,YEAR_END,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),BONUS,HALF_YEAR,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Eligible for 13th Month salary/ SBE MX Retation bonus,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Currency (13th Month salary),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2025-95col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec),Actual Paid amount in Dec 2025 (USD),BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,BONUS,AGUINALDO,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),BONUS,AGUINALDO,CURRENCY,,,,LOCAL,FALSE,,
-2025-95col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),BONUS,AGUINALDO,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,60,BI,Christmas Bonus (Paid in each Dec),Eligible for Christmas Bonus,BONUS,CHRISTMAS,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,62,BK,Christmas Bonus (Paid in each Dec),Currency (Christmas Bonus),BONUS,CHRISTMAS,CURRENCY,,,,LOCAL,FALSE,,
-2025-95col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,64,BM,Christmas Bonus (Paid in each Dec),Actual Paid amount (Local currency),BONUS,CHRISTMAS,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-95col,SUPPORTED,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2025-95col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),BONUS,HOLIDAY,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-95col,SUPPORTED,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),BONUS,HOLIDAY,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,RESOLVED (band wins: stale header text copy-pasted from the Holiday block)
-2025-95col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2025-95col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,RATE,,FY,2025,USD,FALSE,,
+2025-95col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),BONUS,PROFIT_SHARING,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-95col,SUPPORTED,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
-2025-95col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,RATE,,FY,2025,LOCAL,FALSE,,
+2025-95col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-95col,SUPPORTED,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
 2025-95col,SUPPORTED,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),BONUS,CCLAB,PAYMENT,,FY,2025,USD,FALSE,,
 2025-95col,SUPPORTED,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),BONUS,AUDITOR,PAYMENT,,QUARTER,2025-Q1,USD,FALSE,,
@@ -412,39 +412,39 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2025-96col,SUPPORTED,2025,42,AQ,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Nov-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-11,USD,FALSE,,
 2025-96col,SUPPORTED,2025,43,AR,QIMA 2025 Monthly Total Salary cost (USD)--not included any bonus or commission,Dec-2025 (USD),SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2025-12,USD,FALSE,,
 2025-96col,SUPPORTED,2025,44,AS,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,45,AT,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2025 (USD),BONUS,YEAR_END,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,46,AU,Year-end bonus (paid in each Feb),Actual amount Paid in Feb 2025(USD),BONUS,YEAR_END,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,47,AV,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,48,AW,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2025,BONUS,HALF_YEAR,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,49,AX,Half-year bonus (paid in each Sep ),Actual amount Paid in Sep 2025/ SBE paid in July (USD),BONUS,HALF_YEAR,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,50,AY,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Eligible for 13th Month salary/ SBE MX Retation bonus,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,51,AZ,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max 13th Month salary/ SBE MX Retation bonus in 2025 (LC),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,52,BA,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Currency (13th Month salary),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,53,BB,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Max  amount in 2025 (USD),BONUS,THIRTEENTH_MONTH,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,54,BC,13th Month salary-Cebu/SBE MX bonus (paid in each Dec) BD Eid Festival Bonus (Mar),Actual Paid amount in Dec 2025 (USD),BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,55,BD,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Eligible for Aguinaldo bonus,BONUS,AGUINALDO,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,56,BE,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max Aguinaldo in 2025 (LC),BONUS,AGUINALDO,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,57,BF,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Currency (Aguinaldo),BONUS,AGUINALDO,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,58,BG,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Max  amount in 2025 (USD),BONUS,AGUINALDO,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,59,BH,Aguinaldo amount paid in Dec- Mandatory in SBE MX,Actual Paid amount in Dec 2025(USD),BONUS,AGUINALDO,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,60,BI,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Eligible for Christmas Bonus,BONUS,CHRISTMAS,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,61,BJ,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (LC),BONUS,CHRISTMAS,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,62,BK,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Currency (Christmas Bonus),BONUS,CHRISTMAS,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,63,BL,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Max Christmas Bonus in 2025 (USD),BONUS,CHRISTMAS,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,64,BM,Christmas Bonus (Paid in each Dec) / BD Eid festival bonus (May),Actual Paid amount (Local currency),BONUS,CHRISTMAS,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-96col,SUPPORTED,2025,65,BN,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,66,BO,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (LC),BONUS,HOLIDAY,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,67,BP,"Holiday Bonus ( France in July, NYCE in March)",Currency (Holiday Bonus),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,68,BQ,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2025 (USD),BONUS,HOLIDAY,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,69,BR,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (Local currency),BONUS,HOLIDAY,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-96col,SUPPORTED,2025,70,BS,"Holiday Bonus ( France in July, NYCE in March)",Actual Paid amount  (USD),BONUS,HOLIDAY,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,71,BT,Profit sharing-NYCE (Paid in each April),Eligible for Holiday Bonus,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,RESOLVED (band wins: stale header text copy-pasted from the Holiday block)
-2025-96col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,72,BU,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (LC),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,73,BV,Profit sharing-NYCE (Paid in each April),Currency (Profit Sharing),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,74,BW,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2025 (USD),BONUS,PROFIT_SHARING,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,75,BX,Profit sharing-NYCE (Paid in each April),Actual Paid amount  (Local currency),BONUS,PROFIT_SHARING,PAYMENT,,FY,2025,LOCAL,FALSE,,
 2025-96col,SUPPORTED,2025,76,BY,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus in 2025  (Yes / No),BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,77,BZ,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2025 (Local currency),BONUS,CCLAB,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,78,CA,CCLAB Bonus (paid in Jan),Currency (CCLAB bonus),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
 2025-96col,SUPPORTED,2025,79,CB,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2025 (USD),BONUS,CCLAB,PAYMENT,,FY,2025,USD,FALSE,,
 2025-96col,SUPPORTED,2025,80,CC,Auditor Bonus (Paid Quarterly),Actual Payout in Q1 (USD),BONUS,AUDITOR,PAYMENT,,QUARTER,2025-Q1,USD,FALSE,,
@@ -459,9 +459,9 @@ GENERATION,GENERATION_STATUS,SHEET_YEAR,COLUMN_INDEX,COLUMN_LETTER,GROUP_HEADER,
 2025-96col,SUPPORTED,2025,89,CL,External HC,Agency Name,EXTERNAL,EXTERNAL_HC,ATTRIBUTE,AGENCY_NAME,,,NA,FALSE,,
 2025-96col,SUPPORTED,2025,90,CM,External HC,Agency Fee,EXTERNAL,EXTERNAL_HC,FEE,AGENCY_FEE,,,LOCAL,FALSE,,
 2025-96col,SUPPORTED,2025,91,CN,Gratuity for Dubai,Eligible for Gratuity,BONUS,GRATUITY,ELIGIBILITY,,,,NA,FALSE,,
-2025-96col,SUPPORTED,2025,92,CO,Gratuity for Dubai,Max Gratuity in 2025 (LC),BONUS,GRATUITY,RATE,,FY,2025,LOCAL,FALSE,,
+2025-96col,SUPPORTED,2025,92,CO,Gratuity for Dubai,Max Gratuity in 2025 (LC),BONUS,GRATUITY,LIMIT,,FY,2025,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,93,CP,Gratuity for Dubai,Currency ,BONUS,GRATUITY,CURRENCY,,,,LOCAL,FALSE,,
-2025-96col,SUPPORTED,2025,94,CQ,Gratuity for Dubai,Max  amount in 2025 (USD),BONUS,GRATUITY,RATE,,FY,2025,USD,FALSE,,
+2025-96col,SUPPORTED,2025,94,CQ,Gratuity for Dubai,Max  amount in 2025 (USD),BONUS,GRATUITY,LIMIT,,FY,2025,USD,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2025-96col,SUPPORTED,2025,95,CR,Gratuity for Dubai,Actual Paid amount in 2025(USD),BONUS,GRATUITY,PAYMENT,,FY,2025,USD,FALSE,,
 2026-64col,SAMPLE,2026,0,A,Employee Information (QIMA PEOPLE),Employee SAP ID,EMPLOYEE,EMPLOYEE_ATTR,ATTRIBUTE,EMPLOYEE_SAP_ID,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,1,B,Employee Information (QIMA PEOPLE),SAP Staff Name,EMPLOYEE,EMPLOYEE_ATTR,ATTRIBUTE,EMPLOYEE_NAME,,,NA,FALSE,,
@@ -500,31 +500,31 @@ Dec 2026",SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2026-12,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,SALARY,MONTHLY_SALARY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),BONUS,YEAR_END,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,BONUS,YEAR_END,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),BONUS,HALF_YEAR,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,BONUS,HALF_YEAR,PAYMENT,,FY,2026,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2026-64col,SAMPLE,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH,RATE,,FY,2026,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH_EQUIVALENT,ELIGIBILITY,,,,NA,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-64col,SAMPLE,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH_EQUIVALENT,CURRENCY,,,,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-64col,SAMPLE,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay. Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-64col,SAMPLE,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,PAYMENT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
 2026-64col,SAMPLE,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,BONUS,HOLIDAY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,BONUS,PROFIT_SHARING,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,BONUS,CCLAB,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,47,AV,Gratuity,Eligible for Gratuity,BONUS,GRATUITY,ELIGIBILITY,,,,NA,FALSE,,
 2026-64col,SAMPLE,2026,48,AW,Gratuity,Gratuity (Currency),BONUS,GRATUITY,CURRENCY,,,,LOCAL,FALSE,,
-2026-64col,SAMPLE,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-64col,SAMPLE,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-64col,SAMPLE,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,BONUS,GRATUITY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),BONUS,AUDITOR,CURRENCY,,,,LOCAL,FALSE,,
 2026-64col,SAMPLE,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
@@ -584,31 +584,31 @@ Dec 2026",SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2026-12,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,SALARY,MONTHLY_SALARY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),BONUS,YEAR_END,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,BONUS,YEAR_END,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),BONUS,HALF_YEAR,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,BONUS,HALF_YEAR,PAYMENT,,FY,2026,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2026-67col,SUPPORTED,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH,RATE,,FY,2026,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH_EQUIVALENT,ELIGIBILITY,,,,NA,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-67col,SUPPORTED,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH_EQUIVALENT,CURRENCY,,,,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-67col,SUPPORTED,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay. Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-67col,SUPPORTED,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,PAYMENT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
 2026-67col,SUPPORTED,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,BONUS,HOLIDAY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,BONUS,PROFIT_SHARING,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,BONUS,CCLAB,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,47,AV,Gratuity,Eligible for Gratuity,BONUS,GRATUITY,ELIGIBILITY,,,,NA,FALSE,,
 2026-67col,SUPPORTED,2026,48,AW,Gratuity,Gratuity (Currency),BONUS,GRATUITY,CURRENCY,,,,LOCAL,FALSE,,
-2026-67col,SUPPORTED,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-67col,SUPPORTED,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-67col,SUPPORTED,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,BONUS,GRATUITY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),BONUS,AUDITOR,CURRENCY,,,,LOCAL,FALSE,,
 2026-67col,SUPPORTED,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
@@ -671,31 +671,31 @@ Dec 2026",SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2026-12,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,22,W,QIMA 2026 Monthly Actual Total Salary cost (local Currency) --not including any bonus or commission,Total salary 2026,SALARY,MONTHLY_SALARY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,23,X,Year-end bonus (paid in each Feb),Eligible for Year-end bonus ,BONUS,YEAR_END,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,24,Y,Year-end bonus (paid in each Feb),Year-end bonus (Currency),BONUS,YEAR_END,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,25,Z,Year-end bonus (paid in each Feb),Max Year-end bonus amount in 2026,BONUS,YEAR_END,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,26,AA,Year-end bonus (paid in each Feb),Actual Year-end Bonus amount Paid in 2026,BONUS,YEAR_END,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,27,AB,Half-year bonus (paid in each Sep ),Eligible for Half-year bonus ,BONUS,HALF_YEAR,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,28,AC,Half-year bonus (paid in each Sep ),Half-Year bonus (Currency),BONUS,HALF_YEAR,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,29,AD,Half-year bonus (paid in each Sep ),Max Half-year bonus amount in 2026,BONUS,HALF_YEAR,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,30,AE,Half-year bonus (paid in each Sep ),Actual Half-year Bonus amount Paid in 2026,BONUS,HALF_YEAR,PAYMENT,,FY,2026,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH,ELIGIBILITY,,,,NA,FALSE,,
-2026-75col,SUPPORTED,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH,RATE,,FY,2026,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH,PAYMENT,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,31,AF,13th Month salary / Aguinaldo / Christmas Bonus,Eligible for 13th Month salary / Christmas Bonus / Aguinaldo,BONUS,THIRTEENTH_MONTH_EQUIVALENT,ELIGIBILITY,,,,NA,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-75col,SUPPORTED,2026,32,AG,13th Month salary / Aguinaldo / Christmas Bonus,13th Month salary (Currency),BONUS,THIRTEENTH_MONTH_EQUIVALENT,CURRENCY,,,,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-75col,SUPPORTED,2026,33,AH,13th Month salary / Aguinaldo / Christmas Bonus,Max 13th Month salary / Aguinaldo / Christmas Bonus in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay. Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
+2026-75col,SUPPORTED,2026,34,AI,13th Month salary / Aguinaldo / Christmas Bonus,Actual 13th Month salary paid in 2026,BONUS,THIRTEENTH_MONTH_EQUIVALENT,PAYMENT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: 13th month, Aguinaldo and Christmas are three separate country schemes that behave alike - fixed pay on top of salary. The 2026 template merges them into this one block, so the component cannot carry the name of just one of them."
 2026-75col,SUPPORTED,2026,35,AJ,"Holiday Bonus ( France in July, NYCE in March)",Eligible for Holiday Bonus,BONUS,HOLIDAY,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,36,AK,"Holiday Bonus ( France in July, NYCE in March)",Holiday Bonus (Currency),BONUS,HOLIDAY,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,37,AL,"Holiday Bonus ( France in July, NYCE in March)",Max Holiday Bonus amount in 2026,BONUS,HOLIDAY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,38,AM,"Holiday Bonus ( France in July, NYCE in March)",Actual Holiday Bonus amount paid in 2026,BONUS,HOLIDAY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,39,AN,Profit sharing-NYCE (Paid in each April),Eligible for Profit Sharing,BONUS,PROFIT_SHARING,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,40,AO,Profit sharing-NYCE (Paid in each April),Profit Sharing (Currency),BONUS,PROFIT_SHARING,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,41,AP,Profit sharing-NYCE (Paid in each April),Max Profit Sharing amount in 2026,BONUS,PROFIT_SHARING,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,42,AQ,Profit sharing-NYCE (Paid in each April),Actual Profit Sharing amount Paid in 2026,BONUS,PROFIT_SHARING,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,43,AR,CCLAB Bonus (paid in Jan),Eligible for CCLAB Bonus,BONUS,CCLAB,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,44,AS,CCLAB Bonus (paid in Jan),CCLAB bonus (Currency),BONUS,CCLAB,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,45,AT,CCLAB Bonus (paid in Jan),MaxCCLAB Bonus amount paid in 2026,BONUS,CCLAB,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,46,AU,CCLAB Bonus (paid in Jan),Actual Bonus amount paid in 2026,BONUS,CCLAB,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,47,AV,Gratuity,Eligible for Gratuity,BONUS,GRATUITY,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,48,AW,Gratuity,Gratuity (Currency),BONUS,GRATUITY,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,49,AX,Gratuity,Max Gratuity in 2026,BONUS,GRATUITY,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,50,AY,Gratuity,Actual Gratuity paid in 2026,BONUS,GRATUITY,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,51,AZ,Actual Auditor Bonus (Paid Quarterly) 2026,Auditor Bonus (Currency),BONUS,AUDITOR,CURRENCY,,,,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,52,BA,Actual Auditor Bonus (Paid Quarterly) 2026,"Auditor Bonus paid
@@ -723,9 +723,9 @@ Dec 2026",SALARY,MONTHLY_SALARY,PAYMENT,,MONTH,2026-12,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,66,BO,Other,Remarks,OTHER,REMARK,ATTRIBUTE,REMARK,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,67,BP,Eid festival bonus (paid in Feb),Eligible for Eid Festible Bonus,BONUS,EID_FESTIVAL_FEB,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,68,BQ,Eid festival bonus (paid in Feb),Currency,BONUS,EID_FESTIVAL_FEB,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,69,BR,Eid festival bonus (paid in Feb),Max Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_FEB,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,69,BR,Eid festival bonus (paid in Feb),Max Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_FEB,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,70,BS,Eid festival bonus (paid in Feb),Actual Paid Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_FEB,PAYMENT,,FY,2026,LOCAL,FALSE,,
 2026-75col,SUPPORTED,2026,71,BT,Eid festival bonus (paid in April),Eligible for Eid Festible Bonus,BONUS,EID_FESTIVAL_APR,ELIGIBILITY,,,,NA,FALSE,,
 2026-75col,SUPPORTED,2026,72,BU,Eid festival bonus (paid in April),Currency,BONUS,EID_FESTIVAL_APR,CURRENCY,,,,LOCAL,FALSE,,
-2026-75col,SUPPORTED,2026,73,BV,Eid festival bonus (paid in April),Max Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_APR,RATE,,FY,2026,LOCAL,FALSE,,
+2026-75col,SUPPORTED,2026,73,BV,Eid festival bonus (paid in April),Max Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_APR,LIMIT,,FY,2026,LOCAL,FALSE,,"Qima 15 Sep 2026: a Max amount is the ceiling finance budgets against, not what the employee is entitled to. Basis LIMIT keeps it out of any sum of contractual pay."
 2026-75col,SUPPORTED,2026,74,BW,Eid festival bonus (paid in April),Actual Paid Eid Festible Bonus (Local Currency),BONUS,EID_FESTIVAL_APR,PAYMENT,,FY,2026,LOCAL,FALSE,,
