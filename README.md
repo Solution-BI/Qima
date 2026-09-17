@@ -8,10 +8,26 @@ HR Payroll Data Pipeline
 - `config/` – external integration enablement and per-environment settings.
 - `ingestion/` – SharePoint into RAW, as opaque JSON. See `ingestion/docs/`.
 - `transformation/` – RAW into SILVER/GOLD. See `transformation/docs/`.
-- `security/` – RBAC, masking, row access policies.
-- `auditability/` – privilege-change detection and alerting.
+- `security/` – masking policies are built; RBAC and row access are designed but
+  not yet written.
 
-See `CLAUDE.md` for conventions and guidance on working in this repo.
+Auditability (Epic 5) has no code yet.
+
+See `CLAUDE.md` for conventions, the model as built, and the run order.
+
+## Where the build actually is
+
+Transformation is the part that exists end to end. Files are read tab by tab into
+`PAYROLL_ROW`, every cell is resolved against `HEADER_MAP`, and values land in
+`FACT_PAYROLL_PAYMENT`, `FACT_PAYROLL_ENTITLEMENT` or `PAYROLL_ATTRIBUTE` depending
+on what the column means. `DQ_FLAG` records findings, the `V_GOLD_*` views are the
+reporting layer, and every table and view carries column descriptions so a Qima user
+browsing the schema can read what a column means without asking.
+
+It runs today against three real workbooks covering 2024, 2025 and 2026, eight
+distinct column layouts, and roughly 8,000 employee lines. Ingestion from SharePoint
+is a skeleton waiting on the External Access Integration, so files currently arrive
+by hand.
 
 ---
 
@@ -58,7 +74,8 @@ real reason this project exists, not the manual effort itself.
 **SBI side:**
 - **Greg Wolszczak** – project lead and primary point of contact (not just
   solution engineer – see the 27 Aug kickoff where this was made explicit).
-- **Chhoraseth "Rasa" Chhort** – data engineering, owns the build.
+- **Chhoraseth "Raseth" Chhort** – data engineering, owns ingestion.
+- **Gerard Avena** – modelling and transformation.
 
 ### 3. Timeline: what was originally scoped vs. what actually happened
 
@@ -95,20 +112,25 @@ and real conversations with Antoine and Tess replaced assumption:
 
 - **Template structure.** The proposal assumed one uniform 67-column template
   across all 32 subsidiaries, confirmed by Antoine. Actual analysis of three
-  real dummy files found **seven distinct column layouts** (67 to 96 columns,
-  spanning 2024–2026) – see `transformation/reference_data/header_map/`. Not
-  a contradiction of what Antoine said (subsidiary templates probably are
-  standardised), but the three files available don't yet prove it across all
-  32 subsidiaries. Still open – see section 6.
+  real files found **eight distinct column layouts** (64 to 96 columns,
+  spanning 2024–2026), seven of which are loaded – see
+  `transformation/reference_data/header_map/`. Not a contradiction of what
+  Antoine said (subsidiary templates probably are standardised), but the three
+  files available cover 19 subsidiary codes, not 32-plus. Still open – see
+  section 6.
 
 - **Data model.** The proposal's model was two fixed fact tables
   (`PAYROLL_MONTHLY_FACT`, `PAYROLL_BONUS_FACT`) with a hardcoded bonus-type
-  enum. What's actually being built is a single fact table
-  (`FACT_PAYROLL_COMPONENT`) driven by the HEADER_MAP reference data, with no
+  enum. What's built instead is a long fact driven by HEADER_MAP, with no
   hardcoded component list – because the real files showed components being
-  added, merged, and restructured across template generations in ways a fixed
-  enum can't absorb. See `transformation/docs/Qima_Payroll_Data_Model_Design.md`
-  for the full reasoning and the several rounds of redesign it went through.
+  added, merged and restructured across template generations in ways a fixed
+  enum can't absorb. It was a single `FACT_PAYROLL_COMPONENT` until 14
+  September, when it was split into `FACT_PAYROLL_PAYMENT` and
+  `FACT_PAYROLL_ENTITLEMENT` on `MEASURE_BASIS` – a closed set, unlike the
+  component list – with `PAYROLL_ATTRIBUTE` for values that aren't measures at
+  all. `FACT_PAYROLL_COMPONENT` remains as a view over both. See
+  `transformation/docs/Qima_Payroll_Transformation_Design.md` for the full
+  reasoning and the rounds of redesign it went through.
 
 - **Employee identity.** The proposal treated SAP ID, name, join/leave date,
   and subsidiary as a block of unmasked "dimension" columns from the payroll
@@ -117,6 +139,10 @@ and real conversations with Antoine and Tess replaced assumption:
   employee resolves from Qima's HR system, except subsidiary, which Antoine
   confirmed must be captured as a point-in-time fact tied to the payment
   (monthly snapshot), not resolved live – because of mid-year transfers.
+  Qima's own data quality review, received 16 September, independently reaches
+  the same conclusion from the other direction: their HR extract is pulled at a
+  single date, so org data on older payroll rows shows where an employee sits
+  today rather than where they sat that month.
 
 - **Row-level security.** The proposal assumed a simple reuse of an existing
   RLS control table already live on Qima's employee table. The 20 August
@@ -138,45 +164,60 @@ and real conversations with Antoine and Tess replaced assumption:
   is lost even if a later submission corrects an earlier one – but what a
   business user sees as "current" is a separate, still-open question (the
   replacement policy, section 6).
+- **Nothing is enforced that can't be proven.** Snowflake doesn't enforce
+  primary keys, uniqueness or foreign keys, so each of those guarantees has a
+  query behind it in `transformation/tests/`.
 - **Isolation is structural, not procedural.** Payroll is a new domain in the
   same RBAC model Qima already uses (`Delivery/snowflake-RBAC`), and isolation
   is expressed the same way everything else in that model is isolated: the
   general `F_DE` role is simply never granted the PAYROLL domain's access
   roles.
 
-### 6. Open items – consolidated, current as of this repo's last update
+### 6. Open items – current as of 17 September 2026
 
-Several items were flagged back in June and are still unresolved two months
-later going into the August kickoff – worth tracking as a pattern, not just a
-list, since it suggests these need direct follow-up rather than another round
-of async flagging:
+Qima answered a long list of interpretation questions on 15 and 16 September, so
+this section is shorter than it was. What follows is what remains.
+
+**Settled since the June list:** transformation tooling is plain SQL, not dbt.
+Masking format was agreed verbally on 15 September but still needs writing down.
+The recurring error-case list from the current consolidation script arrived on 16
+September as Qima's own data quality framework.
 
 **Commercial / scope, needs Qima in writing:**
-- FX normalisation out of scope – flagged in June, still not formally confirmed.
-- GDPR compliance implementation out of scope – same status.
+- FX normalisation. Flagged out of scope in June, but Qima's September answers
+  assume conversion to USD at finance's monthly rate, so this needs settling
+  rather than assuming. Nothing about deferring it is expensive later – every
+  amount is stored in its source currency.
+- GDPR compliance implementation out of scope – still not formally confirmed.
 - Historical data backfill out of scope – same status.
 - Parallel-run scope and comparison ownership vs. the existing Python script.
 
-**Business rules, needs Tess/HR:**
-- Masking format for hidden values (NULL vs. token) – flagged in June, still open.
-- Whether all amount fields are treated identically for masking.
-- Aggregation requirement / minimum group size (relevant to Snowflake
-  Intelligence risk specifically – see `security/tests/README.md`).
-- Recurring error-case list from the current consolidation script.
+**Business rules, needs Tess / HR:**
+- Two columns sit under a band that contradicts their own header – whether our
+  reading of each is right.
+- Whether the ad hoc and auditor bonus columns are unused or simply unfilled.
+- Whether an agency fee should take the employee's contract currency.
+- Finance category per pay component, and which components are fixed versus
+  variable. Not derivable – a Max column appears on the fixed schemes too.
+- Aggregation requirement / minimum group size.
 
 **Platform / technical, needs Antoine:**
-- Snowflake edition (Enterprise or higher) – needed for tag-based
-  classification, if that's still pursued; flagged in June, still open.
+- Snowflake edition. Enterprise is required for masking and row access, not just
+  for tag-based classification.
+- When their Asia consolidated file and a dedicated entity file both contain the
+  same employee, which one we load. Their own review flags this as undecided; if
+  both are loaded, salary double counts.
+- Whether their HR extract can be delivered as a monthly snapshot rather than a
+  single-date pull, so org data on historical rows is correct.
 - Alerting mechanism Qima's audit alerts should plug into.
 - Monthly expected file count, for completeness checking.
 - Folder-to-owner contact list, for error alerting.
-- Whether HEADER_MAP's seven observed generations are representative of all
-  32 subsidiaries, or just the three sampled.
+- Whether eight observed column layouts across three workbooks are representative
+  of all subsidiaries.
 - Change-management process for template changes – currently nonexistent
   (see `ingestion/docs/Qima_Payroll_Input_Data_Contract.md` section 7).
 
 **Build-level, ours to decide but not yet decided:**
-- dbt vs. plain SQL/Snowpark for transformation.
 - Replacement policy: does a corrected resubmission overwrite silently, or
   surface as a visible restatement.
 - Whether extraction fails an entire file or allows partial (sheet-level)
@@ -190,8 +231,11 @@ of async flagging:
 This section is the orientation, not the source of truth for any one decision.
 For the real detail:
 - `ingestion/docs/` – ingestion/extraction design, input data contract.
-- `transformation/docs/` – data model design, including the discriminating-key
-  and subsidiary-as-frozen-fact reasoning.
-- `security/*/README.md` – status of RBAC, masking, row access work.
+- `transformation/docs/Qima_Payroll_Transformation_Design.md` – the model, the
+  reasoning behind the split, and the decisions taken with Qima along the way.
+- `transformation/reference_data/header_map/header_map_review.md` – how the
+  column layouts were derived from the real files.
+- `transformation/tests/` – the reconciliation and proof queries, and the
+  recorded results.
 - `Delivery/` – what Qima gave us: their existing Dagster setup, their RBAC
   conventions, architecture docs. Reference only, not edited.

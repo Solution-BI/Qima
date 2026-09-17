@@ -6,8 +6,8 @@ creds and account details.txt
 *.pem
 *.p8
 
-# Snowflake CLI / connector local state
-.snowflake/connections.toml
+# Snowflake CLI / connector local state, and the tooling scratch that lives with it
+.snowflake/
 config.toml
 
 # Python
