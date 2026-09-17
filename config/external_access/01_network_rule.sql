@@ -20,5 +20,5 @@ CREATE OR REPLACE NETWORK RULE SHAREPOINT_HR_PAYROLL_NETWORK_RULE
         'graph.microsoft.com',
         'login.microsoftonline.com',
         'learnfabricsbi.sharepoint.com',
-        'https://qimakv.vault.azure.net/'
+        'qimakv.vault.azure.net'
     );
