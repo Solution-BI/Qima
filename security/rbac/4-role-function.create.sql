@@ -32,27 +32,25 @@ create role if not exists F_HR_PAYROLL_DA
 -- ETL gets O, which by the ladder confers W and R as well - it has to create
 -- and load objects across all three schemas.
 --
--- DA gets R. Note this is read on the whole database, including RAW, which
--- holds the ingested workbook content in the clear. If consumers should see
--- published reporting only, create a schema-scoped role instead:
+-- DA gets GOLD_R, not R. R carries read on RAW, which holds each submitted
+-- workbook as extracted JSON: every amount for every employee, in the clear,
+-- before any masking policy applies. A reporting consumer has no business
+-- there. GOLD_R is created in script 3b.
 --
---   use role F_HR_PAYROLL_DBA;
---   create database role if not exists HR_PAYROLL.GOLD_R;
---   grant usage  on schema HR_PAYROLL.GOLD to database role HR_PAYROLL.GOLD_R;
---   grant select on future views in schema HR_PAYROLL.GOLD to database role HR_PAYROLL.GOLD_R;
---   grant select on all views    in schema HR_PAYROLL.GOLD to database role HR_PAYROLL.GOLD_R;
---
--- and grant GOLD_R to F_HR_PAYROLL_DA rather than R. Section 4a of the naming
--- convention covers this pattern.
+-- If GOLD_R does not exist yet, grant R and accept that consumers can reach
+-- RAW - but know that is the trade being made, rather than discovering it
+-- later.
 -- ---------------------------------------------------------------------------
 use role SECURITYADMIN;
 
-grant database role HR_PAYROLL.O to role F_HR_PAYROLL_ETL;
-grant database role HR_PAYROLL.R to role F_HR_PAYROLL_DA;
+grant database role HR_PAYROLL.O      to role F_HR_PAYROLL_ETL;
+grant database role HR_PAYROLL.GOLD_R to role F_HR_PAYROLL_DA;
 
--- Compute. Replace the name once the payroll warehouse exists.
--- grant role A_HR_PAYROLL_WH_U to role F_HR_PAYROLL_ETL;
--- grant role A_HR_PAYROLL_WH_U to role F_HR_PAYROLL_DA;
+-- Compute, from script 6. Until that has run, both roles fall back to
+-- BI_WAREHOUSE, which exposes payroll query text to anyone holding MONITOR
+-- on it.
+grant role A_HR_PAYROLL_WH_U to role F_HR_PAYROLL_ETL;
+grant role A_HR_PAYROLL_WH_U to role F_HR_PAYROLL_DA;
 
 grant role F_HR_PAYROLL_ETL to role SYSADMIN;
 grant role F_HR_PAYROLL_DA  to role SYSADMIN;

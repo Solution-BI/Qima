@@ -8,14 +8,21 @@ repository works. They are not migrations and nothing here runs itself.
 
 ## Run order
 
-| Script | Creates | Needs role |
-|---|---|---|
-| `1-database.create.sql` | database + `F_HR_PAYROLL_DBA` | `SYSADMIN`, `USERADMIN`, `SECURITYADMIN` |
-| `2-role-access.create.sql` | `A` / `O` / `W` / `R` and the ladder | `F_HR_PAYROLL_DBA` |
-| `3-schema.create.sql` | schemas, grants, future grants | `F_HR_PAYROLL_DBA` |
-| `4-role-function.create.sql` | `F_*` roles granted to people | `USERADMIN`, `SECURITYADMIN` |
-| `5-user.create.sql` | service user, user grants | `USERADMIN`, `SECURITYADMIN` |
-| `9-verify.sql` | reads only — what exists and who can reach it | any |
+| Script | Creates | Needs role | Run? |
+|---|---|---|---|
+| `1-database.create.sql` | database + `F_HR_PAYROLL_DBA` | `SYSADMIN`, `USERADMIN`, `SECURITYADMIN` | already satisfied |
+| `2-role-access.create.sql` | `A` / `O` / `W` / `R` and the ladder | `F_HR_PAYROLL_DBA` | already satisfied |
+| `3-schema.create.sql` | schemas, descriptions, grants, future grants | `F_HR_PAYROLL_DBA` | **ours, partly outstanding** |
+| `3b-schema-read-roles.create.sql` | `GOLD_R`, reporting-only read | `F_HR_PAYROLL_DBA` | **ours, not yet run** |
+| `4-role-function.create.sql` | `F_*` roles granted to people | `USERADMIN`, `SECURITYADMIN` | not ours |
+| `5-user.create.sql` | service user, user grants | `USERADMIN`, `SECURITYADMIN` | not ours |
+| `6-warehouse.create.sql` | dedicated warehouse + usage role | `SYSADMIN`, `USERADMIN` | not ours |
+| `9-verify.sql` | reads only — what exists and who can reach it | any | any time |
+
+Every object these scripts create carries a `COMMENT`, so the account explains
+itself to anyone browsing it in Snowsight rather than only to whoever has this
+repository open. Script 3 also sets descriptions on `RAW`, `SILVER` and `GOLD`,
+which had none.
 
 ## State of HR_PAYROLL as at 18 September 2026
 
@@ -44,6 +51,11 @@ we do not hold.
 
 `3-schema.create.sql` grants all three. `A` owns the schemas and `F_HR_PAYROLL_DBA`
 holds `A`, so this does not need an account administrator.
+
+Proven on 18 September: a throwaway database role was created and dropped cleanly,
+and `CREATE SEQUENCE` was granted to `O` on `RAW` and verified. So the approach is
+tested, not assumed. The remaining eight grants are the same statement with
+different nouns.
 
 ## Who holds what today
 

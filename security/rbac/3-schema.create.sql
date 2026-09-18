@@ -12,11 +12,17 @@
 --   * on FUTURE objects  - what happens to things created later, without
 --                          anyone remembering to grant again
 --
--- As at 18 Sep 2026 on HR_PAYROLL, everything below is already in place for
--- RAW, SILVER and GOLD except the block marked MISSING. That block is what
--- blocks deployment of the payroll model and its masking policies.
+-- The second is what "specific roles when an object is created" means in
+-- practice. No new role per object: a table created next year is owned by O,
+-- writable by W and readable by R the moment it exists, because the rule was
+-- set here once.
 --
--- If a statement rejects IDENTIFIER($schema_cd), substitute the literal schema
+-- As at 18 Sep 2026 on HR_PAYROLL, everything below is already in place for
+-- RAW, SILVER and GOLD except the block marked MISSING, and the schema
+-- descriptions. CREATE SEQUENCE on RAW was granted and verified on 18 Sep.
+--
+-- IDENTIFIER($schema_cd) follows QIMA's own convention, which prefers it over
+-- hard-coded names. If a statement rejects it, substitute the literal schema
 -- name - the grant is the point, not the indirection.
 -- ===========================================================================
 
@@ -35,6 +41,24 @@ grant ownership on schema identifier($schema_cd)
     to database role HR_PAYROLL.A copy current grants;
 
 -- ---------------------------------------------------------------------------
+-- Descriptions.
+--
+-- Set on the schema itself so anyone browsing the database in Snowsight can
+-- see what each layer holds without opening this repository. The model's own
+-- tables and columns are described by transformation/sql/06_column_descriptions.
+--
+-- 👈 run the line matching $schema_cd above.
+-- ---------------------------------------------------------------------------
+alter schema HR_PAYROLL.RAW set comment =
+    'Landing layer. Holds each ingested payroll workbook as extracted JSON, one row per file version, plus the load history. Nothing here is interpreted - structure is applied in SILVER. Raw spreadsheets are never persisted beyond the moment it takes to read them.';
+
+-- alter schema HR_PAYROLL.SILVER set comment =
+--     'Modelled layer. One row per payroll value, interpreted through the HEADER_MAP reference data: payments, contractual rates and ceilings, scheme eligibility, and the descriptive attributes. Data quality findings live here too. Read GOLD rather than this layer for reporting.';
+
+-- alter schema HR_PAYROLL.GOLD set comment =
+--     'Reporting layer. Views over SILVER that apply the agreed exclusions - sample templates, rows held back by identity findings, and the currency rules - so a consumer does not have to know them. This is the layer to grant to reporting users.';
+
+-- ---------------------------------------------------------------------------
 -- MISSING as at 18 Sep 2026 - the three privileges O does not have.
 --
 --   create sequence            SEQ_MEASURE_ID, which both fact tables draw
@@ -44,7 +68,7 @@ grant ownership on schema identifier($schema_cd)
 --   create row access policy   blocks the row access work agreed on 20 Aug.
 --
 -- A owns the schema, and F_HR_PAYROLL_DBA holds A, so this needs no account
--- administrator.
+-- administrator. Proven on RAW on 18 Sep: create sequence granted and verified.
 -- ---------------------------------------------------------------------------
 grant create sequence          on schema identifier($schema_cd) to database role HR_PAYROLL.O;
 grant create masking policy    on schema identifier($schema_cd) to database role HR_PAYROLL.O;
@@ -65,13 +89,13 @@ grant create procedure          on schema identifier($schema_cd) to database rol
 grant create function           on schema identifier($schema_cd) to database role HR_PAYROLL.O;
 grant create pipe               on schema identifier($schema_cd) to database role HR_PAYROLL.O;
 
-grant ownership on future tables     in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future views      in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future stages     in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future tasks      in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future procedures in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future functions  in schema identifier($schema_cd) to database role HR_PAYROLL.O;
-grant ownership on future streams    in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future tables       in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future views        in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future stages       in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future tasks        in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future procedures   in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future functions    in schema identifier($schema_cd) to database role HR_PAYROLL.O;
+grant ownership on future streams      in schema identifier($schema_cd) to database role HR_PAYROLL.O;
 grant ownership on future file formats in schema identifier($schema_cd) to database role HR_PAYROLL.O;
 
 -- ---------------------------------------------------------------------------
@@ -88,6 +112,10 @@ grant operate on all tasks    in schema identifier($schema_cd) to database role 
 
 -- ---------------------------------------------------------------------------
 -- R - read
+--
+-- Note this is read on the whole schema. For a consumer who should see
+-- published reporting only, use the schema-scoped role in 3b rather than
+-- granting R.
 -- ---------------------------------------------------------------------------
 grant usage  on schema identifier($schema_cd) to database role HR_PAYROLL.R;
 grant select on future tables  in schema identifier($schema_cd) to database role HR_PAYROLL.R;
@@ -105,8 +133,10 @@ grant read   on future stages in schema identifier($schema_cd) to database role 
 -- ---------------------------------------------------------------------------
 show grants to database role HR_PAYROLL.O;
 show future grants in schema identifier($schema_cd);
+show schemas in database HR_PAYROLL;
 -- [x] O can create sequence, masking policy and row access policy
 -- [x] future tables select to R, DML to W, ownership to O
+-- [x] the schema carries a description
 
 -- ---------------------------------------------------------------------------
 -- Undo, for reference.
