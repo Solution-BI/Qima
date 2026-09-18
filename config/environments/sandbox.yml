@@ -15,6 +15,9 @@ sharepoint_client_id: f1343367-3e3a-4ab0-8438-e72f261a6994
 sharepoint_site_id: learnfabricsbi.sharepoint.com,5cfbd818-9daa-43e7-9676-7e69ccdbd7a0,859f7104-aaf6-4d0b-8cd3-30a1bc521983
 sharepoint_drive_id: b!GNj7XKqd50OWdn5pzNvXoARxn4X2qgtNjNMwobxSGYOsH0CrHyfVRYKr4I5Z_tXk
 sharepoint_folder_path: Payroll files
+azure_key_vault: 'https://qimakv.vault.azure.net'
+
+
 # client secret is NOT stored here -- it lives in Snowflake as a SECRET object.
 # See config/external_access/02_secret.sql to create it.
 sharepoint_domain: learnfabricsbi.sharepoint.com
