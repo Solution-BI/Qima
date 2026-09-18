@@ -96,7 +96,8 @@ rejected – use `ALTER MASKING POLICY ... SET BODY`. `PAYROLL_ROW.ROW_DATA` and
 `DQ_FLAG.RAW_VALUE` are covered because both can carry an amount in the clear.
 `RAW_CONTENT` at the ingestion layer is not covered yet.
 
-Masking and row access policies both require Snowflake Enterprise edition.
+Masking and row access policies both require Snowflake Enterprise edition, which
+QIMA confirmed on 18 September.
 
 ## RBAC convention
 
@@ -116,7 +117,8 @@ PAYROLL domain's access roles. The scripts for this are not written yet.
   placeholders and the SQL still hardcodes sandbox names.
 - HEADER_MAP has seen eight column layouts across three workbooks, covering 19
   subsidiary codes out of the sixty-odd on the roster. Not confirmed representative.
-- Confirmation that the target account is Enterprise edition.
+- A dedicated payroll warehouse, the payroll functional roles, and the service
+  account the scheduled task runs as. All need account-level rights we do not hold.
 - When Qima's Asia consolidated file and a dedicated entity file both contain the
   same employee, which one we load. Unresolved on their side; until it is, loading
   both would double count.

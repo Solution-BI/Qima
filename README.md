@@ -202,8 +202,9 @@ September as Qima's own data quality framework.
 - Aggregation requirement / minimum group size.
 
 **Platform / technical, needs Antoine:**
-- Snowflake edition. Enterprise is required for masking and row access, not just
-  for tag-based classification.
+- A dedicated payroll warehouse, the functional roles that get granted to people,
+  and the service account the scheduled task runs as. All three need account-level
+  rights we do not hold — see `security/rbac/`.
 - When their Asia consolidated file and a dedicated entity file both contain the
   same employee, which one we load. Their own review flags this as undecided; if
   both are loaded, salary double counts.
